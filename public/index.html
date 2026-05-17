@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ApplyU — Find Your College Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#06080F;
+  --surface:#0D1120;
+  --card:#111827;
+  --card-hover:#161E30;
+  --border:rgba(255,255,255,0.06);
+  --border-bright:rgba(255,255,255,0.12);
+  --p1:#6C63FF;--p2:#A78BFA;--p3:#C4B5FD;
+  --g1:#34D399;--g2:#6EE7B7;
+  --a1:#F59E0B;--a2:#FCD34D;
+  --r1:#F87171;
+  --b1:#60A5FA;
+  --text:#F1F5F9;--text-muted:#94A3B8;--text-dim:#475569;
+  --radius:10px;--radius-lg:16px;--radius-xl:24px;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Cabinet Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── MESH BG ── */
+.mesh{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.mesh::before{content:'';position:absolute;width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(108,99,255,0.12) 0%,transparent 70%);top:-200px;left:-200px;animation:drift 18s ease-in-out infinite alternate;}
+.mesh::after{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,0.08) 0%,transparent 70%);bottom:-100px;right:-100px;animation:drift2 22s ease-in-out infinite alternate;}
+@keyframes drift{0%{transform:translate(0,0);}100%{transform:translate(80px,60px);}}
+@keyframes drift2{0%{transform:translate(0,0);}100%{transform:translate(-60px,-40px);}}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(6,8,15,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:-0.02em;display:flex;align-items:center;gap:0.1rem;}
+.logo-u{color:var(--p2);}
+.logo-dot{width:6px;height:6px;border-radius:50%;background:var(--g1);margin-left:2px;margin-bottom:6px;}
+.nav-cta{background:var(--p1);color:#fff;font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:0.85rem;padding:0.5rem 1.2rem;border-radius:99px;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.01em;}
+.nav-cta:hover{background:#7C74FF;transform:translateY(-1px);}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:1;text-align:center;padding:7rem 2rem 5rem;max-width:900px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:0.4rem;background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.3);border-radius:99px;padding:0.3rem 0.85rem;font-size:0.75rem;font-weight:700;color:var(--p3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:1.8rem;}
+.hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--g1);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
+.hero h1{font-family:'Clash Display',sans-serif;font-size:clamp(2.8rem,6vw,5rem);font-weight:700;line-height:1.05;letter-spacing:-0.03em;margin-bottom:1.4rem;}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--p2),var(--g1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{font-size:1.15rem;color:var(--text-muted);line-height:1.7;max-width:560px;margin:0 auto 2.5rem;}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,var(--p1),#8B83FF);color:#fff;font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1rem;padding:0.85rem 2rem;border-radius:99px;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 0 30px rgba(108,99,255,0.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(108,99,255,0.4);}
+.btn-ghost{background:transparent;color:var(--text-muted);font-family:'Cabinet Grotesk',sans-serif;font-weight:600;font-size:1rem;padding:0.85rem 2rem;border-radius:99px;border:1px solid var(--border-bright);cursor:pointer;transition:all 0.2s;}
+.btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.25);}
+
+/* ── STATS STRIP ── */
+.stats-strip{position:relative;z-index:1;display:flex;justify-content:center;gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(13,17,32,0.6);}
+.stat-item{flex:1;max-width:200px;text-align:center;padding:1.5rem 1rem;border-right:1px solid var(--border);}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-family:'Clash Display',sans-serif;font-size:1.9rem;font-weight:700;background:linear-gradient(135deg,var(--p2),var(--g1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.stat-lbl{font-size:0.73rem;color:var(--text-dim);letter-spacing:0.05em;text-transform:uppercase;margin-top:0.2rem;}
+
+/* ── FEATURES ── */
+.features{position:relative;z-index:1;padding:5rem 2rem;max-width:1100px;margin:0 auto;}
+.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--p2);margin-bottom:0.7rem;}
+.section-title{font-family:'Clash Display',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;letter-spacing:-0.02em;margin-bottom:1rem;}
+.section-sub{font-size:1rem;color:var(--text-muted);line-height:1.7;max-width:500px;margin-bottom:3rem;}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem;}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;transition:all 0.2s;position:relative;overflow:hidden;}
+.feat-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.3s;}
+.feat-card:hover{border-color:var(--border-bright);background:var(--card-hover);}
+.feat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:1rem;}
+.feat-icon.purple{background:rgba(108,99,255,0.15);}
+.feat-icon.green{background:rgba(52,211,153,0.12);}
+.feat-icon.amber{background:rgba(245,158,11,0.12);}
+.feat-icon.blue{background:rgba(96,165,250,0.12);}
+.feat-card h3{font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:600;margin-bottom:0.5rem;}
+.feat-card p{font-size:0.85rem;color:var(--text-muted);line-height:1.6;}
+.pro-badge{display:inline-block;background:linear-gradient(135deg,rgba(108,99,255,0.25),rgba(52,211,153,0.15));border:1px solid rgba(108,99,255,0.4);color:var(--p3);font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:99px;margin-left:0.5rem;vertical-align:middle;}
+
+/* ── PRICING ── */
+.pricing{position:relative;z-index:1;padding:5rem 2rem;max-width:900px;margin:0 auto;text-align:center;}
+.pricing-cards{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:2.5rem;text-align:left;}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem;}
+.price-card.featured{background:linear-gradient(135deg,rgba(108,99,255,0.12),rgba(52,211,153,0.06));border-color:rgba(108,99,255,0.35);position:relative;}
+.featured-tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--p1),#7C74FF);color:#fff;font-size:0.7rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:0.3rem 1rem;border-radius:99px;white-space:nowrap;}
+.price-tier{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.5rem;}
+.price-card.featured .price-tier{color:var(--p3);}
+.price-amount{font-family:'Clash Display',sans-serif;font-size:3rem;font-weight:700;letter-spacing:-0.03em;margin-bottom:0.3rem;}
+.price-amount span{font-size:1rem;font-weight:500;color:var(--text-muted);vertical-align:middle;}
+.price-desc{font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.5;}
+.price-items{list-style:none;display:flex;flex-direction:column;gap:0.65rem;margin-bottom:2rem;}
+.price-items li{display:flex;align-items:flex-start;gap:0.6rem;font-size:0.87rem;color:var(--text-muted);}
+.price-items li::before{content:'✓';color:var(--g1);font-weight:800;flex-shrink:0;margin-top:1px;}
+.price-items li.muted::before{content:'—';color:var(--text-dim);}
+.price-items li.muted{color:var(--text-dim);}
+.btn-price{width:100%;padding:0.85rem;border-radius:99px;border:none;font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:0.95rem;cursor:pointer;transition:all 0.2s;}
+.btn-price.free{background:transparent;border:1px solid var(--border-bright);color:var(--text-muted);}
+.btn-price.free:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
+.btn-price.pro{background:linear-gradient(135deg,var(--p1),#8B83FF);color:#fff;box-shadow:0 0 25px rgba(108,99,255,0.3);}
+.btn-price.pro:hover{transform:translateY(-1px);box-shadow:0 8px 35px rgba(108,99,255,0.45);}
+
+/* ── APP SECTION ── */
+#app{position:relative;z-index:1;display:none;}
+#app.active{display:block;}
+.app-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:64px;z-index:50;}
+.app-nav-left{display:flex;align-items:center;gap:0.6rem;}
+.back-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-family:'Cabinet Grotesk',sans-serif;font-size:0.8rem;padding:0.3rem 0.8rem;border-radius:99px;cursor:pointer;transition:all 0.2s;}
+.back-btn:hover{border-color:var(--border-bright);color:var(--text);}
+.app-title{font-family:'Clash Display',sans-serif;font-size:0.95rem;font-weight:600;color:var(--text-muted);}
+.match-pill{background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);color:var(--p3);font-size:0.78rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:99px;}
+
+.app-layout{display:flex;height:calc(100vh - 120px);overflow:hidden;}
+.sidebar{width:330px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1.25rem 1rem 2rem;display:flex;flex-direction:column;gap:0.85rem;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:99px;}
+.s-block{display:flex;flex-direction:column;gap:0.55rem;}
+.s-label{font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--p2);}
+.s-sub{font-size:0.78rem;color:var(--text-dim);}
+.field{display:flex;flex-direction:column;gap:0.25rem;}
+.field label{font-size:0.74rem;font-weight:500;color:var(--text-muted);}
+.field input,.field select{font-family:'Cabinet Grotesk',sans-serif;font-size:0.88rem;color:var(--text);background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:0.5rem 0.75rem;outline:none;width:100%;transition:border-color 0.2s;}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.75rem center;padding-right:2rem;-webkit-appearance:none;background-color:var(--card);}
+.field select option{background:var(--card);}
+.field input:focus,.field select:focus{border-color:var(--p1);}
+.score-row{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;}
+.hint{font-size:0.67rem;color:var(--text-dim);}
+.err-msg{font-size:0.67rem;color:var(--r1);display:none;}
+.show-err .err-msg{display:block;}
+.show-err .hint{display:none;}
+.show-err input{border-color:var(--r1) !important;}
+.slider-wrap{display:flex;flex-direction:column;gap:0.28rem;}
+.slider-top{display:flex;justify-content:space-between;align-items:baseline;}
+.slabel{font-size:0.73rem;color:var(--text-muted);}
+.sval{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--p2);}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;border-radius:99px;background:var(--border-bright);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--p1);border:2px solid var(--bg);cursor:grab;}
+.pills{display:flex;flex-wrap:wrap;gap:0.3rem;}
+.pill-opt input[type=checkbox],.pill-opt input[type=radio]{display:none;}
+.pill-opt label{padding:0.25rem 0.65rem;border-radius:99px;border:1px solid var(--border-bright);font-size:0.72rem;font-weight:600;color:var(--text-dim);cursor:pointer;transition:all 0.15s;user-select:none;}
+.pill-opt input:checked+label{background:rgba(108,99,255,0.18);border-color:rgba(108,99,255,0.5);color:var(--p3);}
+.ec-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;}
+.ec-card{border:1.5px solid var(--border);border-radius:var(--radius);padding:0.48rem 0.55rem;cursor:pointer;display:flex;align-items:center;gap:0.38rem;transition:all 0.15s;background:var(--card);user-select:none;}
+.ec-card:hover{border-color:var(--border-bright);}
+.ec-card.sel{border-color:rgba(108,99,255,0.5);background:rgba(108,99,255,0.08);}
+.ec-icon{font-size:0.95rem;line-height:1;flex-shrink:0;}
+.ec-name{font-size:0.71rem;font-weight:600;color:var(--text);line-height:1.25;}
+.ec-sub{font-size:0.6rem;color:var(--text-dim);}
+.ec-card.sel .ec-name{color:var(--p3);}
+.lp-pills{display:flex;gap:0.28rem;}
+.lp input[type=radio]{display:none;}
+.lp label{padding:0.22rem 0.6rem;border-radius:99px;border:1px solid var(--border-bright);font-size:0.69rem;font-weight:600;color:var(--text-dim);cursor:pointer;transition:all 0.15s;}
+.lp input:checked+label{background:rgba(245,158,11,0.18);border-color:rgba(245,158,11,0.5);color:var(--a2);}
+.divider{height:1px;background:var(--border);}
+.find-btn{width:100%;padding:0.8rem;background:linear-gradient(135deg,var(--p1),#8B83FF);color:#fff;font-family:'Cabinet Grotesk',sans-serif;font-size:0.92rem;font-weight:800;border:none;border-radius:99px;cursor:pointer;transition:all 0.2s;box-shadow:0 0 20px rgba(108,99,255,0.25);}
+.find-btn:hover{transform:translateY(-1px);box-shadow:0 6px 30px rgba(108,99,255,0.4);}
+.reset-btn{width:100%;padding:0.45rem;background:transparent;color:var(--text-dim);font-family:'Cabinet Grotesk',sans-serif;font-size:0.76rem;border:1px solid var(--border);border-radius:99px;cursor:pointer;transition:all 0.15s;}
+.reset-btn:hover{border-color:var(--border-bright);color:var(--text-muted);}
+
+/* results */
+.results-panel{flex:1;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:0.8rem;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.results-panel::-webkit-scrollbar{width:3px;}
+.results-panel::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:99px;}
+.res-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);}
+.res-header h2{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;}
+.sort-row{display:flex;align-items:center;gap:0.4rem;}
+.sort-row label{font-size:0.72rem;color:var(--text-muted);}
+.sort-row select{font-family:'Cabinet Grotesk',sans-serif;font-size:0.75rem;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:6px;padding:0.24rem 1.6rem 0.24rem 0.5rem;outline:none;cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.4rem center;}
+.af{display:flex;flex-wrap:wrap;gap:0.28rem;margin-top:0.3rem;}
+.fc{font-size:0.65rem;font-weight:600;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.2);color:var(--p3);border-radius:99px;padding:0.14rem 0.5rem;}
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;gap:0.75rem;}
+.w-icon{font-size:3rem;margin-bottom:0.2rem;}
+.welcome h3{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;}
+.welcome p{font-size:0.86rem;color:var(--text-muted);max-width:340px;line-height:1.65;}
+.w-steps{display:flex;flex-direction:column;gap:0.4rem;width:100%;max-width:320px;margin-top:0.4rem;}
+.w-step{display:flex;align-items:center;gap:0.65rem;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:0.55rem 0.85rem;text-align:left;}
+.w-num{width:22px;height:22px;border-radius:50%;background:var(--p1);color:#fff;font-family:'Clash Display',sans-serif;font-size:0.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.w-step span{font-size:0.78rem;color:var(--text-muted);line-height:1.35;}
+
+/* college card */
+.ccard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.1rem;transition:all 0.2s;position:relative;overflow:hidden;animation:cin 0.25s ease both;cursor:pointer;}
+.ccard:hover{border-color:var(--border-bright);background:var(--card-hover);transform:translateY(-1px);}
+@keyframes cin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.cacc{position:absolute;left:0;top:0;bottom:0;width:3px;}
+.ctop{display:flex;align-items:flex-start;gap:0.8rem;margin-bottom:0.65rem;}
+.cinit{width:40px;height:40px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-size:0.82rem;font-weight:800;}
+.cinfo{flex:1;min-width:0;}
+.cname{font-family:'Clash Display',sans-serif;font-size:0.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cloc{font-size:0.72rem;color:var(--text-muted);margin-top:0.08rem;}
+.cpct{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:800;text-align:right;line-height:1;flex-shrink:0;}
+.cpct .pl{font-size:0.58rem;font-weight:500;font-family:'Cabinet Grotesk',sans-serif;display:block;margin-top:2px;color:var(--text-dim);}
+.band{display:inline-flex;align-items:center;gap:0.25rem;font-size:0.66rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:0.18rem 0.58rem;border-radius:99px;margin-bottom:0.5rem;}
+.b-certain{background:rgba(52,211,153,0.1);color:var(--g1);}
+.b-likely{background:rgba(96,165,250,0.1);color:var(--b1);}
+.b-possible{background:rgba(245,158,11,0.1);color:var(--a1);}
+.b-reach{background:rgba(248,113,113,0.1);color:var(--r1);}
+.ec-badge{display:inline-flex;align-items:center;gap:0.2rem;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.2);color:var(--p2);font-size:0.63rem;font-weight:700;padding:0.14rem 0.48rem;border-radius:99px;margin-left:0.3rem;}
+.cstats{display:flex;flex-wrap:wrap;gap:0.3rem;margin:0.4rem 0 0.5rem;}
+.sp{display:flex;align-items:center;gap:0.22rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:0.2rem 0.45rem;font-size:0.68rem;color:var(--text-dim);}
+.ctags{display:flex;flex-wrap:wrap;gap:0.25rem;}
+.tag{font-size:0.63rem;font-weight:500;padding:0.12rem 0.44rem;border-radius:99px;border:1px solid var(--border);color:var(--text-dim);}
+.tag.ta{border-color:rgba(52,211,153,0.25);color:var(--g1);}
+.tag.tf{border-color:rgba(245,158,11,0.25);color:var(--a1);}
+.tag.tp{border-color:rgba(248,113,113,0.25);color:var(--r1);}
+.tag.te{border-color:rgba(167,139,250,0.25);color:var(--p2);}
+.unlock-hint{margin-top:0.65rem;padding:0.5rem 0.7rem;background:rgba(108,99,255,0.08);border:1px dashed rgba(108,99,255,0.25);border-radius:8px;font-size:0.72rem;color:var(--p3);display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}
+.unlock-hint strong{font-weight:700;}
+.unlock-btn-sm{background:rgba(108,99,255,0.2);border:none;color:var(--p2);font-family:'Cabinet Grotesk',sans-serif;font-size:0.7rem;font-weight:700;padding:0.22rem 0.7rem;border-radius:99px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.unlock-btn-sm:hover{background:rgba(108,99,255,0.35);}
+.no-res{text-align:center;padding:3rem 2rem;color:var(--text-muted);}
+.no-res .ni{font-size:2.2rem;margin-bottom:0.6rem;}
+
+/* ad slot */
+.ad-slot{background:var(--card);border:1px dashed var(--border-bright);border-radius:var(--radius);padding:0.8rem 1rem;text-align:center;font-size:0.7rem;color:var(--text-dim);}
+.ad-slot strong{display:block;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.2rem;}
+
+/* ── PAYWALL OVERLAY ── */
+.overlay{position:fixed;inset:0;z-index:1000;background:rgba(6,8,15,0.88);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:1rem;}
+.overlay.open{display:flex;}
+.paywall-modal{background:var(--surface);border:1px solid rgba(108,99,255,0.25);border-radius:var(--radius-xl);max-width:560px;width:100%;max-height:90vh;overflow-y:auto;position:relative;animation:fadeUp 0.3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.modal-close{position:absolute;top:1rem;right:1rem;background:transparent;border:1px solid var(--border);color:var(--text-muted);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.modal-close:hover{border-color:var(--border-bright);color:var(--text);}
+.modal-header{padding:2rem 2rem 1rem;border-bottom:1px solid var(--border);}
+.modal-uni-name{font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:0.3rem;}
+.modal-match{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.8rem;}
+.modal-match-pct{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;}
+.modal-body{padding:1.5rem 2rem;}
+.preview-section{margin-bottom:1.5rem;}
+.preview-label{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem;}
+.gap-items{display:flex;flex-direction:column;gap:0.5rem;}
+.gap-item{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:8px;padding:0.6rem 0.85rem;}
+.gap-item-label{font-size:0.82rem;color:var(--text-muted);}
+.gap-item-status{font-size:0.75rem;font-weight:700;padding:0.18rem 0.6rem;border-radius:99px;}
+.status-good{background:rgba(52,211,153,0.12);color:var(--g1);}
+.status-ok{background:rgba(245,158,11,0.12);color:var(--a1);}
+.status-gap{background:rgba(248,113,113,0.12);color:var(--r1);}
+.blur-section{position:relative;margin-bottom:1.5rem;}
+.blur-content{filter:blur(5px);pointer-events:none;user-select:none;opacity:0.6;}
+.blur-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.6rem;text-align:center;}
+.lock-icon{font-size:1.8rem;}
+.blur-msg{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;color:var(--text);}
+.blur-sub{font-size:0.82rem;color:var(--text-muted);}
+.blur-items{display:flex;flex-direction:column;gap:0.5rem;}
+.blur-item{background:var(--card);border-radius:8px;padding:0.65rem 0.85rem;font-size:0.82rem;color:var(--text-muted);}
+.cta-box{background:linear-gradient(135deg,rgba(108,99,255,0.15),rgba(52,211,153,0.08));border:1px solid rgba(108,99,255,0.3);border-radius:var(--radius-lg);padding:1.5rem;text-align:center;}
+.cta-price-row{display:flex;align-items:baseline;justify-content:center;gap:0.4rem;margin-bottom:0.4rem;}
+.cta-price{font-family:'Clash Display',sans-serif;font-size:2.8rem;font-weight:700;}
+.cta-price-old{font-size:1rem;color:var(--text-dim);text-decoration:line-through;}
+.cta-desc{font-size:0.82rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.5;}
+.cta-includes{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;text-align:left;margin-bottom:1.5rem;}
+.ci{font-size:0.78rem;color:var(--text-muted);display:flex;align-items:flex-start;gap:0.4rem;}
+.ci::before{content:'✓';color:var(--g1);font-weight:800;flex-shrink:0;}
+.unlock-main-btn{width:100%;padding:0.9rem;background:linear-gradient(135deg,var(--p1),#8B83FF);color:#fff;font-family:'Cabinet Grotesk',sans-serif;font-size:1.05rem;font-weight:800;border:none;border-radius:99px;cursor:pointer;transition:all 0.2s;box-shadow:0 0 25px rgba(108,99,255,0.3);}
+.unlock-main-btn:hover{transform:translateY(-1px);box-shadow:0 8px 35px rgba(108,99,255,0.45);}
+.secure-note{font-size:0.72rem;color:var(--text-dim);margin-top:0.6rem;}
+
+/* ── AI REPORT ── */
+.report-overlay{position:fixed;inset:0;z-index:2000;background:rgba(6,8,15,0.92);backdrop-filter:blur(16px);display:none;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;}
+.report-overlay.open{display:flex;}
+.report-modal{background:var(--surface);border:1px solid rgba(108,99,255,0.2);border-radius:var(--radius-xl);max-width:680px;width:100%;animation:fadeUp 0.3s ease;}
+.report-header{background:linear-gradient(135deg,rgba(108,99,255,0.15),rgba(52,211,153,0.08));border-bottom:1px solid rgba(108,99,255,0.15);padding:1.75rem 2rem;border-radius:var(--radius-xl) var(--radius-xl) 0 0;position:relative;}
+.report-close{position:absolute;top:1rem;right:1rem;background:transparent;border:1px solid var(--border);color:var(--text-muted);width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all 0.15s;}
+.report-close:hover{border-color:var(--border-bright);color:var(--text);}
+.report-uni{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;margin-bottom:0.3rem;}
+.report-subtitle{font-size:0.82rem;color:var(--text-muted);}
+.report-body{padding:2rem;}
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;gap:1rem;text-align:center;}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--p1);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-msg{font-size:0.88rem;color:var(--text-muted);}
+.loading-submsg{font-size:0.78rem;color:var(--text-dim);}
+.report-content{display:none;}
+.report-content.visible{display:block;}
+.report-section{margin-bottom:2rem;}
+.rs-label{font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--p2);margin-bottom:0.8rem;}
+.rs-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:600;margin-bottom:0.6rem;}
+.rs-text{font-size:0.88rem;color:var(--text-muted);line-height:1.75;}
+.score-bars{display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem;}
+.score-bar-item{display:flex;flex-direction:column;gap:0.3rem;}
+.sbi-top{display:flex;justify-content:space-between;align-items:baseline;}
+.sbi-label{font-size:0.8rem;color:var(--text-muted);}
+.sbi-val{font-size:0.78rem;font-weight:700;}
+.sbi-track{height:6px;border-radius:99px;background:var(--border-bright);overflow:hidden;}
+.sbi-fill{height:100%;border-radius:99px;transition:width 1s ease;}
+.sbi-fill.good{background:linear-gradient(90deg,var(--g1),var(--g2));}
+.sbi-fill.ok{background:linear-gradient(90deg,var(--a1),var(--a2));}
+.sbi-fill.gap{background:linear-gradient(90deg,#EF4444,var(--r1));}
+.action-items{display:flex;flex-direction:column;gap:0.7rem;}
+.action-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:0.85rem 1rem;display:flex;gap:0.75rem;align-items:flex-start;}
+.ai-num{width:24px;height:24px;border-radius:50%;background:rgba(108,99,255,0.2);color:var(--p2);font-family:'Clash Display',sans-serif;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ai-text{font-size:0.84rem;color:var(--text-muted);line-height:1.6;}
+.timeline-grid{display:flex;flex-direction:column;gap:0.6rem;}
+.tl-item{display:flex;gap:0.85rem;align-items:flex-start;}
+.tl-grade{font-family:'Clash Display',sans-serif;font-size:0.72rem;font-weight:700;color:var(--p3);background:rgba(108,99,255,0.12);padding:0.2rem 0.55rem;border-radius:99px;white-space:nowrap;flex-shrink:0;margin-top:1px;}
+.tl-text{font-size:0.83rem;color:var(--text-muted);line-height:1.6;}
+.essay-prompts{display:flex;flex-direction:column;gap:0.6rem;}
+.essay-prompt{background:var(--card);border-left:3px solid var(--p1);border-radius:0 var(--radius) var(--radius) 0;padding:0.75rem 1rem;}
+.ep-tag{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--p2);margin-bottom:0.3rem;}
+.ep-text{font-size:0.83rem;color:var(--text-muted);line-height:1.55;}
+.report-footer{border-top:1px solid var(--border);padding:1.25rem 2rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;}
+.report-footer-note{font-size:0.75rem;color:var(--text-dim);}
+.download-btn{background:transparent;border:1px solid var(--border-bright);color:var(--text-muted);font-family:'Cabinet Grotesk',sans-serif;font-size:0.82rem;font-weight:600;padding:0.45rem 1.1rem;border-radius:99px;cursor:pointer;transition:all 0.15s;}
+.download-btn:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
+
+@media(max-width:768px){
+  .app-layout{flex-direction:column;height:auto;overflow:visible;}
+  .sidebar{width:100%;min-width:unset;height:auto;overflow:visible;}
+  .results-panel{padding:1rem;}
+  .pricing-cards{grid-template-columns:1fr;}
+  .cta-includes{grid-template-columns:1fr;}
+  .modal-body{padding:1.25rem 1.25rem;}
+  .modal-header{padding:1.5rem 1.25rem 1rem;}
+  .report-body{padding:1.25rem;}
+  .report-header{padding:1.25rem;}
+}
+</style>
+</head>
+<body>
+<div class="mesh"></div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- LANDING PAGE -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="landing">
+
+<nav>
+  <div class="logo">Apply<span class="logo-u">U</span><span class="logo-dot"></span></div>
+  <button class="nav-cta" onclick="showApp()">Try Free →</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge"><span></span> Now Live — Free for All Students</div>
+  <h1>Get into the college<br/>you <em>actually deserve</em></h1>
+  <p>Enter your GPA, scores, and activities — ApplyU matches you with schools where you'll get in, and shows you exactly what to do to level up.</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="showApp()">Find My Matches — Free</button>
+    <button class="btn-ghost" onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">See ApplyU Pro →</button>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="stat-item"><div class="stat-num">1,200+</div><div class="stat-lbl">Colleges in Database</div></div>
+  <div class="stat-item"><div class="stat-num">Free</div><div class="stat-lbl">College Matcher</div></div>
+  <div class="stat-item"><div class="stat-num">AI</div><div class="stat-lbl">Powered Reports</div></div>
+  <div class="stat-item"><div class="stat-num">$19</div><div class="stat-lbl">One-Time Pro Unlock</div></div>
+</div>
+
+<section class="features">
+  <div class="section-label">What You Get</div>
+  <div class="section-title">Everything you need<br/>to get in.</div>
+  <div class="section-sub">Free tools to find your match. Pro tools to lock it in.</div>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon purple">🎯</div>
+      <h3>College Match Engine</h3>
+      <p>Enter your GPA, SAT/ACT, activities, and preferences. Get a real match percentage for over 1,200 schools — instantly.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon green">🤖</div>
+      <h3>AI Admission Report <span class="pro-badge">Pro</span></h3>
+      <p>Click any university and get a personalized AI report: your exact gaps, what to improve, and a step-by-step action plan tailored to that school.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon amber">📝</div>
+      <h3>Essay & Letter Bundle <span class="pro-badge">Pro</span></h3>
+      <p>Real Common App essays, supplemental examples, and recommendation letter templates — everything you need as a reference to write standout applications.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon blue">📅</div>
+      <h3>Application Timeline <span class="pro-badge">Pro</span></h3>
+      <p>A month-by-month guide from your current grade to submission day. Never miss a deadline, test window, or scholarship application again.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing-section">
+  <div class="section-label">Pricing</div>
+  <div class="section-title">Start free. Unlock<br/>everything for $19.</div>
+  <div class="pricing-cards">
+    <div class="price-card">
+      <div class="price-tier">Free</div>
+      <div class="price-amount">$0</div>
+      <div class="price-desc">The most powerful free college matcher available. No credit card needed.</div>
+      <ul class="price-items">
+        <li>College match percentages for 1,200+ schools</li>
+        <li>GPA, SAT/ACT, and activity scoring</li>
+        <li>Certain / Likely / Possible / Reach bands</li>
+        <li>Filter by location, tuition, size & type</li>
+        <li class="muted">AI Admission Report per university</li>
+        <li class="muted">Essay & letter reference bundle</li>
+        <li class="muted">Personalized application timeline</li>
+      </ul>
+      <button class="btn-price free" onclick="showApp()">Start Matching →</button>
+    </div>
+    <div class="price-card featured">
+      <div class="featured-tag">🔥 Most Popular</div>
+      <div class="price-tier">ApplyU Pro</div>
+      <div class="price-amount">$19 <span>one-time</span></div>
+      <div class="price-desc">Unlock everything. One payment, yours forever. Use it for every school on your list.</div>
+      <ul class="price-items">
+        <li>Everything in Free</li>
+        <li>AI report for every university you click</li>
+        <li>Personalized gap analysis per school</li>
+        <li>Step-by-step improvement action plan</li>
+        <li>Essay & recommendation letter bundle</li>
+        <li>Application timeline & deadline tracker</li>
+      </ul>
+      <button class="btn-price pro" onclick="showApp()">Unlock ApplyU Pro →</button>
+    </div>
+  </div>
+</section>
+
+</div><!-- /landing -->
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- APP -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="app">
+  <div class="app-nav">
+    <div class="app-nav-left">
+      <button class="back-btn" onclick="showLanding()">← Back</button>
+      <span class="app-title">ApplyU Matcher</span>
+    </div>
+    <div class="match-pill" id="matchBadge">— matches</div>
+  </div>
+
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="s-block">
+        <div class="s-label">Step 1 — Academic Profile</div>
+        <div class="score-row">
+          <div class="field" id="gpaWrap">
+            <label>Unweighted GPA</label>
+            <input type="number" id="gpa" min="0" max="4.0" step="0.01" placeholder="0.00 – 4.00" oninput="onGPA(this)" onblur="onGPA(this)"/>
+            <span class="hint">Max 4.0 unweighted</span>
+            <span class="err-msg">Must be 0.0 – 4.0</span>
+          </div>
+          <div class="field">
+            <label>Test Type</label>
+            <select id="testType" onchange="switchTest()">
+              <option value="sat">SAT</option>
+              <option value="act">ACT</option>
+              <option value="none">Test-Optional</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" id="testWrap">
+          <label id="testLbl">SAT Score</label>
+          <input type="number" id="testScore" min="400" max="1600" placeholder="400 – 1600" oninput="onTest(this)" onblur="onTest(this)"/>
+          <span class="hint" id="testHint">Range: 400–1600</span>
+          <span class="err-msg" id="testErr">SAT must be 400–1600</span>
+        </div>
+        <div class="field">
+          <label>ZIP Code</label>
+          <input type="text" id="zip" maxlength="5" placeholder="e.g. 33101" oninput="live()"/>
+          <span class="hint">Enables distance filtering</span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="s-block">
+        <div class="s-label">Step 2 — Extracurriculars</div>
+        <div class="s-sub">Select all that apply</div>
+        <div class="ec-grid">
+          <div class="ec-card" id="ec-sports" onclick="toggleEC('sports')"><span class="ec-icon">🏅</span><div><div class="ec-name">Varsity Sports</div><div class="ec-sub">Team/individual</div></div></div>
+          <div class="ec-card" id="ec-clubs" onclick="toggleEC('clubs')"><span class="ec-icon">🏛️</span><div><div class="ec-name">School Clubs</div><div class="ec-sub">Academic/social</div></div></div>
+          <div class="ec-card" id="ec-music" onclick="toggleEC('music')"><span class="ec-icon">🎵</span><div><div class="ec-name">Music</div><div class="ec-sub">Band/choir/orch</div></div></div>
+          <div class="ec-card" id="ec-arts" onclick="toggleEC('arts')"><span class="ec-icon">🎨</span><div><div class="ec-name">Visual Arts</div><div class="ec-sub">Design/film</div></div></div>
+          <div class="ec-card" id="ec-theater" onclick="toggleEC('theater')"><span class="ec-icon">🎭</span><div><div class="ec-name">Theater</div><div class="ec-sub">Performing arts</div></div></div>
+          <div class="ec-card" id="ec-volunteer" onclick="toggleEC('volunteer')"><span class="ec-icon">🤝</span><div><div class="ec-name">Volunteering</div><div class="ec-sub">Community service</div></div></div>
+          <div class="ec-card" id="ec-internship" onclick="toggleEC('internship')"><span class="ec-icon">💼</span><div><div class="ec-name">Internship/Job</div><div class="ec-sub">Work experience</div></div></div>
+          <div class="ec-card" id="ec-research" onclick="toggleEC('research')"><span class="ec-icon">🔬</span><div><div class="ec-name">Research</div><div class="ec-sub">Lab/study</div></div></div>
+          <div class="ec-card" id="ec-studentgov" onclick="toggleEC('studentgov')"><span class="ec-icon">📋</span><div><div class="ec-name">Student Gov</div><div class="ec-sub">Officer/council</div></div></div>
+          <div class="ec-card" id="ec-debate" onclick="toggleEC('debate')"><span class="ec-icon">🗣️</span><div><div class="ec-name">Debate/Speech</div><div class="ec-sub">Competitive</div></div></div>
+          <div class="ec-card" id="ec-stem" onclick="toggleEC('stem')"><span class="ec-icon">💻</span><div><div class="ec-name">STEM/Coding</div><div class="ec-sub">Robotics/hack</div></div></div>
+          <div class="ec-card" id="ec-cultural" onclick="toggleEC('cultural')"><span class="ec-icon">🌍</span><div><div class="ec-name">Cultural/Faith</div><div class="ec-sub">Heritage</div></div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.28rem;">
+          <span class="slabel" style="font-size:0.73rem;color:var(--text-muted);">Involvement level</span>
+          <div class="lp-pills">
+            <div class="lp"><input type="radio" name="ecLvl" id="lv1" value="1" checked onchange="live()"><label for="lv1">Some</label></div>
+            <div class="lp"><input type="radio" name="ecLvl" id="lv2" value="2" onchange="live()"><label for="lv2">Active</label></div>
+            <div class="lp"><input type="radio" name="ecLvl" id="lv3" value="3" onchange="live()"><label for="lv3">Leadership</label></div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="s-block">
+        <div class="s-label">Step 3 — Proximity</div>
+        <div class="field">
+          <label>Max Distance</label>
+          <select id="proximity" onchange="live()">
+            <option value="any">Any Distance</option>
+            <option value="50">Within 50 miles</option>
+            <option value="100">Within 100 miles</option>
+            <option value="250">Within 250 miles</option>
+            <option value="500">Within 500 miles</option>
+          </select>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="s-block">
+        <div class="s-label">Step 4 — Budget</div>
+        <div class="slider-wrap">
+          <div class="slider-top"><span class="slabel">Max Tuition / Year</span><span class="sval" id="tVal">$65K+</span></div>
+          <input type="range" id="tSlider" min="5000" max="65000" step="1000" value="65000" oninput="onTuition(this.value)"/>
+          <div style="display:flex;justify-content:space-between;"><span class="hint">$5K</span><span class="hint">$65K+</span></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="s-block">
+        <div class="s-label">Step 5 — Preferences</div>
+        <div class="s-sub" style="margin-bottom:0.12rem;">School Type</div>
+        <div class="pills">
+          <div class="pill-opt"><input type="checkbox" id="pub" onchange="live()"><label for="pub">🏛 Public</label></div>
+          <div class="pill-opt"><input type="checkbox" id="priv" onchange="live()"><label for="priv">🎓 Private</label></div>
+          <div class="pill-opt"><input type="checkbox" id="lib" onchange="live()"><label for="lib">📖 Liberal Arts</label></div>
+        </div>
+        <div class="s-sub" style="margin-bottom:0.12rem;margin-top:0.2rem;">School Size</div>
+        <div class="pills">
+          <div class="pill-opt"><input type="checkbox" id="sm" onchange="live()"><label for="sm">Small &lt;5K</label></div>
+          <div class="pill-opt"><input type="checkbox" id="med" onchange="live()"><label for="med">Medium 5–15K</label></div>
+          <div class="pill-opt"><input type="checkbox" id="lg" onchange="live()"><label for="lg">Large &gt;15K</label></div>
+        </div>
+        <div class="s-sub" style="margin-bottom:0.12rem;margin-top:0.2rem;">What Matters</div>
+        <div class="pills">
+          <div class="pill-opt"><input type="checkbox" id="pPres" onchange="live()"><label for="pPres">🏅 Prestige</label></div>
+          <div class="pill-opt"><input type="checkbox" id="pAth" onchange="live()"><label for="pAth">🏟 D1</label></div>
+          <div class="pill-opt"><input type="checkbox" id="pAid" onchange="live()"><label for="pAid">💰 Aid</label></div>
+          <div class="pill-opt"><input type="checkbox" id="pRes" onchange="live()"><label for="pRes">🔬 Research</label></div>
+          <div class="pill-opt"><input type="checkbox" id="pStem" onchange="live()"><label for="pStem">💻 STEM</label></div>
+          <div class="pill-opt"><input type="checkbox" id="pArts" onchange="live()"><label for="pArts">🎨 Arts</label></div>
+          <div class="pill-opt"><input type="checkbox" id="pIntl" onchange="live()"><label for="pIntl">🌍 Intl</label></div>
+          <div class="pill-opt"><input type="checkbox" id="pGreek" onchange="live()"><label for="pGreek">🏠 Greek</label></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="s-block">
+        <div class="s-label">Step 6 — Show Me</div>
+        <div class="pills">
+          <div class="pill-opt"><input type="checkbox" id="sCertain" checked onchange="live()"><label for="sCertain">✅ Certain</label></div>
+          <div class="pill-opt"><input type="checkbox" id="sLikely" checked onchange="live()"><label for="sLikely">📈 Likely</label></div>
+          <div class="pill-opt"><input type="checkbox" id="sPossible" checked onchange="live()"><label for="sPossible">🎲 Possible</label></div>
+          <div class="pill-opt"><input type="checkbox" id="sReach" onchange="live()"><label for="sReach">🚀 Reach</label></div>
+        </div>
+      </div>
+      <button class="find-btn" onclick="runSearch()">🔍 Find My Matches</button>
+      <button class="reset-btn" onclick="resetAll()">↺ Reset All</button>
+    </aside>
+
+    <!-- RESULTS -->
+    <section class="results-panel">
+      <div class="welcome" id="welcome">
+        <div class="w-icon">🎓</div>
+        <h3>Find colleges that fit you</h3>
+        <p>Enter your profile, pick activities, set preferences — we match you with schools where you're most likely to be accepted.</p>
+        <div class="w-steps">
+          <div class="w-step"><div class="w-num">1</div><span>Enter your GPA and test score</span></div>
+          <div class="w-step"><div class="w-num">2</div><span>Select your extracurricular activities</span></div>
+          <div class="w-step"><div class="w-num">3</div><span>Set budget and preferences</span></div>
+          <div class="w-step"><div class="w-num">4</div><span>Click any school for your AI Pro Report</span></div>
+        </div>
+      </div>
+      <div id="results" style="display:none;">
+        <div class="res-header">
+          <div><h2 id="resTitle">Your Matches</h2><div class="af" id="af"></div></div>
+          <div class="sort-row">
+            <label>Sort</label>
+            <select id="sortBy" onchange="render()">
+              <option value="match">Match %</option>
+              <option value="tasc">Tuition ↑</option>
+              <option value="tdesc">Tuition ↓</option>
+              <option value="accept">Acceptance</option>
+              <option value="alpha">A–Z</option>
+            </select>
+          </div>
+        </div>
+        <div class="ad-slot" style="margin-top:0.8rem;"><strong>Advertisement</strong>Sponsored by College Board SAT Prep — Get 150+ points higher.</div>
+        <div id="cards" style="display:flex;flex-direction:column;gap:0.7rem;margin-top:0.8rem;"></div>
+        <div class="ad-slot" style="margin-top:0.8rem;"><strong>Advertisement</strong>Kaplan Test Prep — Guaranteed score improvement or your money back.</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- PAYWALL MODAL -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="overlay" id="paywallOverlay">
+  <div class="paywall-modal">
+    <button class="modal-close" onclick="closePaywall()">×</button>
+    <div class="modal-header">
+      <div class="modal-uni-name" id="pw-uni-name">University of Michigan</div>
+      <div class="modal-match">
+        <span class="modal-match-pct" id="pw-match-pct">72%</span>
+        <span style="font-size:0.8rem;color:var(--text-muted);">match score</span>
+        <span class="band b-likely" id="pw-band" style="margin:0;">📈 Likely</span>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="preview-section">
+        <div class="preview-label">Your Profile vs. This School — Free Preview</div>
+        <div class="gap-items" id="pw-gap-items"></div>
+      </div>
+      <div class="blur-section">
+        <div class="blur-content">
+          <div class="blur-items">
+            <div class="blur-item">🎯 Action #1: Raise your SAT by 80 points — take a practice test every 2 weeks for 3 months using Khan Academy's personalized plan.</div>
+            <div class="blur-item">📝 Action #2: Take on a leadership role in one existing club — President or VP title dramatically increases your weighted EC score.</div>
+            <div class="blur-item">🔬 Action #3: Apply to a summer research program — Michigan values demonstrated academic curiosity outside the classroom.</div>
+            <div class="blur-item">✍️ Essay Tip: Michigan's "Why Michigan?" prompt responds best to specific academic programs, not general reputation mentions.</div>
+          </div>
+        </div>
+        <div class="blur-overlay">
+          <div class="lock-icon">🔒</div>
+          <div class="blur-msg">Unlock Your Full AI Report</div>
+          <div class="blur-sub">4 personalized action items + essay tips + timeline</div>
+        </div>
+      </div>
+      <div class="cta-box">
+        <div class="cta-price-row">
+          <span class="cta-price-old">$29</span>
+          <span class="cta-price">$19</span>
+          <span style="font-size:0.85rem;color:var(--text-muted);">one-time, all schools</span>
+        </div>
+        <div class="cta-desc">One payment unlocks AI reports for every school you click — forever. No subscription.</div>
+        <div class="cta-includes">
+          <div class="ci">AI report for every university</div>
+          <div class="ci">Personalized action plan</div>
+          <div class="ci">Essay & letter bundle</div>
+          <div class="ci">Application timeline guide</div>
+          <div class="ci">Gap analysis per school</div>
+          <div class="ci">Lifetime access</div>
+        </div>
+        <button class="unlock-main-btn" onclick="handleUnlock()">🔓 Unlock ApplyU Pro — $19</button>
+        <div class="secure-note">🔒 Secure checkout · One-time payment · Instant access</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- AI REPORT MODAL -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="report-overlay" id="reportOverlay">
+  <div class="report-modal">
+    <div class="report-header">
+      <button class="report-close" onclick="closeReport()">×</button>
+      <div class="report-uni" id="rpt-uni"></div>
+      <div class="report-subtitle" id="rpt-subtitle">AI-Powered Admission Report · ApplyU Pro</div>
+    </div>
+    <div class="report-body">
+      <div class="loading-state" id="rpt-loading">
+        <div class="spinner"></div>
+        <div class="loading-msg">Analyzing your profile against this university…</div>
+        <div class="loading-submsg">Claude AI is generating your personalized report</div>
+      </div>
+      <div class="report-content" id="rpt-content">
+        <div class="report-section">
+          <div class="rs-label">Match Analysis</div>
+          <div class="score-bars" id="rpt-bars"></div>
+          <div class="rs-text" id="rpt-summary"></div>
+        </div>
+        <div class="report-section">
+          <div class="rs-label">Your Action Plan</div>
+          <div class="action-items" id="rpt-actions"></div>
+        </div>
+        <div class="report-section">
+          <div class="rs-label">Application Timeline</div>
+          <div class="timeline-grid" id="rpt-timeline"></div>
+        </div>
+        <div class="report-section">
+          <div class="rs-label">Essay Strategy</div>
+          <div class="essay-prompts" id="rpt-essays"></div>
+        </div>
+      </div>
+    </div>
+    <div class="report-footer">
+      <div class="report-footer-note">Generated by Claude AI · Based on your profile inputs</div>
+      <button class="download-btn" onclick="alert('PDF download coming soon!')">⬇ Save as PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────
+let searched=false, results=[], EC=new Set(), isPro=false;
+let currentCollege=null;
+
+// ── PAGE ROUTING ──────────────────────────────────────────────
+function showApp(){
+  document.getElementById('landing').style.display='none';
+  document.getElementById('app').classList.add('active');
+  window.scrollTo(0,0);
+}
+function showLanding(){
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('landing').style.display='block';
+  window.scrollTo(0,0);
+}
+
+// ── COLLEGE DATABASE (sample — expand for production) ─────────
+const COLLEGES=[
+  {n:'Harvard University',city:'Cambridge',st:'MA',minGPA:3.9,minSAT:1500,tuition:54768,acc:4,type:'private',size:'med',tags:['Ivy League','Research','STEM','Law'],pres:10,ath:false,aid:true,lib:false,lat:42.37,lng:-71.11},
+  {n:'MIT',city:'Cambridge',st:'MA',minGPA:3.9,minSAT:1540,tuition:57986,acc:4,type:'private',size:'med',tags:['STEM','Research','Engineering','Tech'],pres:10,ath:false,aid:true,lib:false,lat:42.36,lng:-71.09},
+  {n:'Stanford University',city:'Stanford',st:'CA',minGPA:3.95,minSAT:1510,tuition:56169,acc:4,type:'private',size:'med',tags:['Research','STEM','Tech','Business'],pres:10,ath:true,aid:true,lib:false,lat:37.43,lng:-122.17},
+  {n:'Yale University',city:'New Haven',st:'CT',minGPA:3.9,minSAT:1500,tuition:59950,acc:5,type:'private',size:'med',tags:['Ivy League','Law','Arts','Research'],pres:10,ath:false,aid:true,lib:false,lat:41.31,lng:-72.92},
+  {n:'Princeton University',city:'Princeton',st:'NJ',minGPA:3.9,minSAT:1510,tuition:57410,acc:4,type:'private',size:'med',tags:['Ivy League','Research','Engineering'],pres:10,ath:false,aid:true,lib:false,lat:40.34,lng:-74.65},
+  {n:'Columbia University',city:'New York',st:'NY',minGPA:3.88,minSAT:1490,tuition:63530,acc:4,type:'private',size:'med',tags:['Ivy League','Urban','Research','Business'],pres:10,ath:false,aid:true,lib:false,lat:40.81,lng:-73.96},
+  {n:'University of Pennsylvania',city:'Philadelphia',st:'PA',minGPA:3.85,minSAT:1490,tuition:63452,acc:7,type:'private',size:'med',tags:['Ivy League','Business','Medicine','Law'],pres:10,ath:false,aid:true,lib:false,lat:39.95,lng:-75.19},
+  {n:'Duke University',city:'Durham',st:'NC',minGPA:3.85,minSAT:1480,tuition:60552,acc:8,type:'private',size:'med',tags:['Research','STEM','Business','D1'],pres:9,ath:true,aid:true,lib:false,lat:36.00,lng:-78.94},
+  {n:'Northwestern University',city:'Evanston',st:'IL',minGPA:3.85,minSAT:1480,tuition:60768,acc:7,type:'private',size:'med',tags:['Research','Journalism','Business','STEM'],pres:9,ath:true,aid:true,lib:false,lat:42.05,lng:-87.67},
+  {n:'Johns Hopkins University',city:'Baltimore',st:'MD',minGPA:3.87,minSAT:1490,tuition:57010,acc:9,type:'private',size:'med',tags:['Medicine','Research','STEM'],pres:9,ath:false,aid:true,lib:false,lat:39.33,lng:-76.62},
+  {n:'Vanderbilt University',city:'Nashville',st:'TN',minGPA:3.83,minSAT:1470,tuition:58250,acc:9,type:'private',size:'med',tags:['Research','Business','Medicine','Greek'],pres:9,ath:true,aid:true,lib:false,lat:36.14,lng:-86.80},
+  {n:'Rice University',city:'Houston',st:'TX',minGPA:3.87,minSAT:1490,tuition:53450,acc:9,type:'private',size:'sm',tags:['STEM','Research','Engineering'],pres:9,ath:false,aid:true,lib:false,lat:29.71,lng:-95.40},
+  {n:'Notre Dame University',city:'South Bend',st:'IN',minGPA:3.85,minSAT:1470,tuition:58843,acc:13,type:'private',size:'med',tags:['Catholic','D1','Research','Business'],pres:9,ath:true,aid:true,lib:false,lat:41.70,lng:-86.24},
+  {n:'Georgetown University',city:'Washington',st:'DC',minGPA:3.83,minSAT:1460,tuition:58931,acc:12,type:'private',size:'med',tags:['International','Law','Business','Politics'],pres:9,ath:false,aid:true,lib:false,lat:38.91,lng:-77.07},
+  {n:'Emory University',city:'Atlanta',st:'GA',minGPA:3.8,minSAT:1430,tuition:56844,acc:19,type:'private',size:'med',tags:['Medicine','Research','Business'],pres:8,ath:false,aid:true,lib:false,lat:33.79,lng:-84.32},
+  {n:'Tufts University',city:'Medford',st:'MA',minGPA:3.82,minSAT:1450,tuition:61302,acc:11,type:'private',size:'med',tags:['International','Research','STEM'],pres:8,ath:false,aid:true,lib:false,lat:42.40,lng:-71.12},
+  {n:'Carnegie Mellon University',city:'Pittsburgh',st:'PA',minGPA:3.84,minSAT:1500,tuition:58924,acc:14,type:'private',size:'med',tags:['STEM','Tech','Engineering','Arts'],pres:9,ath:false,aid:true,lib:false,lat:40.44,lng:-79.94},
+  {n:'Washington University St. Louis',city:'St. Louis',st:'MO',minGPA:3.87,minSAT:1490,tuition:58400,acc:15,type:'private',size:'med',tags:['Research','Medicine','Business'],pres:9,ath:false,aid:true,lib:false,lat:38.64,lng:-90.31},
+  {n:'University of Michigan',city:'Ann Arbor',st:'MI',minGPA:3.8,minSAT:1430,tuition:15948,acc:20,type:'public',size:'lg',tags:['D1','Research','Business','Engineering'],pres:8,ath:true,aid:true,lib:false,lat:42.27,lng:-83.74},
+  {n:'UC Berkeley',city:'Berkeley',st:'CA',minGPA:3.85,minSAT:1390,tuition:14312,acc:14,type:'public',size:'lg',tags:['STEM','Research','Tech','Engineering'],pres:9,ath:true,aid:true,lib:false,lat:37.87,lng:-122.26},
+  {n:'UCLA',city:'Los Angeles',st:'CA',minGPA:3.82,minSAT:1350,tuition:13401,acc:14,type:'public',size:'lg',tags:['D1','Film','Research','STEM'],pres:9,ath:true,aid:true,lib:false,lat:34.07,lng:-118.44},
+  {n:'University of Virginia',city:'Charlottesville',st:'VA',minGPA:3.83,minSAT:1400,tuition:17400,acc:21,type:'public',size:'lg',tags:['Research','Business','Law','Greek'],pres:8,ath:true,aid:true,lib:false,lat:38.03,lng:-78.51},
+  {n:'University of North Carolina',city:'Chapel Hill',st:'NC',minGPA:3.78,minSAT:1350,tuition:9000,acc:19,type:'public',size:'lg',tags:['D1','Research','Business','Medicine'],pres:8,ath:true,aid:true,lib:false,lat:35.90,lng:-79.05},
+  {n:'Georgia Tech',city:'Atlanta',st:'GA',minGPA:3.85,minSAT:1440,tuition:12892,acc:17,type:'public',size:'lg',tags:['STEM','Engineering','Tech','Research'],pres:8,ath:true,aid:true,lib:false,lat:33.77,lng:-84.40},
+  {n:'University of Florida',city:'Gainesville',st:'FL',minGPA:3.75,minSAT:1320,tuition:6381,acc:31,type:'public',size:'lg',tags:['D1','Research','Business','STEM'],pres:7,ath:true,aid:true,lib:false,lat:29.65,lng:-82.35},
+  {n:'Florida State University',city:'Tallahassee',st:'FL',minGPA:3.6,minSAT:1230,tuition:5656,acc:37,type:'public',size:'lg',tags:['D1','Business','Research','Greek'],pres:6,ath:true,aid:true,lib:false,lat:30.44,lng:-84.30},
+  {n:'University of Miami',city:'Coral Gables',st:'FL',minGPA:3.6,minSAT:1270,tuition:55420,acc:27,type:'private',size:'med',tags:['Business','Research','STEM','D1'],pres:7,ath:true,aid:true,lib:false,lat:25.72,lng:-80.28},
+  {n:'University of Texas Austin',city:'Austin',st:'TX',minGPA:3.75,minSAT:1310,tuition:11448,acc:32,type:'public',size:'lg',tags:['D1','Business','Research','STEM'],pres:7,ath:true,aid:true,lib:false,lat:30.28,lng:-97.74},
+  {n:'Penn State University',city:'University Park',st:'PA',minGPA:3.55,minSAT:1220,tuition:18450,acc:55,type:'public',size:'lg',tags:['D1','Business','Engineering','Greek'],pres:6,ath:true,aid:true,lib:false,lat:40.79,lng:-77.86},
+  {n:'Ohio State University',city:'Columbus',st:'OH',minGPA:3.7,minSAT:1270,tuition:11936,acc:54,type:'public',size:'lg',tags:['D1','Research','Business','Greek'],pres:6,ath:true,aid:true,lib:false,lat:40.00,lng:-83.02},
+  {n:'Indiana University',city:'Bloomington',st:'IN',minGPA:3.4,minSAT:1180,tuition:10388,acc:80,type:'public',size:'lg',tags:['Business','Music','Greek','D1'],pres:5,ath:true,aid:true,lib:false,lat:39.17,lng:-86.52},
+  {n:'University of Wisconsin',city:'Madison',st:'WI',minGPA:3.7,minSAT:1290,tuition:10728,acc:58,type:'public',size:'lg',tags:['Research','Business','STEM','D1'],pres:6,ath:true,aid:true,lib:false,lat:43.07,lng:-89.41},
+  {n:'Purdue University',city:'West Lafayette',st:'IN',minGPA:3.6,minSAT:1240,tuition:9992,acc:67,type:'public',size:'lg',tags:['Engineering','STEM','Research','D1'],pres:6,ath:true,aid:true,lib:false,lat:40.43,lng:-86.91},
+  {n:'Amherst College',city:'Amherst',st:'MA',minGPA:3.88,minSAT:1470,tuition:61428,acc:9,type:'private',size:'sm',tags:['Liberal Arts','Research','Elite'],pres:9,ath:false,aid:true,lib:true,lat:42.37,lng:-72.52},
+  {n:'Williams College',city:'Williamstown',st:'MA',minGPA:3.87,minSAT:1460,tuition:59870,acc:9,type:'private',size:'sm',tags:['Liberal Arts','Elite','Research'],pres:9,ath:false,aid:true,lib:true,lat:42.71,lng:-73.20},
+  {n:'Middlebury College',city:'Middlebury',st:'VT',minGPA:3.8,minSAT:1410,tuition:59390,acc:17,type:'private',size:'sm',tags:['Liberal Arts','International','Environment'],pres:8,ath:false,aid:true,lib:true,lat:44.01,lng:-73.17},
+  {n:'Bowdoin College',city:'Brunswick',st:'ME',minGPA:3.85,minSAT:1440,tuition:59700,acc:9,type:'private',size:'sm',tags:['Liberal Arts','Elite','Environment'],pres:8,ath:false,aid:true,lib:true,lat:43.91,lng:-69.96},
+  {n:'Wellesley College',city:'Wellesley',st:'MA',minGPA:3.83,minSAT:1430,tuition:57792,acc:20,type:'private',size:'sm',tags:['Liberal Arts','Women','Research'],pres:8,ath:false,aid:true,lib:true,lat:42.29,lng:-71.30},
+  {n:'Kenyon College',city:'Gambier',st:'OH',minGPA:3.65,minSAT:1310,tuition:58520,acc:37,type:'private',size:'sm',tags:['Liberal Arts','Writing','Arts'],pres:7,ath:false,aid:true,lib:true,lat:40.37,lng:-82.39},
+  {n:'Northeastern University',city:'Boston',st:'MA',minGPA:3.75,minSAT:1420,tuition:57522,acc:18,type:'private',size:'med',tags:['Co-op','STEM','Business','Research'],pres:7,ath:false,aid:true,lib:false,lat:42.34,lng:-71.09},
+  {n:'Boston University',city:'Boston',st:'MA',minGPA:3.7,minSAT:1350,tuition:58072,acc:22,type:'private',size:'lg',tags:['Research','Business','STEM','Urban'],pres:7,ath:false,aid:true,lib:false,lat:42.35,lng:-71.10},
+  {n:'Boston College',city:'Chestnut Hill',st:'MA',minGPA:3.8,minSAT:1400,tuition:59960,acc:19,type:'private',size:'med',tags:['Catholic','Business','Research','D1'],pres:8,ath:true,aid:true,lib:false,lat:42.34,lng:-71.17},
+  {n:'Fordham University',city:'New York',st:'NY',minGPA:3.55,minSAT:1280,tuition:55200,acc:54,type:'private',size:'med',tags:['Business','Urban','Catholic'],pres:6,ath:false,aid:true,lib:false,lat:40.86,lng:-73.88},
+  {n:'NYU',city:'New York',st:'NY',minGPA:3.7,minSAT:1350,tuition:58168,acc:21,type:'private',size:'lg',tags:['Urban','Arts','Business','Film'],pres:7,ath:false,aid:true,lib:false,lat:40.73,lng:-73.99},
+  {n:'Syracuse University',city:'Syracuse',st:'NY',minGPA:3.5,minSAT:1230,tuition:56914,acc:65,type:'private',size:'med',tags:['Journalism','Business','D1','Greek'],pres:6,ath:true,aid:true,lib:false,lat:43.04,lng:-76.13},
+  {n:'Tulane University',city:'New Orleans',st:'LA',minGPA:3.6,minSAT:1330,tuition:57850,acc:14,type:'private',size:'med',tags:['Research','Business','Service'],pres:7,ath:true,aid:true,lib:false,lat:29.94,lng:-90.12},
+  {n:'Wake Forest University',city:'Winston-Salem',st:'NC',minGPA:3.8,minSAT:1380,tuition:60758,acc:28,type:'private',size:'sm',tags:['Business','D1','Greek','Research'],pres:8,ath:true,aid:true,lib:false,lat:36.13,lng:-80.27},
+  {n:'College of William & Mary',city:'Williamsburg',st:'VA',minGPA:3.8,minSAT:1370,tuition:22820,acc:37,type:'public',size:'sm',tags:['Liberal Arts','Research','Law'],pres:7,ath:false,aid:true,lib:true,lat:37.27,lng:-76.71},
+  {n:'University of Rochester',city:'Rochester',st:'NY',minGPA:3.7,minSAT:1400,tuition:59800,acc:32,type:'private',size:'sm',tags:['STEM','Music','Research','Engineering'],pres:7,ath:false,aid:true,lib:false,lat:43.13,lng:-77.63},
+  {n:'Case Western Reserve',city:'Cleveland',st:'OH',minGPA:3.75,minSAT:1410,tuition:54922,acc:27,type:'private',size:'med',tags:['STEM','Medicine','Engineering','Research'],pres:7,ath:false,aid:true,lib:false,lat:41.50,lng:-81.60},
+];
+
+// ── SCORING ENGINE ──────────────────────────────────────────────
+function haversine(lat1,lng1,lat2,lng2){
+  const R=3959,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function zipToLatLng(zip){
+  const map={'10001':[40.75,-73.99],'90210':[34.09,-118.41],'33101':[25.77,-80.19],'33139':[25.78,-80.14],'60601':[41.88,-87.63],'77001':[29.74,-95.37],'98101':[47.61,-122.33],'30301':[33.75,-84.39],'02101':[42.36,-71.06],'19101':[39.95,-75.16],'27601':[35.78,-78.64],'48201':[42.33,-83.04],'78701':[30.27,-97.74]};
+  return map[zip]||null;
+}
+function scoreCollege(c,gpa,sat,act,zipCoords,prox,maxT,types,sizes,f){
+  let score=0,base=0;
+  const eff=sat||(act?(act/36)*1600:0);
+  if(gpa){
+    const gr=gpa/c.minGPA;
+    base+=gr>=1?45:gr>=0.95?35:gr>=0.88?22:gr>=0.8?10:3;
+  }
+  if(eff&&c.minSAT){
+    const sr=eff/c.minSAT;
+    base+=sr>=1?35:sr>=0.96?27:sr>=0.9?18:sr>=0.82?8:2;
+  }
+  if(!gpa&&!eff) base=40;
+  score=base;
+  const ecLvl=parseInt(document.querySelector('input[name=ecLvl]:checked').value)||1;
+  const ecBoost=EC.size*(ecLvl===3?4:ecLvl===2?2.5:1.5);
+  score+=Math.min(ecBoost,20);
+  if(f.pPres&&c.pres>=8) score+=5;
+  if(f.pAth&&c.ath) score+=4;
+  if(f.pAid&&c.aid) score+=3;
+  if(f.pRes&&c.tags.some(t=>t==='Research')) score+=4;
+  if(f.pStem&&c.tags.some(t=>t==='STEM'||t==='Engineering'||t==='Tech')) score+=4;
+  if(f.pArts&&c.tags.some(t=>t==='Arts'||t==='Music'||t==='Film')) score+=4;
+  if(f.pIntl&&c.tags.some(t=>t==='International')) score+=3;
+  if(f.pGreek&&c.tags.some(t=>t==='Greek')) score+=3;
+  const pct=Math.min(Math.max(Math.round(score),5),98);
+  let band=pct>=80?'certain':pct>=60?'likely':pct>=40?'possible':'reach';
+  let dist=null;
+  if(zipCoords&&prox!=='any'){
+    dist=Math.round(haversine(zipCoords[0],zipCoords[1],c.lat,c.lng));
+    if(dist>parseInt(prox)) return null;
+  } else if(zipCoords) {
+    dist=Math.round(haversine(zipCoords[0],zipCoords[1],c.lat,c.lng));
+  }
+  return{...c,pct,band,col:band==='certain'?'#34D399':band==='likely'?'#60A5FA':band==='possible'?'#F59E0B':'#F87171',eb:Math.round(ecBoost),_dist:dist};
+}
+
+// ── VALIDATION ─────────────────────────────────────────────────
+function onGPA(el){
+  const v=parseFloat(el.value),w=document.getElementById('gpaWrap');
+  if(el.value&&(isNaN(v)||v<0||v>4)){el.classList.add('err-input');w.classList.add('show-err');}
+  else{el.classList.remove('err-input');w.classList.remove('show-err');}
+  live();
+}
+function onTest(el){
+  const t=document.getElementById('testType').value,v=parseInt(el.value),w=document.getElementById('testWrap');
+  const ok=t==='sat'?(v>=400&&v<=1600):t==='act'?(v>=1&&v<=36):true;
+  if(el.value&&!ok){el.classList.add('err-input');w.classList.add('show-err');}
+  else{el.classList.remove('err-input');w.classList.remove('show-err');}
+  live();
+}
+
+function toggleEC(k){
+  EC.has(k)?EC.delete(k):EC.add(k);
+  document.getElementById('ec-'+k).classList.toggle('sel');
+  live();
+}
+
+// ── SEARCH ────────────────────────────────────────────────────
+function runSearch(){
+  const gpa=parseFloat(document.getElementById('gpa').value)||0;
+  const tt=document.getElementById('testType').value;
+  const ts=parseInt(document.getElementById('testScore').value)||0;
+  const sat=tt==='sat'?ts:0, act=tt==='act'?ts:0;
+  const zip=document.getElementById('zip').value.trim();
+  const prox=document.getElementById('proximity').value;
+  const maxT=parseInt(document.getElementById('tSlider').value);
+  const types=[], sizes=[];
+  if(document.getElementById('pub').checked) types.push('public');
+  if(document.getElementById('priv').checked) types.push('private');
+  if(document.getElementById('lib').checked) types.push('liberal arts');
+  if(document.getElementById('sm').checked) sizes.push('sm');
+  if(document.getElementById('med').checked) sizes.push('med');
+  if(document.getElementById('lg').checked) sizes.push('lg');
+  const f={pPres:document.getElementById('pPres').checked,pAth:document.getElementById('pAth').checked,pAid:document.getElementById('pAid').checked,pRes:document.getElementById('pRes').checked,pStem:document.getElementById('pStem').checked,pArts:document.getElementById('pArts').checked,pIntl:document.getElementById('pIntl').checked,pGreek:document.getElementById('pGreek').checked};
+  const bands=new Set();
+  if(document.getElementById('sCertain').checked) bands.add('certain');
+  if(document.getElementById('sLikely').checked) bands.add('likely');
+  if(document.getElementById('sPossible').checked) bands.add('possible');
+  if(document.getElementById('sReach').checked) bands.add('reach');
+  const zipCoords=zip.length===5?zipToLatLng(zip):null;
+  results=COLLEGES.map(c=>scoreCollege(c,gpa,sat,act,zipCoords,prox,maxT,types,sizes,f))
+    .filter(c=>c&&c.tuition<=maxT&&bands.has(c.band))
+    .filter(c=>!types.length||(c.type==='liberal arts'&&types.includes('liberal arts'))||types.includes(c.type))
+    .filter(c=>!sizes.length||sizes.includes(c.size));
+  searched=true;
+  document.getElementById('welcome').style.display='none';
+  const rd=document.getElementById('results');rd.style.display='block';
+  buildChips(gpa,sat,act,zip,prox,maxT,types,sizes,f);
+  render();
+}
+function live(){if(searched)runSearch();}
+function buildChips(gpa,sat,act,zip,prox,maxT,types,sizes,f){
+  const chips=[];
+  if(gpa) chips.push('GPA '+gpa);
+  if(sat) chips.push('SAT '+sat);
+  if(act) chips.push('ACT '+act);
+  if(EC.size) chips.push(EC.size+' activit'+(EC.size>1?'ies':'y'));
+  if(zip&&prox!=='any') chips.push('≤'+prox+'mi of '+zip);
+  if(maxT<65000) chips.push('Tuition ≤$'+(maxT/1000).toFixed(0)+'K');
+  if(types.length) chips.push(types.map(t=>t[0].toUpperCase()+t.slice(1)).join('/'));
+  const fn={pPres:'Prestige',pAth:'D1',pAid:'Aid',pRes:'Research',pStem:'STEM',pArts:'Arts',pIntl:'Intl',pGreek:'Greek'};
+  Object.entries(f).forEach(([k,v])=>{if(v)chips.push(fn[k]);});
+  document.getElementById('af').innerHTML=chips.map(c=>'<span class="fc">'+c+'</span>').join('');
+}
+function render(){
+  const s=document.getElementById('sortBy').value;
+  let r=[...results];
+  if(s==='match') r.sort((a,b)=>b.pct-a.pct);
+  else if(s==='tasc') r.sort((a,b)=>a.tuition-b.tuition);
+  else if(s==='tdesc') r.sort((a,b)=>b.tuition-a.tuition);
+  else if(s==='accept') r.sort((a,b)=>b.acc-a.acc);
+  else r.sort((a,b)=>a.n.localeCompare(b.n));
+  document.getElementById('resTitle').textContent=r.length+' College Match'+(r.length!==1?'es':'');
+  document.getElementById('matchBadge').textContent=r.length+' match'+(r.length!==1?'es':'');
+  if(!r.length){document.getElementById('cards').innerHTML='<div class="no-res"><div class="ni">🔍</div><p style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">No matches found</p><p>Try loosening your filters.</p></div>';return;}
+  const BL={certain:'✅ Certain Admit',likely:'📈 Likely Admit',possible:'🎲 Possible',reach:'🚀 Reach'};
+  const ECL={sports:'⚽ Sports',clubs:'🏛 Clubs',music:'🎵 Music',arts:'🎨 Arts',theater:'🎭 Theater',volunteer:'🤝 Volunteer',internship:'💼 Internship',research:'🔬 Research',studentgov:'📋 Gov',debate:'🗣 Debate',stem:'💻 STEM',cultural:'🌍 Cultural'};
+  const ini=n=>n.split(' ').filter(w=>w.length>2).slice(0,2).map(w=>w[0]).join('');
+  const h2r=(h,a)=>{const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')';};
+  document.getElementById('cards').innerHTML=r.map((c,i)=>{
+    const dist=c._dist!=null?' · '+c._dist+'mi':'';
+    const eb=c.eb>0?'<span class="ec-badge">⭐ +'+c.eb+'% activities</span>':'';
+    const etags=[...EC].slice(0,3).map(k=>'<span class="tag te">'+(ECL[k]||k)+'</span>').join('');
+    const unlockHint=isPro?'':'<div class="unlock-hint"><span>🤖 <strong>AI Report available</strong> — see your exact gaps & action plan</span><button class="unlock-btn-sm" onclick="event.stopPropagation();openPaywall('+i+')">Unlock Pro</button></div>';
+    return '<div class="ccard" style="animation-delay:'+Math.min(i*20,260)+'ms;" onclick="cardClick('+i+')">'
+      +'<div class="cacc" style="background:'+c.col+';"></div>'
+      +'<div class="ctop">'
+        +'<div class="cinit" style="background:'+h2r(c.col,'0.14')+';color:'+c.col+';">'+ini(c.n)+'</div>'
+        +'<div class="cinfo"><div class="cname">'+c.n+'</div><div class="cloc">'+c.city+', '+c.st+dist+'</div></div>'
+        +'<div class="cpct" style="color:'+c.col+';">'+c.pct+'%<span class="pl">match</span></div>'
+      +'</div>'
+      +'<span class="band b-'+c.band+'">'+BL[c.band]+'</span>'+eb
+      +'<div class="cstats">'
+        +'<span class="sp">📊 '+c.minGPA.toFixed(1)+' GPA</span>'
+        +'<span class="sp">📝 '+c.minSAT+' SAT</span>'
+        +'<span class="sp">💵 $'+(c.tuition/1000).toFixed(0)+'K/yr</span>'
+        +'<span class="sp">📬 '+c.acc+'% accept</span>'
+        +'<span class="sp">👥 '+(c.type[0].toUpperCase()+c.type.slice(1))+'</span>'
+      +'</div>'
+      +'<div class="ctags">'+c.tags.map(t=>'<span class="tag">'+t+'</span>').join('')+(c.ath?'<span class="tag ta">🏟 D1</span>':'')+(c.aid?'<span class="tag tf">💰 Aid</span>':'')+(c.pres>=8?'<span class="tag tp">🏅 Elite</span>':'')+(EC.size?etags:'')+'</div>'
+      +unlockHint
+    +'</div>';
+  }).join('');
+}
+
+// ── CARD CLICK ────────────────────────────────────────────────
+function cardClick(i){
+  currentCollege=results[i];
+  if(isPro){openReport(currentCollege);}
+  else{openPaywall(i);}
+}
+
+// ── PAYWALL ───────────────────────────────────────────────────
+function openPaywall(i){
+  currentCollege=results[i];
+  const c=currentCollege;
+  document.getElementById('pw-uni-name').textContent=c.n;
+  document.getElementById('pw-match-pct').textContent=c.pct+'%';
+  const bandEl=document.getElementById('pw-band');
+  bandEl.className='band b-'+c.band;
+  const BL={certain:'✅ Certain Admit',likely:'📈 Likely Admit',possible:'🎲 Possible',reach:'🚀 Reach'};
+  bandEl.textContent=BL[c.band];
+  const gpa=parseFloat(document.getElementById('gpa').value)||0;
+  const sat=parseInt(document.getElementById('testScore').value)||0;
+  const gaps=[];
+  if(gpa){const ok=gpa>=c.minGPA;gaps.push({label:'GPA ('+gpa.toFixed(2)+' vs '+c.minGPA.toFixed(1)+' min)',status:ok?'good':gpa>=c.minGPA*0.95?'ok':'gap',sl:ok?'✅ Strong':'⚠️ Close',ss:ok?'status-good':gpa>=c.minGPA*0.95?'status-ok':'status-gap'});}
+  if(sat){const ok=sat>=c.minSAT;gaps.push({label:'SAT ('+sat+' vs '+c.minSAT+' min)',status:ok?'good':sat>=c.minSAT*0.95?'ok':'gap',sl:ok?'✅ Strong':'⚠️ Close',ss:ok?'status-good':sat>=c.minSAT*0.95?'status-ok':'status-gap'});}
+  gaps.push({label:'Extracurriculars ('+EC.size+' activities)',status:EC.size>=4?'good':EC.size>=2?'ok':'gap',sl:EC.size>=4?'✅ Strong':EC.size>=2?'⚠️ Building':'❌ Needs Work',ss:EC.size>=4?'status-good':EC.size>=2?'status-ok':'status-gap'});
+  document.getElementById('pw-gap-items').innerHTML=gaps.map(g=>'<div class="gap-item"><span class="gap-item-label">'+g.label+'</span><span class="gap-item-status '+g.ss+'">'+g.sl+'</span></div>').join('');
+  document.getElementById('paywallOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closePaywall(){
+  document.getElementById('paywallOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function handleUnlock(){
+  closePaywall();
+  isPro=true;
+  if(currentCollege) openReport(currentCollege);
+  if(searched) render();
+}
+
+// ── AI REPORT ─────────────────────────────────────────────────
+function openReport(c){
+  document.getElementById('rpt-uni').textContent=c.n+' — AI Report';
+  document.getElementById('rpt-content').classList.remove('visible');
+  document.getElementById('rpt-loading').style.display='flex';
+  document.getElementById('reportOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  generateReport(c);
+}
+function closeReport(){
+  document.getElementById('reportOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+async function generateReport(c){
+  const gpa=parseFloat(document.getElementById('gpa').value)||0;
+  const tt=document.getElementById('testType').value;
+  const ts=parseInt(document.getElementById('testScore').value)||0;
+  const ecLvl=parseInt(document.querySelector('input[name=ecLvl]:checked').value)||1;
+  const ecList=[...EC].join(', ')||'none listed';
+  const lvlLabel=ecLvl===3?'Leadership roles':ecLvl===2?'Active participant':'Some involvement';
+  const matchPct=c.pct;
+  const prompt=`You are ApplyU, an expert college admissions counselor AI. Generate a personalized college admission report for a student applying to ${c.n}.
+
+Student Profile:
+- GPA: ${gpa||'not provided'}
+- ${tt.toUpperCase()}: ${ts||'test-optional'}
+- Extracurricular activities: ${ecList} (${lvlLabel})
+- Match score: ${matchPct}% (${c.band} admit band)
+
+School Data for ${c.n}:
+- Minimum GPA: ${c.minGPA}
+- Minimum SAT: ${c.minSAT}
+- Acceptance rate: ${c.acc}%
+- Tuition: $${c.tuition.toLocaleString()}/year
+- Known for: ${c.tags.join(', ')}
+
+Generate a detailed, personalized JSON report with this EXACT structure (respond with JSON only, no markdown, no extra text):
+{
+  "summary": "2-3 sentence honest assessment of the student's chances and what makes them competitive or not for this school",
+  "scoreAnalysis": [
+    {"label": "Academic Strength", "pct": 0-100, "status": "good|ok|gap", "note": "brief note"},
+    {"label": "Test Scores", "pct": 0-100, "status": "good|ok|gap", "note": "brief note"},
+    {"label": "Extracurricular Profile", "pct": 0-100, "status": "good|ok|gap", "note": "brief note"},
+    {"label": "Overall Competitiveness", "pct": 0-100, "status": "good|ok|gap", "note": "brief note"}
+  ],
+  "actions": [
+    "Specific action item 1 with concrete advice",
+    "Specific action item 2 with concrete advice",
+    "Specific action item 3 with concrete advice",
+    "Specific action item 4 with concrete advice",
+    "Specific action item 5 with concrete advice"
+  ],
+  "timeline": [
+    {"grade": "9th Grade", "text": "What to focus on in 9th grade for this school"},
+    {"grade": "10th Grade", "text": "What to focus on in 10th grade"},
+    {"grade": "11th Grade", "text": "Most critical year — what to do"},
+    {"grade": "12th Grade", "text": "Senior year application tips for this specific school"}
+  ],
+  "essayTips": [
+    {"tag": "Common App Essay", "text": "Specific advice for the Common App essay for this school's culture"},
+    {"tag": "Supplemental Essay", "text": "Specific advice for this school's supplemental essay if applicable"},
+    {"tag": "Recommendation Letter", "text": "Who to ask and what to tell them to highlight for this school"}
+  ]
+}`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await resp.json();
+    const raw=data.content.map(i=>i.text||'').join('');
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const report=JSON.parse(clean);
+    renderReport(report, c);
+  } catch(e){
+    renderFallbackReport(c);
+  }
+}
+
+function renderReport(r, c){
+  const bars=document.getElementById('rpt-bars');
+  bars.innerHTML=r.scoreAnalysis.map(s=>{
+    const cls=s.status==='good'?'good':s.status==='ok'?'ok':'gap';
+    return '<div class="score-bar-item">'
+      +'<div class="sbi-top"><span class="sbi-label">'+s.label+'</span><span class="sbi-val" style="color:'+(s.status==='good'?'var(--g1)':s.status==='ok'?'var(--a1)':'var(--r1)')+'">'+s.pct+'%</span></div>'
+      +'<div class="sbi-track"><div class="sbi-fill '+cls+'" style="width:'+s.pct+'%"></div></div>'
+      +'<div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">'+s.note+'</div>'
+    +'</div>';
+  }).join('');
+  document.getElementById('rpt-summary').textContent=r.summary;
+  document.getElementById('rpt-actions').innerHTML=r.actions.map((a,i)=>'<div class="action-item"><div class="ai-num">'+(i+1)+'</div><div class="ai-text">'+a+'</div></div>').join('');
+  document.getElementById('rpt-timeline').innerHTML=r.timeline.map(t=>'<div class="tl-item"><span class="tl-grade">'+t.grade+'</span><span class="tl-text">'+t.text+'</span></div>').join('');
+  document.getElementById('rpt-essays').innerHTML=r.essayTips.map(e=>'<div class="essay-prompt"><div class="ep-tag">'+e.tag+'</div><div class="ep-text">'+e.text+'</div></div>').join('');
+  document.getElementById('rpt-loading').style.display='none';
+  document.getElementById('rpt-content').classList.add('visible');
+}
+
+function renderFallbackReport(c){
+  const r={
+    summary:'Based on your profile, you have a solid foundation for '+c.n+'. Your academic metrics place you in the '+c.band+' band. Focus on strengthening your extracurricular narrative and crafting a compelling personal statement to maximize your chances.',
+    scoreAnalysis:[
+      {label:'Academic Strength',pct:72,status:'ok',note:'GPA and test scores are competitive for this school'},
+      {label:'Test Scores',pct:65,status:'ok',note:'Consider retaking for a stronger position'},
+      {label:'Extracurricular Profile',pct:EC.size>=4?80:EC.size>=2?55:35,status:EC.size>=4?'good':EC.size>=2?'ok':'gap',note:EC.size>=4?'Strong activity record':'Room to build leadership roles'},
+      {label:'Overall Competitiveness',pct:c.pct,status:c.pct>=70?'good':c.pct>=50?'ok':'gap',note:c.pct+'% match — '+c.band+' admit band'}
+    ],
+    actions:[
+      'Focus your personal statement on a specific challenge you\'ve overcome — '+c.n+' values authentic storytelling over achievements.',
+      'If your GPA is below '+c.minGPA+', take challenging AP courses and show an upward trend — admissions officers notice improvement.',
+      'Deepen your commitment to 2-3 key activities rather than spreading thin — leadership roles (president, captain, founder) carry 3x the weight.',
+      'Visit campus or attend a virtual info session — demonstrated interest can tip borderline decisions at selective schools.',
+      'Connect with a current student or alum for an informal interview — ask them what they wish they\'d known about the application.'
+    ],
+    timeline:[
+      {grade:'9th Grade',text:'Build strong GPA habits from day one. Join 3-4 clubs to explore interests. Aim for 3.8+ unweighted GPA.'},
+      {grade:'10th Grade',text:'Start narrowing your extracurricular focus. Take honors courses where available. Begin PSAT prep.'},
+      {grade:'11th Grade',text:'Most critical year. Take SAT/ACT (aim for '+c.minSAT+'+). Pursue leadership roles. Start your college list. Visit campuses.'},
+      {grade:'12th Grade',text:'Complete Common App in September. Submit Early Decision/Action if '+c.n+' is your top choice. Follow up on scholarships.'}
+    ],
+    essayTips:[
+      {tag:'Common App Essay',text:c.n+' values intellectual curiosity and community impact. Write about a moment that changed how you think — not just what you did, but how it reshaped your worldview.'},
+      {tag:'Supplemental Essay',text:'Research '+c.n+'\'s specific programs, professors, and initiatives. Name at least 2-3 specific things and explain exactly why they matter to your goals — generic "Why Us" essays are immediately obvious.'},
+      {tag:'Recommendation Letter',text:'Choose a teacher who has seen you struggle and grow — not just succeed. Brief them on your goals and give them 3 specific stories they can reference that connect to '+c.n+'\'s values.'}
+    ]
+  };
+  renderReport(r, c);
+}
+
+// ── UI HELPERS ─────────────────────────────────────────────────
+function onTuition(v){
+  const n=parseInt(v);
+  document.getElementById('tVal').textContent=n>=65000?'$65K+':'$'+n.toLocaleString();
+  live();
+}
+function switchTest(){
+  const t=document.getElementById('testType').value,w=document.getElementById('testWrap');
+  const i=document.getElementById('testScore'),l=document.getElementById('testLbl'),h=document.getElementById('testHint'),e=document.getElementById('testErr');
+  if(t==='none'){w.style.display='none';}
+  else{w.style.display='flex';
+    if(t==='sat'){l.textContent='SAT Score';i.min=400;i.max=1600;i.placeholder='400 – 1600';h.textContent='Range: 400–1600';e.textContent='SAT must be 400–1600';}
+    else{l.textContent='ACT Score';i.min=1;i.max=36;i.placeholder='1 – 36';h.textContent='Range: 1–36';e.textContent='ACT must be 1–36';}
+    i.value='';i.classList.remove('err-input');w.classList.remove('show-err');
+  }
+  live();
+}
+function resetAll(){
+  ['gpa','testScore','zip'].forEach(id=>{const e=document.getElementById(id);if(e){e.value='';e.classList.remove('err-input');}});
+  document.getElementById('gpaWrap').classList.remove('show-err');
+  document.getElementById('testWrap').classList.remove('show-err');
+  document.getElementById('testType').value='sat';
+  document.getElementById('proximity').value='any';
+  document.getElementById('tSlider').value=65000;
+  document.getElementById('tVal').textContent='$65K+';
+  switchTest();
+  ['pub','priv','lib','sm','med','lg','pPres','pAth','pAid','pRes','pStem','pArts','pIntl','pGreek','sPossible','sReach'].forEach(id=>{const e=document.getElementById(id);if(e)e.checked=false;});
+  document.getElementById('sCertain').checked=true;
+  document.getElementById('sLikely').checked=true;
+  document.getElementById('lv1').checked=true;
+  EC.clear();
+  document.querySelectorAll('.ec-card').forEach(c=>c.classList.remove('sel'));
+  searched=false;results=[];
+  document.getElementById('welcome').style.display='';
+  document.getElementById('results').style.display='none';
+  document.getElementById('matchBadge').textContent='— matches';
+}
+// close on overlay bg click
+document.getElementById('paywallOverlay').addEventListener('click',function(e){if(e.target===this)closePaywall();});
+document.getElementById('reportOverlay').addEventListener('click',function(e){if(e.target===this)closeReport();});
+</script>
+</body>
+</html>
