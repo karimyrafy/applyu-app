@@ -408,7 +408,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
         <li>Essay & recommendation letter bundle</li>
         <li>Application timeline & deadline tracker</li>
       </ul>
-      <button class="btn-price pro" id="landingUnlockBtn" onclick="goToCheckout(this)">Unlock ApplyU Pro →</button>
+      <button class="btn-price pro" id="landingUnlockBtn" onclick="goToIntake()">Unlock ApplyU Pro →</button>
     </div>
   </div>
 </section>
@@ -587,6 +587,47 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 </div>
 
 <!-- ══════════════════════════════════════════════════════════ -->
+<!-- POST-PAYMENT INTAKE MODAL (pw-step2) -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="overlay" id="pw-step2">
+  <div class="paywall-modal" style="max-width:480px;">
+    <div class="modal-header" style="text-align:center;border-bottom:none;padding-bottom:0.5rem;">
+      <div style="font-size:2rem;margin-bottom:0.5rem;">🎉</div>
+      <div class="modal-uni-name" style="font-size:1.3rem;">Welcome to ApplyU Pro!</div>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.4rem;line-height:1.6;">Your access is unlocked. Fill in your profile below to see your personalized college matches and AI reports.</p>
+    </div>
+    <div class="modal-body" style="padding-top:1rem;">
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="field">
+          <label>Unweighted GPA</label>
+          <input type="number" id="intake-gpa" min="0" max="4.0" step="0.01" placeholder="e.g. 3.7" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:0.6rem 0.85rem;color:var(--text);font-size:0.9rem;font-family:inherit;"/>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div class="field">
+            <label>Test Type</label>
+            <select id="intake-testtype" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:0.6rem 0.85rem;color:var(--text);font-size:0.9rem;font-family:inherit;">
+              <option value="sat">SAT</option>
+              <option value="act">ACT</option>
+              <option value="none">Test-Optional</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Score</label>
+            <input type="number" id="intake-score" placeholder="e.g. 1350" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:0.6rem 0.85rem;color:var(--text);font-size:0.9rem;font-family:inherit;"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>ZIP Code <span style="color:var(--text-dim);font-size:0.75rem;">(optional — enables distance filter)</span></label>
+          <input type="text" id="intake-zip" maxlength="5" placeholder="e.g. 33101" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:0.6rem 0.85rem;color:var(--text);font-size:0.9rem;font-family:inherit;"/>
+        </div>
+        <button onclick="submitIntake()" style="width:100%;padding:0.9rem;background:linear-gradient(135deg,var(--p1),#8B83FF);border:none;border-radius:99px;color:#fff;font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;">Find My Matches →</button>
+        <div style="text-align:center;font-size:0.75rem;color:var(--text-dim);">You can always adjust these in the sidebar</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
 <!-- PAYWALL MODAL -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <div class="overlay" id="paywallOverlay">
@@ -635,7 +676,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <div class="ci">Gap analysis per school</div>
           <div class="ci">Lifetime access</div>
         </div>
-        <button class="unlock-main-btn" id="paywallUnlockBtn" onclick="goToCheckout(this)">🔓 Unlock ApplyU Pro — $19</button>
+        <button class="unlock-main-btn" id="paywallUnlockBtn" onclick="goToIntake()">🔓 Unlock ApplyU Pro — $19</button>
         <div class="secure-note">🔒 Secure checkout · One-time payment · Instant access</div>
       </div>
     </div>
@@ -691,22 +732,52 @@ let searched=false, results=[], EC=new Set(), isPro=false;
 let currentCollege=null;
 
 // ── PRO STATUS ────────────────────────────────────────────────
+function goToIntake(){
+  window.location.href='https://buy.stripe.com/14A4gy1WU2ri6777Vy2Fa02';
+}
+
+function updateChatbotVisibility(){
+  // stub — wire to chatbot element when added
+  const bot=document.getElementById('chatbot');
+  if(bot) bot.style.display=isPro?'block':'none';
+}
+
+function openIntakeModal(){
+  showApp();
+  document.getElementById('pw-step2').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function submitIntake(){
+  // Copy intake values into the main sidebar form
+  const gpa=document.getElementById('intake-gpa').value;
+  const tt=document.getElementById('intake-testtype').value;
+  const sc=document.getElementById('intake-score').value;
+  const zip=document.getElementById('intake-zip').value;
+  if(gpa) document.getElementById('gpa').value=gpa;
+  if(tt)  document.getElementById('testType').value=tt;
+  if(sc)  document.getElementById('testScore').value=sc;
+  if(zip) document.getElementById('zip').value=zip;
+  document.getElementById('pw-step2').classList.remove('open');
+  document.body.style.overflow='';
+  runSearch();
+}
+
 function activatePro(){
   isPro=true;
   try { localStorage.setItem('applyu_pro','1'); } catch(e){}
-  // Strip the query param without a page reload
-  const url=new URL(window.location.href);
-  url.searchParams.delete('payment');
-  window.history.replaceState({},'',url.toString());
-  showApp();
+  updateChatbotVisibility();
+  // Strip query params without a page reload
+  window.history.replaceState({},'',window.location.pathname);
+  openIntakeModal();
   if(searched) render();
 }
 
 // On every page load: restore pro from localStorage or handle Stripe redirect
 (function initPro(){
-  try { if(localStorage.getItem('applyu_pro')==='1') isPro=true; } catch(e){}
+  try { if(localStorage.getItem('applyu_pro')==='1'){ isPro=true; updateChatbotVisibility(); } } catch(e){}
   const params=new URLSearchParams(window.location.search);
-  if(params.get('payment')==='success') activatePro();
+  if(params.get('payment')==='success' || params.get('pro')==='true') activatePro();
 })();
 
 // ── PAGE ROUTING ──────────────────────────────────────────────
