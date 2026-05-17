@@ -408,7 +408,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
         <li>Essay & recommendation letter bundle</li>
         <li>Application timeline & deadline tracker</li>
       </ul>
-      <button class="btn-price pro" onclick="showApp()">Unlock ApplyU Pro →</button>
+      <button class="btn-price pro" id="landingUnlockBtn" onclick="goToCheckout(this)">Unlock ApplyU Pro →</button>
     </div>
   </div>
 </section>
@@ -635,7 +635,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <div class="ci">Gap analysis per school</div>
           <div class="ci">Lifetime access</div>
         </div>
-        <button class="unlock-main-btn" onclick="handleUnlock()">🔓 Unlock ApplyU Pro — $19</button>
+        <button class="unlock-main-btn" id="paywallUnlockBtn" onclick="goToCheckout(this)">🔓 Unlock ApplyU Pro — $19</button>
         <div class="secure-note">🔒 Secure checkout · One-time payment · Instant access</div>
       </div>
     </div>
@@ -689,6 +689,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 // ── STATE ─────────────────────────────────────────────────────
 let searched=false, results=[], EC=new Set(), isPro=false;
 let currentCollege=null;
+
+// ── PRO STATUS ────────────────────────────────────────────────
+function activatePro(){
+  isPro=true;
+  try { localStorage.setItem('applyu_pro','1'); } catch(e){}
+  // Strip the query param without a page reload
+  const url=new URL(window.location.href);
+  url.searchParams.delete('payment');
+  window.history.replaceState({},'',url.toString());
+  showApp();
+  if(searched) render();
+}
+
+// On every page load: restore pro from localStorage or handle Stripe redirect
+(function initPro(){
+  try { if(localStorage.getItem('applyu_pro')==='1') isPro=true; } catch(e){}
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('payment')==='success') activatePro();
+})();
 
 // ── PAGE ROUTING ──────────────────────────────────────────────
 function showApp(){
@@ -942,11 +961,20 @@ function closePaywall(){
   document.getElementById('paywallOverlay').classList.remove('open');
   document.body.style.overflow='';
 }
-function handleUnlock(){
-  closePaywall();
-  isPro=true;
-  if(currentCollege) openReport(currentCollege);
-  if(searched) render();
+function handleUnlock(){ goToCheckout(); }
+
+async function goToCheckout(btn){
+  const label = btn ? btn.innerHTML : null;
+  if(btn){ btn.disabled=true; btn.innerHTML='Loading...'; }
+  try {
+    const res = await fetch('/api/stripe-checkout',{ method:'POST', headers:{'Content-Type':'application/json'} });
+    const data = await res.json();
+    if(data.url){ window.location.href=data.url; }
+    else { alert('Checkout unavailable. Please try again.'); if(btn){ btn.disabled=false; btn.innerHTML=label; } }
+  } catch(e) {
+    alert('Could not start checkout. Please try again.');
+    if(btn){ btn.disabled=false; btn.innerHTML=label; }
+  }
 }
 
 // ── AI REPORT ─────────────────────────────────────────────────
