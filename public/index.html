@@ -1334,12 +1334,8 @@ function renderReport(r, c){
   document.getElementById('rpt-timeline').innerHTML=r.timeline.map(t=>'<div class="tl-item"><span class="tl-grade">'+t.grade+'</span><span class="tl-text">'+t.text+'</span></div>').join('');
   document.getElementById('rpt-essays').innerHTML=r.essayTips.map(e=>'<div class="essay-prompt"><div class="ep-tag">'+e.tag+'</div><div class="ep-text">'+e.text+'</div></div>').join('');
   document.getElementById('rpt-loading').style.display='none';
-  document.getElementById('rpt-content').classList.add('visible');
   document.getElementById('rpt-tabs').style.display='flex';
   document.getElementById('tab-report').style.display='block';
-  document.getElementById('tab-essays').style.display='none';
-  document.getElementById('tab-letters').style.display='none';
-  document.getElementById('tab-counselor').style.display='none';
   document.querySelectorAll('.rpt-tab').forEach((b,i)=>{b.classList.toggle('active',i===0);});
 }
 
@@ -1435,13 +1431,15 @@ document.addEventListener('DOMContentLoaded',function(){
     };
     document.body.appendChild(b);
   }
-  // ?pro=true redirect — no modal
+  // ?pro=true redirect — show intake modal
   if(params.get('pro')==='true'){
     isPro=true;
     try{localStorage.setItem('applyu_pro','1');}catch(e){}
     updateChatbotVisibility();
-    showApp();
-    window.history.replaceState({},'',window.location.pathname);
+    document.getElementById('pw-step1').style.display='none';
+    document.getElementById('pw-step2').style.display='block';
+    document.getElementById('paywallOverlay').classList.add('open');
+    document.body.style.overflow='hidden';
   }
   // Stripe payment success — show intake modal
   if(params.get('payment')==='success'){
