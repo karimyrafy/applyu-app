@@ -325,9 +325,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
 /* ── CHAT BUBBLES ── */
 #salesChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:none;flex-direction:column;align-items:flex-end;gap:0.6rem;}
-#proChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:none;flex-direction:column;align-items:flex-end;gap:0.6rem;}
-#proChatWindow{display:none;flex-direction:column;width:300px;background:var(--surface);border:1px solid var(--border-bright);border-radius:var(--radius-lg);box-shadow:0 8px 40px rgba(0,0,0,0.6);overflow:hidden;}
-#proChatWindow.open{display:flex;}
+#proChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:none;}
 .chat-toggle{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 4px 20px rgba(0,0,0,0.45);transition:transform 0.2s,box-shadow 0.2s;}
 .chat-toggle:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.55);}
 .chat-toggle.sales{background:linear-gradient(135deg,var(--p1),#8B83FF);}
@@ -754,24 +752,29 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="report-uni" id="rpt-uni"></div>
       <div class="report-subtitle" id="rpt-subtitle">AI-Powered Admission Report · ApplyU Pro</div>
     </div>
-    <div id="rpt-tabs" style="display:none;flex-direction:row;gap:0.3rem;padding:0 2rem;border-bottom:1px solid var(--border);background:var(--surface);"><button class="rpt-tab active" onclick="switchTab('report',this)">📊 My Report</button><button class="rpt-tab" onclick="switchTab('essays',this)">✍️ Essays</button><button class="rpt-tab" onclick="switchTab('letters',this)">📬 Rec Letters</button><button class="rpt-tab" onclick="switchTab('counselor',this)">🤝 Counselor</button></div>
     <div class="report-body">
       <div class="loading-state" id="rpt-loading">
         <div class="spinner"></div>
         <div class="loading-msg">Analyzing your profile against this university…</div>
         <div class="loading-submsg">Claude AI is generating your personalized report</div>
       </div>
-      <div id="tab-report" style="display:none;"><div class="report-section"><div class="rs-label">Match Analysis</div><div class="score-bars" id="rpt-bars"></div><div class="rs-text" id="rpt-summary"></div></div><div class="report-section"><div class="rs-label">Your Action Plan</div><div class="action-items" id="rpt-actions"></div></div><div class="report-section"><div class="rs-label">Timeline</div><div class="timeline-grid" id="rpt-timeline"></div></div></div>
-      <div id="tab-essays" style="display:none;"><div class="report-section"><div class="rs-label">Essay Strategy</div><div class="rs-text" id="essay-commonapp"></div></div><div class="report-section"><div class="rs-label">Supplemental Essays</div><div class="essay-prompts" id="essay-supplemental"></div></div><div class="report-section"><div class="rs-label">What to Avoid</div><div class="rs-text" id="essay-avoid"></div></div></div>
-      <div id="tab-letters" style="display:none;"><div class="report-section"><div class="rs-label">Who to Ask</div><div class="rs-text" id="letter-strategy"></div></div><div class="report-section"><div class="rs-label">Email Template</div><div class="letter-template" id="letter-request-template"></div></div><div class="report-section"><div class="rs-label">Brag Sheet</div><div class="rs-text" id="letter-bragsheet"></div></div></div>
-      <div id="tab-counselor" style="display:none;">
-        <div class="report-section" style="flex:1;display:flex;flex-direction:column;">
-          <div class="rs-label">Chat with Your AI Counselor</div>
-          <div id="inlineProMessages" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem;padding:1rem 0;min-height:220px;max-height:340px;"></div>
-          <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
-            <input id="inlineProInput" type="text" placeholder="Ask anything about your application…" style="flex:1;padding:0.6rem 0.9rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;background:var(--surface);color:var(--text);outline:none;" onkeydown="if(event.key==='Enter')sendInlineProMsg()"/>
-            <button onclick="sendInlineProMsg()" style="padding:0.6rem 1.1rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem;">Send</button>
-          </div>
+      <div class="report-content" id="rpt-content">
+        <div class="report-section">
+          <div class="rs-label">Match Analysis</div>
+          <div class="score-bars" id="rpt-bars"></div>
+          <div class="rs-text" id="rpt-summary"></div>
+        </div>
+        <div class="report-section">
+          <div class="rs-label">Your Action Plan</div>
+          <div class="action-items" id="rpt-actions"></div>
+        </div>
+        <div class="report-section">
+          <div class="rs-label">Application Timeline</div>
+          <div class="timeline-grid" id="rpt-timeline"></div>
+        </div>
+        <div class="report-section">
+          <div class="rs-label">Essay Strategy</div>
+          <div class="essay-prompts" id="rpt-essays"></div>
         </div>
       </div>
     </div>
@@ -796,102 +799,6 @@ function goToIntake(){
 function toggleSalesChat(){
   const w=document.getElementById('salesChatWindow');
   if(w) w.classList.toggle('open');
-}
-
-function toggleProChat(){
-  const w=document.getElementById('proChatWindow');
-  if(w) w.classList.toggle('open');
-}
-
-function proQuick(msg){
-  const input=document.getElementById('proInput');
-  if(input){input.value=msg;sendProMsg();}
-}
-
-const proMsgHistory=[];
-
-async function sendProMsg(){
-  const input=document.getElementById('proInput');
-  const msgs=document.getElementById('proMessages');
-  if(!input||!msgs) return;
-  const text=input.value.trim();
-  if(!text) return;
-  input.value='';
-  proMsgHistory.push({role:'user',content:text});
-  msgs.innerHTML+='<div class="chat-msg user">'+text+'</div>';
-  msgs.innerHTML+='<div class="chat-msg bot" id="proTyping">…</div>';
-  msgs.scrollTop=msgs.scrollHeight;
-  const college=currentCollege?'The student is currently looking at '+currentCollege.n+' ('+currentCollege.pct+'% match, '+currentCollege.band+' band). ':'';
-  try{
-    const resp=await fetch('/api/claude',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:400,
-        system:'You are a personal AI college admissions counselor for an ApplyU Pro user. '+college+'Give specific, actionable advice on essays, school strategy, timelines, extracurriculars, and applications. Be warm, direct, and expert. Keep replies under 5 sentences.',
-        messages:proMsgHistory
-      })
-    });
-    const data=await resp.json();
-    const reply=(data.content&&data.content[0]&&data.content[0].text)||'Great question — focus on authenticity and specificity in your application. Every detail should connect back to who you are and what you\'ll bring to campus.';
-    proMsgHistory.push({role:'assistant',content:reply});
-    const t=document.getElementById('proTyping');
-    if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
-  }catch(e){
-    const reply='Focus on authenticity and specificity — those are the two things that move the needle most in college applications.';
-    proMsgHistory.push({role:'assistant',content:reply});
-    const t=document.getElementById('proTyping');
-    if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
-  }
-  msgs.scrollTop=msgs.scrollHeight;
-}
-
-function switchTab(name,btn){
-  ['report','essays','letters','counselor'].forEach(t=>{
-    const el=document.getElementById('tab-'+t);
-    if(el) el.style.display=(t===name)?'block':'none';
-  });
-  document.querySelectorAll('.rpt-tab').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-}
-
-const inlineMsgHistory=[];
-async function sendInlineProMsg(){
-  const input=document.getElementById('inlineProInput');
-  const msgs=document.getElementById('inlineProMessages');
-  if(!input||!msgs) return;
-  const text=input.value.trim();
-  if(!text) return;
-  input.value='';
-  inlineMsgHistory.push({role:'user',content:text});
-  msgs.innerHTML+='<div class="chat-msg user">'+text+'</div>';
-  msgs.innerHTML+='<div class="chat-msg bot" id="inlineTyping">…</div>';
-  msgs.scrollTop=msgs.scrollHeight;
-  const college=currentCollege?'The student is reviewing '+currentCollege.n+' ('+currentCollege.pct+'% match). ':'';
-  try{
-    const resp=await fetch('/api/claude',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:400,
-        system:'You are a personal AI college admissions counselor for an ApplyU Pro user. '+college+'Give specific, actionable advice on essays, school strategy, timelines, extracurriculars, and applications. Be warm, direct, and expert. Keep replies under 5 sentences.',
-        messages:inlineMsgHistory
-      })
-    });
-    const data=await resp.json();
-    const reply=(data.content&&data.content[0]&&data.content[0].text)||'Great question — focus on authenticity and specificity in every part of your application.';
-    inlineMsgHistory.push({role:'assistant',content:reply});
-    const t=document.getElementById('inlineTyping');
-    if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
-  }catch(e){
-    const reply='Focus on authenticity and specificity — those are the two things that move the needle most in college applications.';
-    inlineMsgHistory.push({role:'assistant',content:reply});
-    const t=document.getElementById('inlineTyping');
-    if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
-  }
-  msgs.scrollTop=msgs.scrollHeight;
 }
 
 function salesQuick(msg){
@@ -963,7 +870,6 @@ function submitIntake(){
   if(zip) document.getElementById('zip').value=zip;
   document.getElementById('pw-step2').classList.remove('open');
   document.body.style.overflow='';
-  showApp();
   runSearch();
 }
 
@@ -981,7 +887,13 @@ function activatePro(){
   try { if(localStorage.getItem('applyu_pro')==='1') isPro=true; } catch(e){}
   const params=new URLSearchParams(window.location.search);
   if(params.get('payment')==='success' || params.get('pro')==='true') activatePro();
-
+  if(params.get('admin')==='yael'){
+    isPro=true;
+    try { localStorage.setItem('applyu_pro','1'); } catch(e){}
+    const badge=document.getElementById('admin-badge');
+    if(badge) badge.style.display='inline-block';
+    window.history.replaceState({},'',window.location.pathname);
+  }
 })();
 
 // ── PAGE ROUTING ──────────────────────────────────────────────
@@ -1259,13 +1171,7 @@ function closePaywall(){
   document.getElementById('paywallOverlay').classList.remove('open');
   document.body.style.overflow='';
 }
-function handleUnlock(){
-  isPro=true;
-  updateChatbotVisibility();
-  closePaywall();
-  showApp();
-  if(searched)render();
-}
+function handleUnlock(){ goToCheckout(); }
 
 async function goToCheckout(btn){
   const label = btn ? btn.innerHTML : null;
@@ -1274,9 +1180,9 @@ async function goToCheckout(btn){
     const res = await fetch('/api/stripe-checkout',{ method:'POST', headers:{'Content-Type':'application/json'} });
     const data = await res.json();
     if(data.url){ window.location.href=data.url; }
-    else { console.log('Checkout unavailable. Please try again.'); if(btn){ btn.disabled=false; btn.innerHTML=label; } }
+    else { alert('Checkout unavailable. Please try again.'); if(btn){ btn.disabled=false; btn.innerHTML=label; } }
   } catch(e) {
-    console.log('Could not start checkout. Please try again.');
+    alert('Could not start checkout. Please try again.');
     if(btn){ btn.disabled=false; btn.innerHTML=label; }
   }
 }
@@ -1284,13 +1190,11 @@ async function goToCheckout(btn){
 // ── AI REPORT ─────────────────────────────────────────────────
 function openReport(c){
   document.getElementById('rpt-uni').textContent=c.n+' — AI Report';
+  document.getElementById('rpt-content').classList.remove('visible');
   document.getElementById('rpt-loading').style.display='flex';
-  document.getElementById('rpt-tabs').style.display='none';
-  ['report','essays','letters','counselor'].forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='none';});
   document.getElementById('reportOverlay').classList.add('open');
   document.body.style.overflow='hidden';
   generateReport(c);
-  setTimeout(function(){if(document.getElementById('rpt-loading').style.display!=='none'){renderFallbackReport(currentCollege);}},5000);
 }
 function closeReport(){
   document.getElementById('reportOverlay').classList.remove('open');
@@ -1384,9 +1288,7 @@ function renderReport(r, c){
   document.getElementById('rpt-timeline').innerHTML=r.timeline.map(t=>'<div class="tl-item"><span class="tl-grade">'+t.grade+'</span><span class="tl-text">'+t.text+'</span></div>').join('');
   document.getElementById('rpt-essays').innerHTML=r.essayTips.map(e=>'<div class="essay-prompt"><div class="ep-tag">'+e.tag+'</div><div class="ep-text">'+e.text+'</div></div>').join('');
   document.getElementById('rpt-loading').style.display='none';
-  document.getElementById('rpt-tabs').style.display='flex';
-  document.getElementById('tab-report').style.display='block';
-  document.querySelectorAll('.rpt-tab').forEach((b,i)=>{b.classList.toggle('active',i===0);});
+  document.getElementById('rpt-content').classList.add('visible');
 }
 
 function renderFallbackReport(c){
@@ -1465,32 +1367,22 @@ document.addEventListener('DOMContentLoaded',function(){
   // Restore pro for returning visitors
   try{ if(localStorage.getItem('applyu_pro')==='1'){ isPro=true; updateChatbotVisibility(); } }catch(e){}
   const params=new URLSearchParams(window.location.search);
+  // Admin bypass
   if(params.get('admin')==='yael'){
-    try{localStorage.removeItem('applyu_pro');}catch(e){}
     isPro=true;
-    try{localStorage.setItem('applyu_pro','1');}catch(e){}
+    try{ localStorage.setItem('applyu_pro','1'); }catch(e){}
+    const badge=document.getElementById('admin-badge');
+    if(badge) badge.style.display='inline-block';
+    window.history.replaceState({},'',window.location.pathname);
     updateChatbotVisibility();
-    const b=document.createElement('button');
-    b.textContent='Pro Access — Click to Start';
-    b.style.cssText='position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:#10B981;color:#fff;font-size:0.85rem;font-weight:700;padding:0.5rem 1.2rem;border-radius:99px;z-index:99999;border:none;cursor:pointer;';
-    b.onclick=function(){
-      document.getElementById('pw-step1').style.display='none';
-      document.getElementById('pw-step2').style.display='block';
-      document.getElementById('paywallOverlay').classList.add('open');
-      document.body.style.overflow='hidden';
-    };
-    document.body.appendChild(b);
   }
-  // ?pro=true redirect — show intake modal
+  // ?pro=true redirect — no modal
   if(params.get('pro')==='true'){
     isPro=true;
     try{localStorage.setItem('applyu_pro','1');}catch(e){}
     updateChatbotVisibility();
     showApp();
-    document.getElementById('pw-step1').style.display='none';
-    document.getElementById('pw-step2').style.display='block';
-    document.getElementById('paywallOverlay').classList.add('open');
-    document.body.style.overflow='hidden';
+    window.history.replaceState({},'',window.location.pathname);
   }
   // Stripe payment success — show intake modal
   if(params.get('payment')==='success'){
@@ -1531,27 +1423,7 @@ document.addEventListener('DOMContentLoaded',function(){
   <button class="chat-toggle sales" onclick="toggleSalesChat()" title="Chat with us">🎓</button>
 </div>
 <div id="proChatBubble">
-  <div id="proChatWindow">
-    <div class="chat-header" style="background:linear-gradient(135deg,var(--g1),#059669);">
-      <div class="chat-header-info">
-        <div class="chat-header-title">AI Counselor 🤖</div>
-        <div class="chat-header-sub">Pro — ask me anything about your apps</div>
-      </div>
-      <button class="chat-close" onclick="toggleProChat()">×</button>
-    </div>
-    <div class="chat-messages" id="proMessages">
-      <div class="chat-msg bot">Hi! I'm your personal AI counselor. I can help you with essays, school strategy, timelines, and anything else about your applications. What would you like to work on?</div>
-    </div>
-    <div class="chat-quick">
-      <button class="chat-qbtn" onclick="proQuick('Review my college list')">My list</button>
-      <button class="chat-qbtn" onclick="proQuick('Help with my Common App essay')">Essay help</button>
-    </div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="proInput" placeholder="Ask your counselor…" onkeydown="if(event.key==='Enter')sendProMsg()"/>
-      <button class="chat-send" style="background:var(--g1);" onclick="sendProMsg()">↑</button>
-    </div>
-  </div>
-  <button class="chat-toggle pro" title="AI Counselor" onclick="toggleProChat()">🤖</button>
+  <button class="chat-toggle pro" title="AI Advisor" onclick="alert('AI Advisor — coming soon!')">🤖</button>
 </div>
 </body>
 </html>
