@@ -328,7 +328,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 <div id="landing">
 
 <nav>
-  <div class="logo">Apply<span class="logo-u">U</span><span class="logo-dot"></span></div>
+  <div style="display:flex;align-items:center;gap:0.6rem;">
+    <div class="logo">Apply<span class="logo-u">U</span><span class="logo-dot"></span></div>
+    <span id="admin-badge" style="display:none;background:#22c55e;color:#fff;font-size:0.65rem;font-weight:700;letter-spacing:0.05em;padding:0.2rem 0.6rem;border-radius:99px;">Pro Access ✓</span>
+  </div>
   <button class="nav-cta" onclick="showApp()">Try Free →</button>
 </nav>
 
@@ -795,6 +798,14 @@ function activatePro(){
   try { if(localStorage.getItem('applyu_pro')==='1'){ isPro=true; updateChatbotVisibility(); } } catch(e){}
   const params=new URLSearchParams(window.location.search);
   if(params.get('payment')==='success' || params.get('pro')==='true') activatePro();
+  if(params.get('admin')==='yael'){
+    isPro=true;
+    try { localStorage.setItem('applyu_pro','1'); } catch(e){}
+    updateChatbotVisibility();
+    const badge=document.getElementById('admin-badge');
+    if(badge) badge.style.display='inline-block';
+    window.history.replaceState({},'',window.location.pathname);
+  }
 })();
 
 // ── PAGE ROUTING ──────────────────────────────────────────────
