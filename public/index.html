@@ -1284,6 +1284,7 @@ function openReport(c){
   document.getElementById('reportOverlay').classList.add('open');
   document.body.style.overflow='hidden';
   generateReport(c);
+  setTimeout(function(){if(document.getElementById('rpt-loading').style.display!=='none'){renderFallbackReport(currentCollege);}},8000);
 }
 function closeReport(){
   document.getElementById('reportOverlay').classList.remove('open');
