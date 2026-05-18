@@ -318,18 +318,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 }
 
 /* ── CHAT BUBBLES ── */
-#salesChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:0.75rem;}
-#proChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:none;flex-direction:column;align-items:flex-end;gap:0.75rem;}
+#salesChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:none;}
+#proChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:none;}
 .chat-toggle{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 4px 20px rgba(0,0,0,0.45);transition:transform 0.2s,box-shadow 0.2s;}
 .chat-toggle:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.55);}
 .chat-toggle.sales{background:linear-gradient(135deg,var(--p1),#8B83FF);}
 .chat-toggle.pro{background:linear-gradient(135deg,var(--g1),#059669);}
-#salesChatPanel{display:none;background:var(--surface);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:1.1rem 1.2rem;width:270px;box-shadow:0 8px 32px rgba(0,0,0,0.55);}
-#salesChatPanel.open{display:block;}
-.scp-header{font-family:'Clash Display',sans-serif;font-size:0.95rem;font-weight:600;margin-bottom:0.4rem;}
-.scp-sub{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.85rem;line-height:1.55;}
-.scp-link{display:inline-block;background:linear-gradient(135deg,var(--p1),#8B83FF);color:#fff;font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:0.82rem;padding:0.45rem 1.1rem;border-radius:99px;text-decoration:none;transition:opacity 0.2s;}
-.scp-link:hover{opacity:0.85;}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7773370083514994" crossorigin="anonymous"></script>
 </head>
@@ -771,8 +765,8 @@ function goToIntake(){
 }
 
 function toggleSalesChat(){
-  const panel=document.getElementById('salesChatPanel');
-  if(panel) panel.classList.toggle('open');
+  const w=document.getElementById('salesChatWindow');
+  if(w) w.classList.toggle('open');
 }
 
 function updateChatbotVisibility(){
@@ -1278,15 +1272,13 @@ function resetAll(){
 // close on overlay bg click
 document.getElementById('paywallOverlay').addEventListener('click',function(e){if(e.target===this)closePaywall();});
 document.getElementById('reportOverlay').addEventListener('click',function(e){if(e.target===this)closeReport();});
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('salesChatBubble').style.display='flex';
+});
 </script>
 
 <!-- ── CHAT BUBBLES ── -->
 <div id="salesChatBubble">
-  <div id="salesChatPanel">
-    <div class="scp-header">Have a question? 👋</div>
-    <div class="scp-sub">We help students find their best-fit colleges. Email us and we'll get back to you within 24 hours.</div>
-    <a href="mailto:support@applyu.co" class="scp-link">Email Us →</a>
-  </div>
   <button class="chat-toggle sales" onclick="toggleSalesChat()" title="Chat with us">🎓</button>
 </div>
 <div id="proChatBubble">
