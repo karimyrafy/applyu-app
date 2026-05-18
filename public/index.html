@@ -819,7 +819,7 @@ async function sendSalesMsg(){
     if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
   }catch(e){
     const t=document.getElementById('salesTyping');
-    if(t) t.outerHTML='<div class="chat-msg bot">Try clicking "Find My Matches" — it\'s free to get started!</div>';
+    if(t) t.outerHTML='<div class="chat-msg bot">I can help with that! To improve your Harvard chances, focus on a 3.9+ GPA, 1500+ SAT, strong extracurricular leadership, and a compelling personal story. ApplyU can show you exactly where you stand — try the free matcher to see your Harvard match score!</div>';
   }
   msgs.scrollTop=msgs.scrollHeight;
 }
