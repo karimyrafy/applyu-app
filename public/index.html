@@ -754,29 +754,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="report-uni" id="rpt-uni"></div>
       <div class="report-subtitle" id="rpt-subtitle">AI-Powered Admission Report · ApplyU Pro</div>
     </div>
+    <div id="rpt-tabs" style="display:none;flex-direction:row;gap:0.3rem;padding:0 2rem;border-bottom:1px solid var(--border);background:var(--surface);"><button class="rpt-tab active" onclick="switchTab('report',this)">📊 My Report</button><button class="rpt-tab" onclick="switchTab('essays',this)">✍️ Essays</button><button class="rpt-tab" onclick="switchTab('letters',this)">📬 Rec Letters</button><button class="rpt-tab" onclick="switchTab('counselor',this)">🤝 Counselor</button></div>
     <div class="report-body">
       <div class="loading-state" id="rpt-loading">
         <div class="spinner"></div>
         <div class="loading-msg">Analyzing your profile against this university…</div>
         <div class="loading-submsg">Claude AI is generating your personalized report</div>
       </div>
-      <div class="report-content" id="rpt-content">
-        <div class="report-section">
-          <div class="rs-label">Match Analysis</div>
-          <div class="score-bars" id="rpt-bars"></div>
-          <div class="rs-text" id="rpt-summary"></div>
-        </div>
-        <div class="report-section">
-          <div class="rs-label">Your Action Plan</div>
-          <div class="action-items" id="rpt-actions"></div>
-        </div>
-        <div class="report-section">
-          <div class="rs-label">Application Timeline</div>
-          <div class="timeline-grid" id="rpt-timeline"></div>
-        </div>
-        <div class="report-section">
-          <div class="rs-label">Essay Strategy</div>
-          <div class="essay-prompts" id="rpt-essays"></div>
+      <div id="tab-report" style="display:none;"><div class="report-section"><div class="rs-label">Match Analysis</div><div class="score-bars" id="rpt-bars"></div><div class="rs-text" id="rpt-summary"></div></div><div class="report-section"><div class="rs-label">Your Action Plan</div><div class="action-items" id="rpt-actions"></div></div><div class="report-section"><div class="rs-label">Timeline</div><div class="timeline-grid" id="rpt-timeline"></div></div></div>
+      <div id="tab-essays" style="display:none;"><div class="report-section"><div class="rs-label">Essay Strategy</div><div class="rs-text" id="essay-commonapp"></div></div><div class="report-section"><div class="rs-label">Supplemental Essays</div><div class="essay-prompts" id="essay-supplemental"></div></div><div class="report-section"><div class="rs-label">What to Avoid</div><div class="rs-text" id="essay-avoid"></div></div></div>
+      <div id="tab-letters" style="display:none;"><div class="report-section"><div class="rs-label">Who to Ask</div><div class="rs-text" id="letter-strategy"></div></div><div class="report-section"><div class="rs-label">Email Template</div><div class="letter-template" id="letter-request-template"></div></div><div class="report-section"><div class="rs-label">Brag Sheet</div><div class="rs-text" id="letter-bragsheet"></div></div></div>
+      <div id="tab-counselor" style="display:none;">
+        <div class="report-section" style="flex:1;display:flex;flex-direction:column;">
+          <div class="rs-label">Chat with Your AI Counselor</div>
+          <div id="inlineProMessages" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem;padding:1rem 0;min-height:220px;max-height:340px;"></div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+            <input id="inlineProInput" type="text" placeholder="Ask anything about your application…" style="flex:1;padding:0.6rem 0.9rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;background:var(--surface);color:var(--text);outline:none;" onkeydown="if(event.key==='Enter')sendInlineProMsg()"/>
+            <button onclick="sendInlineProMsg()" style="padding:0.6rem 1.1rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem;">Send</button>
+          </div>
         </div>
       </div>
     </div>
@@ -847,6 +842,53 @@ async function sendProMsg(){
     const reply='Focus on authenticity and specificity — those are the two things that move the needle most in college applications.';
     proMsgHistory.push({role:'assistant',content:reply});
     const t=document.getElementById('proTyping');
+    if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function switchTab(name,btn){
+  ['report','essays','letters','counselor'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el) el.style.display=(t===name)?'block':'none';
+  });
+  document.querySelectorAll('.rpt-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+const inlineMsgHistory=[];
+async function sendInlineProMsg(){
+  const input=document.getElementById('inlineProInput');
+  const msgs=document.getElementById('inlineProMessages');
+  if(!input||!msgs) return;
+  const text=input.value.trim();
+  if(!text) return;
+  input.value='';
+  inlineMsgHistory.push({role:'user',content:text});
+  msgs.innerHTML+='<div class="chat-msg user">'+text+'</div>';
+  msgs.innerHTML+='<div class="chat-msg bot" id="inlineTyping">…</div>';
+  msgs.scrollTop=msgs.scrollHeight;
+  const college=currentCollege?'The student is reviewing '+currentCollege.n+' ('+currentCollege.pct+'% match). ':'';
+  try{
+    const resp=await fetch('/api/claude',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:400,
+        system:'You are a personal AI college admissions counselor for an ApplyU Pro user. '+college+'Give specific, actionable advice on essays, school strategy, timelines, extracurriculars, and applications. Be warm, direct, and expert. Keep replies under 5 sentences.',
+        messages:inlineMsgHistory
+      })
+    });
+    const data=await resp.json();
+    const reply=(data.content&&data.content[0]&&data.content[0].text)||'Great question — focus on authenticity and specificity in every part of your application.';
+    inlineMsgHistory.push({role:'assistant',content:reply});
+    const t=document.getElementById('inlineTyping');
+    if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
+  }catch(e){
+    const reply='Focus on authenticity and specificity — those are the two things that move the needle most in college applications.';
+    inlineMsgHistory.push({role:'assistant',content:reply});
+    const t=document.getElementById('inlineTyping');
     if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
   }
   msgs.scrollTop=msgs.scrollHeight;
@@ -1236,8 +1278,9 @@ async function goToCheckout(btn){
 // ── AI REPORT ─────────────────────────────────────────────────
 function openReport(c){
   document.getElementById('rpt-uni').textContent=c.n+' — AI Report';
-  document.getElementById('rpt-content').classList.remove('visible');
   document.getElementById('rpt-loading').style.display='flex';
+  document.getElementById('rpt-tabs').style.display='none';
+  ['report','essays','letters','counselor'].forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='none';});
   document.getElementById('reportOverlay').classList.add('open');
   document.body.style.overflow='hidden';
   generateReport(c);
