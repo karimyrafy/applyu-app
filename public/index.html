@@ -813,6 +813,8 @@ function proQuick(msg){
   if(input){input.value=msg;sendProMsg();}
 }
 
+const proMsgHistory=[];
+
 async function sendProMsg(){
   const input=document.getElementById('proInput');
   const msgs=document.getElementById('proMessages');
@@ -820,6 +822,7 @@ async function sendProMsg(){
   const text=input.value.trim();
   if(!text) return;
   input.value='';
+  proMsgHistory.push({role:'user',content:text});
   msgs.innerHTML+='<div class="chat-msg user">'+text+'</div>';
   msgs.innerHTML+='<div class="chat-msg bot" id="proTyping">…</div>';
   msgs.scrollTop=msgs.scrollHeight;
@@ -832,16 +835,19 @@ async function sendProMsg(){
         model:'claude-sonnet-4-20250514',
         max_tokens:400,
         system:'You are a personal AI college admissions counselor for an ApplyU Pro user. '+college+'Give specific, actionable advice on essays, school strategy, timelines, extracurriculars, and applications. Be warm, direct, and expert. Keep replies under 5 sentences.',
-        messages:[{role:'user',content:text}]
+        messages:proMsgHistory
       })
     });
     const data=await resp.json();
     const reply=(data.content&&data.content[0]&&data.content[0].text)||'Great question — focus on authenticity and specificity in your application. Every detail should connect back to who you are and what you\'ll bring to campus.';
+    proMsgHistory.push({role:'assistant',content:reply});
     const t=document.getElementById('proTyping');
     if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
   }catch(e){
+    const reply='Focus on authenticity and specificity — those are the two things that move the needle most in college applications.';
+    proMsgHistory.push({role:'assistant',content:reply});
     const t=document.getElementById('proTyping');
-    if(t) t.outerHTML='<div class="chat-msg bot">Focus on authenticity and specificity — those are the two things that move the needle most in college applications.</div>';
+    if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
   }
   msgs.scrollTop=msgs.scrollHeight;
 }
@@ -1413,7 +1419,22 @@ document.addEventListener('DOMContentLoaded',function(){
   // Restore pro for returning visitors
   try{ if(localStorage.getItem('applyu_pro')==='1'){ isPro=true; updateChatbotVisibility(); } }catch(e){}
   const params=new URLSearchParams(window.location.search);
-  if(params.get('admin')==='yael'){isPro=true;try{localStorage.setItem('applyu_pro','1');}catch(e){}updateChatbotVisibility();const b=document.createElement('button');b.textContent='Pro Access — Click to Start';b.style.cssText='position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:#10B981;color:#fff;font-size:0.85rem;font-weight:700;padding:0.5rem 1.2rem;border-radius:99px;z-index:99999;border:none;cursor:pointer;';b.addEventListener('click',function(){document.getElementById('pw-step1').style.display='none';document.getElementById('pw-step2').style.display='block';document.getElementById('paywallOverlay').classList.add('open');document.body.style.overflow='hidden';});document.body.appendChild(b);}
+  if(params.get('admin')==='yael'){
+    try{localStorage.removeItem('applyu_pro');}catch(e){}
+    isPro=true;
+    try{localStorage.setItem('applyu_pro','1');}catch(e){}
+    updateChatbotVisibility();
+    const b=document.createElement('button');
+    b.textContent='Pro Access — Click to Start';
+    b.style.cssText='position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:#10B981;color:#fff;font-size:0.85rem;font-weight:700;padding:0.5rem 1.2rem;border-radius:99px;z-index:99999;border:none;cursor:pointer;';
+    b.onclick=function(){
+      document.getElementById('pw-step1').style.display='none';
+      document.getElementById('pw-step2').style.display='block';
+      document.getElementById('paywallOverlay').classList.add('open');
+      document.body.style.overflow='hidden';
+    };
+    document.body.appendChild(b);
+  }
   // ?pro=true redirect — no modal
   if(params.get('pro')==='true'){
     isPro=true;
