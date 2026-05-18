@@ -807,8 +807,8 @@ async function sendSalesMsg(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:250,
+        model:'claude-sonnet-4-20250514',
+        max_tokens:300,
         system:'You are ApplyU\'s friendly admissions assistant. ApplyU is a free college matching tool — enter GPA, test scores, and activities to see which colleges you can get into. ApplyU Pro ($19 one-time) unlocks full AI reports with personalized action plans. Be concise, warm, and helpful.',
         messages:[{role:'user',content:text}]
       })
