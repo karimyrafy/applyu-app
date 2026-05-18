@@ -1290,6 +1290,12 @@ function renderReport(r, c){
   document.getElementById('rpt-essays').innerHTML=r.essayTips.map(e=>'<div class="essay-prompt"><div class="ep-tag">'+e.tag+'</div><div class="ep-text">'+e.text+'</div></div>').join('');
   document.getElementById('rpt-loading').style.display='none';
   document.getElementById('rpt-content').classList.add('visible');
+  document.getElementById('rpt-tabs').style.display='flex';
+  document.getElementById('tab-report').style.display='block';
+  document.getElementById('tab-essays').style.display='none';
+  document.getElementById('tab-letters').style.display='none';
+  document.getElementById('tab-counselor').style.display='none';
+  document.querySelectorAll('.rpt-tab').forEach((b,i)=>{b.classList.toggle('active',i===0);});
 }
 
 function renderFallbackReport(c){
