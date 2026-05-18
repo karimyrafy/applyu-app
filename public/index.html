@@ -752,6 +752,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="report-uni" id="rpt-uni"></div>
       <div class="report-subtitle" id="rpt-subtitle">AI-Powered Admission Report · ApplyU Pro</div>
     </div>
+    <div id="rpt-tabs" style="display:flex;gap:0.3rem;padding:0.5rem 1.5rem;border-bottom:1px solid var(--border);"><button class="rpt-tab active" onclick="switchTab('report',this)">📊 Report</button><button class="rpt-tab" onclick="switchTab('essays',this)">✍️ Essays</button><button class="rpt-tab" onclick="switchTab('letters',this)">📬 Letters</button><button class="rpt-tab" onclick="switchTab('counselor',this)">🤝 Counselor</button></div>
     <div class="report-body">
       <div class="loading-state" id="rpt-loading">
         <div class="spinner"></div>
@@ -1378,10 +1379,10 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   // ?pro=true redirect — no modal
   if(params.get('pro')==='true'){
+    showApp();
     isPro=true;
     try{localStorage.setItem('applyu_pro','1');}catch(e){}
     updateChatbotVisibility();
-    showApp();
     window.history.replaceState({},'',window.location.pathname);
   }
   // Stripe payment success — show intake modal
@@ -1423,7 +1424,7 @@ document.addEventListener('DOMContentLoaded',function(){
   <button class="chat-toggle sales" onclick="toggleSalesChat()" title="Chat with us">🎓</button>
 </div>
 <div id="proChatBubble">
-  <button class="chat-toggle pro" title="AI Advisor" onclick="alert('AI Advisor — coming soon!')">🤖</button>
+  <button class="chat-toggle pro" title="AI Advisor" onclick="toggleProChat()">🤖</button>
 </div>
 </body>
 </html>
