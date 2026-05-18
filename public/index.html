@@ -789,6 +789,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 // ── STATE ─────────────────────────────────────────────────────
 let searched=false, results=[], EC=new Set(), isPro=false;
 let currentCollege=null;
+let sortedResults=[];
 
 // ── PRO STATUS ────────────────────────────────────────────────
 function goToIntake(){
@@ -1085,6 +1086,7 @@ function render(){
   else if(s==='tdesc') r.sort((a,b)=>b.tuition-a.tuition);
   else if(s==='accept') r.sort((a,b)=>b.acc-a.acc);
   else r.sort((a,b)=>a.n.localeCompare(b.n));
+  sortedResults=r;
   document.getElementById('resTitle').textContent=r.length+' College Match'+(r.length!==1?'es':'');
   document.getElementById('matchBadge').textContent=r.length+' match'+(r.length!==1?'es':'');
   if(!r.length){document.getElementById('cards').innerHTML='<div class="no-res"><div class="ni">🔍</div><p style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">No matches found</p><p>Try loosening your filters.</p></div>';return;}
@@ -1120,9 +1122,29 @@ function render(){
 
 // ── CARD CLICK ────────────────────────────────────────────────
 function cardClick(i){
-  currentCollege=results[i];
+  currentCollege=sortedResults[i]||results[i];
+  if(!currentCollege)return;
   if(isPro){openReport(currentCollege);}
-  else{openPaywall(i);}
+  else{openPaywallWithCollege(currentCollege);}
+}
+
+function openPaywallWithCollege(c){
+  currentCollege=c;
+  document.getElementById('pw-uni-name').textContent=c.n;
+  document.getElementById('pw-match-pct').textContent=c.pct+'%';
+  const bandEl=document.getElementById('pw-band');
+  bandEl.className='band b-'+c.band;
+  const BL={certain:'✅ Certain Admit',likely:'📈 Likely Admit',possible:'🎲 Possible',reach:'🚀 Reach'};
+  bandEl.textContent=BL[c.band];
+  const gpa=parseFloat(document.getElementById('gpa').value)||0;
+  const sat=parseInt(document.getElementById('testScore').value)||0;
+  const gaps=[];
+  if(gpa){const ok=gpa>=c.minGPA;gaps.push({label:'GPA ('+gpa.toFixed(2)+' vs '+c.minGPA.toFixed(1)+' min)',status:ok?'good':gpa>=c.minGPA*0.95?'ok':'gap',sl:ok?'✅ Strong':'⚠️ Close',ss:ok?'status-good':gpa>=c.minGPA*0.95?'status-ok':'status-gap'});}
+  if(sat){const ok=sat>=c.minSAT;gaps.push({label:'SAT ('+sat+' vs '+c.minSAT+' min)',status:ok?'good':sat>=c.minSAT*0.95?'ok':'gap',sl:ok?'✅ Strong':'⚠️ Close',ss:ok?'status-good':sat>=c.minSAT*0.95?'status-ok':'status-gap'});}
+  gaps.push({label:'Extracurriculars ('+EC.size+' activities)',status:EC.size>=4?'good':EC.size>=2?'ok':'gap',sl:EC.size>=4?'✅ Strong':EC.size>=2?'⚠️ Building':'❌ Needs Work',ss:EC.size>=4?'status-good':EC.size>=2?'status-ok':'status-gap'});
+  document.getElementById('pw-gap-items').innerHTML=gaps.map(g=>'<div class="gap-item"><span class="gap-item-label">'+g.label+'</span><span class="gap-item-status '+g.ss+'">'+g.sl+'</span></div>').join('');
+  document.getElementById('paywallOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
 }
 
 // ── PAYWALL ───────────────────────────────────────────────────
