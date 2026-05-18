@@ -325,7 +325,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
 /* ── CHAT BUBBLES ── */
 #salesChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:none;flex-direction:column;align-items:flex-end;gap:0.6rem;}
-#proChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:none;}
+#proChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:none;flex-direction:column;align-items:flex-end;gap:0.6rem;}
+#proChatWindow{display:none;flex-direction:column;width:300px;background:var(--surface);border:1px solid var(--border-bright);border-radius:var(--radius-lg);box-shadow:0 8px 40px rgba(0,0,0,0.6);overflow:hidden;}
+#proChatWindow.open{display:flex;}
 .chat-toggle{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 4px 20px rgba(0,0,0,0.45);transition:transform 0.2s,box-shadow 0.2s;}
 .chat-toggle:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.55);}
 .chat-toggle.sales{background:linear-gradient(135deg,var(--p1),#8B83FF);}
@@ -801,6 +803,49 @@ function toggleSalesChat(){
   if(w) w.classList.toggle('open');
 }
 
+function toggleProChat(){
+  const w=document.getElementById('proChatWindow');
+  if(w) w.classList.toggle('open');
+}
+
+function proQuick(msg){
+  const input=document.getElementById('proInput');
+  if(input){input.value=msg;sendProMsg();}
+}
+
+async function sendProMsg(){
+  const input=document.getElementById('proInput');
+  const msgs=document.getElementById('proMessages');
+  if(!input||!msgs) return;
+  const text=input.value.trim();
+  if(!text) return;
+  input.value='';
+  msgs.innerHTML+='<div class="chat-msg user">'+text+'</div>';
+  msgs.innerHTML+='<div class="chat-msg bot" id="proTyping">…</div>';
+  msgs.scrollTop=msgs.scrollHeight;
+  const college=currentCollege?'The student is currently looking at '+currentCollege.n+' ('+currentCollege.pct+'% match, '+currentCollege.band+' band). ':'';
+  try{
+    const resp=await fetch('/api/claude',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:400,
+        system:'You are a personal AI college admissions counselor for an ApplyU Pro user. '+college+'Give specific, actionable advice on essays, school strategy, timelines, extracurriculars, and applications. Be warm, direct, and expert. Keep replies under 5 sentences.',
+        messages:[{role:'user',content:text}]
+      })
+    });
+    const data=await resp.json();
+    const reply=(data.content&&data.content[0]&&data.content[0].text)||'Great question — focus on authenticity and specificity in your application. Every detail should connect back to who you are and what you\'ll bring to campus.';
+    const t=document.getElementById('proTyping');
+    if(t) t.outerHTML='<div class="chat-msg bot">'+reply+'</div>';
+  }catch(e){
+    const t=document.getElementById('proTyping');
+    if(t) t.outerHTML='<div class="chat-msg bot">Focus on authenticity and specificity — those are the two things that move the needle most in college applications.</div>';
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
 function salesQuick(msg){
   const input=document.getElementById('salesInput');
   if(input){input.value=msg;sendSalesMsg();}
@@ -1181,9 +1226,9 @@ async function goToCheckout(btn){
     const res = await fetch('/api/stripe-checkout',{ method:'POST', headers:{'Content-Type':'application/json'} });
     const data = await res.json();
     if(data.url){ window.location.href=data.url; }
-    else { alert('Checkout unavailable. Please try again.'); if(btn){ btn.disabled=false; btn.innerHTML=label; } }
+    else { console.log('Checkout unavailable. Please try again.'); if(btn){ btn.disabled=false; btn.innerHTML=label; } }
   } catch(e) {
-    alert('Could not start checkout. Please try again.');
+    console.log('Could not start checkout. Please try again.');
     if(btn){ btn.disabled=false; btn.innerHTML=label; }
   }
 }
@@ -1440,7 +1485,27 @@ document.addEventListener('DOMContentLoaded',function(){
   <button class="chat-toggle sales" onclick="toggleSalesChat()" title="Chat with us">🎓</button>
 </div>
 <div id="proChatBubble">
-  <button class="chat-toggle pro" title="AI Advisor" onclick="alert('AI Advisor — coming soon!')">🤖</button>
+  <div id="proChatWindow">
+    <div class="chat-header" style="background:linear-gradient(135deg,var(--g1),#059669);">
+      <div class="chat-header-info">
+        <div class="chat-header-title">AI Counselor 🤖</div>
+        <div class="chat-header-sub">Pro — ask me anything about your apps</div>
+      </div>
+      <button class="chat-close" onclick="toggleProChat()">×</button>
+    </div>
+    <div class="chat-messages" id="proMessages">
+      <div class="chat-msg bot">Hi! I'm your personal AI counselor. I can help you with essays, school strategy, timelines, and anything else about your applications. What would you like to work on?</div>
+    </div>
+    <div class="chat-quick">
+      <button class="chat-qbtn" onclick="proQuick('Review my college list')">My list</button>
+      <button class="chat-qbtn" onclick="proQuick('Help with my Common App essay')">Essay help</button>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="proInput" placeholder="Ask your counselor…" onkeydown="if(event.key==='Enter')sendProMsg()"/>
+      <button class="chat-send" style="background:var(--g1);" onclick="sendProMsg()">↑</button>
+    </div>
+  </div>
+  <button class="chat-toggle pro" title="AI Counselor" onclick="toggleProChat()">🤖</button>
 </div>
 </body>
 </html>
