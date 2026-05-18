@@ -933,13 +933,7 @@ function activatePro(){
   try { if(localStorage.getItem('applyu_pro')==='1') isPro=true; } catch(e){}
   const params=new URLSearchParams(window.location.search);
   if(params.get('payment')==='success' || params.get('pro')==='true') activatePro();
-  if(params.get('admin')==='yael'){
-    isPro=true;
-    try { localStorage.setItem('applyu_pro','1'); } catch(e){}
-    const badge=document.getElementById('admin-badge');
-    if(badge) badge.style.display='inline-block';
-    window.history.replaceState({},'',window.location.pathname);
-  }
+
 })();
 
 // ── PAGE ROUTING ──────────────────────────────────────────────
@@ -1419,25 +1413,7 @@ document.addEventListener('DOMContentLoaded',function(){
   // Restore pro for returning visitors
   try{ if(localStorage.getItem('applyu_pro')==='1'){ isPro=true; updateChatbotVisibility(); } }catch(e){}
   const params=new URLSearchParams(window.location.search);
-  // Admin bypass
-  if(params.get('admin')==='yael'){
-    isPro=true;
-    try{ localStorage.setItem('applyu_pro','1'); }catch(e){}
-    const b=document.getElementById('admin-badge');
-    if(b){
-      b.style.display='inline-block';
-      b.style.cursor='pointer';
-      b.style.pointerEvents='auto';
-      b.addEventListener('click',function(){
-        showApp();
-        document.getElementById('pw-step2').classList.add('open');
-        document.getElementById('paywallOverlay').classList.add('open');
-        document.body.style.overflow='hidden';
-      });
-    }
-    window.history.replaceState({},'',window.location.pathname);
-    updateChatbotVisibility();
-  }
+  if(params.get('admin')==='yael'){isPro=true;try{localStorage.setItem('applyu_pro','1');}catch(e){}updateChatbotVisibility();const b=document.createElement('button');b.textContent='Pro Access — Click to Start';b.style.cssText='position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:#10B981;color:#fff;font-size:0.85rem;font-weight:700;padding:0.5rem 1.2rem;border-radius:99px;z-index:99999;border:none;cursor:pointer;';b.addEventListener('click',function(){document.getElementById('pw-step1').style.display='none';document.getElementById('pw-step2').style.display='block';document.getElementById('paywallOverlay').classList.add('open');document.body.style.overflow='hidden';});document.body.appendChild(b);}
   // ?pro=true redirect — no modal
   if(params.get('pro')==='true'){
     isPro=true;
