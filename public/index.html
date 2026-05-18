@@ -316,6 +316,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   .report-body{padding:1.25rem;}
   .report-header{padding:1.25rem;}
 }
+
+/* ── CHAT BUBBLES ── */
+#salesChatBubble,#proChatBubble{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:none;}
+.chat-fab{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 4px 20px rgba(0,0,0,0.45);transition:transform 0.2s,box-shadow 0.2s;}
+.chat-fab:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.55);}
+#salesChatBubble .chat-fab{background:linear-gradient(135deg,var(--p1),#8B83FF);}
+#proChatBubble .chat-fab{background:linear-gradient(135deg,var(--g1),#059669);}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7773370083514994" crossorigin="anonymous"></script>
 </head>
@@ -757,9 +764,17 @@ function goToIntake(){
 }
 
 function updateChatbotVisibility(){
-  // stub — wire to chatbot element when added
-  const bot=document.getElementById('chatbot');
-  if(bot) bot.style.display=isPro?'block':'none';
+  const sales=document.getElementById('salesChatBubble');
+  const pro=document.getElementById('proChatBubble');
+  if(!sales||!pro) return;
+  const onLanding=document.getElementById('landing').style.display!=='none';
+  if(onLanding||!isPro){
+    sales.style.display='block';
+    pro.style.display='none';
+  } else {
+    sales.style.display='none';
+    pro.style.display='block';
+  }
 }
 
 function openIntakeModal(){
@@ -795,17 +810,17 @@ function activatePro(){
 
 // On every page load: restore pro from localStorage or handle Stripe redirect
 (function initPro(){
-  try { if(localStorage.getItem('applyu_pro')==='1'){ isPro=true; updateChatbotVisibility(); } } catch(e){}
+  try { if(localStorage.getItem('applyu_pro')==='1') isPro=true; } catch(e){}
   const params=new URLSearchParams(window.location.search);
   if(params.get('payment')==='success' || params.get('pro')==='true') activatePro();
   if(params.get('admin')==='yael'){
     isPro=true;
     try { localStorage.setItem('applyu_pro','1'); } catch(e){}
-    updateChatbotVisibility();
     const badge=document.getElementById('admin-badge');
     if(badge) badge.style.display='inline-block';
     window.history.replaceState({},'',window.location.pathname);
   }
+  updateChatbotVisibility();
 })();
 
 // ── PAGE ROUTING ──────────────────────────────────────────────
@@ -813,11 +828,13 @@ function showApp(){
   document.getElementById('landing').style.display='none';
   document.getElementById('app').classList.add('active');
   window.scrollTo(0,0);
+  updateChatbotVisibility();
 }
 function showLanding(){
   document.getElementById('app').classList.remove('active');
   document.getElementById('landing').style.display='block';
   window.scrollTo(0,0);
+  updateChatbotVisibility();
 }
 
 // ── COLLEGE DATABASE (sample — expand for production) ─────────
@@ -1252,5 +1269,15 @@ function resetAll(){
 document.getElementById('paywallOverlay').addEventListener('click',function(e){if(e.target===this)closePaywall();});
 document.getElementById('reportOverlay').addEventListener('click',function(e){if(e.target===this)closeReport();});
 </script>
+
+<!-- ── CHAT BUBBLES ── -->
+<div id="salesChatBubble">
+  <a href="mailto:support@applyu.co" style="text-decoration:none;">
+    <button class="chat-fab" title="Chat with us">💬</button>
+  </a>
+</div>
+<div id="proChatBubble">
+  <button class="chat-fab" title="AI Advisor" onclick="alert('AI Advisor — coming soon!')">🤖</button>
+</div>
 </body>
 </html>
