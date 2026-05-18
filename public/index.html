@@ -1354,10 +1354,18 @@ document.addEventListener('DOMContentLoaded',function(){
     window.history.replaceState({},'',window.location.pathname);
     updateChatbotVisibility();
   }
-  // Stripe / pro redirect
-  if(params.get('pro')==='true'||params.get('payment')==='success'){
+  // ?pro=true redirect — no modal
+  if(params.get('pro')==='true'){
     isPro=true;
-    try{ localStorage.setItem('applyu_pro','1'); }catch(e){}
+    try{localStorage.setItem('applyu_pro','1');}catch(e){}
+    updateChatbotVisibility();
+    showApp();
+    window.history.replaceState({},'',window.location.pathname);
+  }
+  // Stripe payment success — show intake modal
+  if(params.get('payment')==='success'){
+    isPro=true;
+    try{localStorage.setItem('applyu_pro','1');}catch(e){}
     showApp();
     document.getElementById('pw-step2').style.display='block';
     document.getElementById('paywallOverlay').classList.add('open');
