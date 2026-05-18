@@ -1259,7 +1259,13 @@ function closePaywall(){
   document.getElementById('paywallOverlay').classList.remove('open');
   document.body.style.overflow='';
 }
-function handleUnlock(){ goToCheckout(); }
+function handleUnlock(){
+  isPro=true;
+  updateChatbotVisibility();
+  closePaywall();
+  showApp();
+  if(searched)render();
+}
 
 async function goToCheckout(btn){
   const label = btn ? btn.innerHTML : null;
@@ -1284,7 +1290,7 @@ function openReport(c){
   document.getElementById('reportOverlay').classList.add('open');
   document.body.style.overflow='hidden';
   generateReport(c);
-  setTimeout(function(){if(document.getElementById('rpt-loading').style.display!=='none'){renderFallbackReport(currentCollege);}},8000);
+  setTimeout(function(){if(document.getElementById('rpt-loading').style.display!=='none'){renderFallbackReport(currentCollege);}},5000);
 }
 function closeReport(){
   document.getElementById('reportOverlay').classList.remove('open');
@@ -1480,6 +1486,7 @@ document.addEventListener('DOMContentLoaded',function(){
     isPro=true;
     try{localStorage.setItem('applyu_pro','1');}catch(e){}
     updateChatbotVisibility();
+    showApp();
     document.getElementById('pw-step1').style.display='none';
     document.getElementById('pw-step2').style.display='block';
     document.getElementById('paywallOverlay').classList.add('open');
