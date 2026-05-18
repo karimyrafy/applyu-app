@@ -1376,11 +1376,13 @@ document.addEventListener('DOMContentLoaded',function(){
     if(b){
       b.style.display='inline-block';
       b.style.cursor='pointer';
-      b.onclick=function(){
+      b.style.pointerEvents='auto';
+      b.addEventListener('click',function(){
         showApp();
         document.getElementById('pw-step2').classList.add('open');
+        document.getElementById('paywallOverlay').classList.add('open');
         document.body.style.overflow='hidden';
-      };
+      });
     }
     window.history.replaceState({},'',window.location.pathname);
     updateChatbotVisibility();
