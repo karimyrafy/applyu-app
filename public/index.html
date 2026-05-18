@@ -870,6 +870,7 @@ function submitIntake(){
   if(zip) document.getElementById('zip').value=zip;
   document.getElementById('pw-step2').classList.remove('open');
   document.body.style.overflow='';
+  showApp();
   runSearch();
 }
 
@@ -1371,8 +1372,16 @@ document.addEventListener('DOMContentLoaded',function(){
   if(params.get('admin')==='yael'){
     isPro=true;
     try{ localStorage.setItem('applyu_pro','1'); }catch(e){}
-    const badge=document.getElementById('admin-badge');
-    if(badge) badge.style.display='inline-block';
+    const b=document.getElementById('admin-badge');
+    if(b){
+      b.style.display='inline-block';
+      b.style.cursor='pointer';
+      b.onclick=function(){
+        showApp();
+        document.getElementById('pw-step2').classList.add('open');
+        document.body.style.overflow='hidden';
+      };
+    }
     window.history.replaceState({},'',window.location.pathname);
     updateChatbotVisibility();
   }
