@@ -1329,6 +1329,29 @@ document.getElementById('paywallOverlay').addEventListener('click',function(e){i
 document.getElementById('reportOverlay').addEventListener('click',function(e){if(e.target===this)closeReport();});
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('salesChatBubble').style.display='flex';
+  // Restore pro for returning visitors
+  try{ if(localStorage.getItem('applyu_pro')==='1'){ isPro=true; updateChatbotVisibility(); } }catch(e){}
+  const params=new URLSearchParams(window.location.search);
+  // Admin bypass
+  if(params.get('admin')==='yael'){
+    isPro=true;
+    try{ localStorage.setItem('applyu_pro','1'); }catch(e){}
+    const badge=document.getElementById('admin-badge');
+    if(badge) badge.style.display='inline-block';
+    window.history.replaceState({},'',window.location.pathname);
+    updateChatbotVisibility();
+  }
+  // Stripe / pro redirect
+  if(params.get('pro')==='true'||params.get('payment')==='success'){
+    isPro=true;
+    try{ localStorage.setItem('applyu_pro','1'); }catch(e){}
+    showApp();
+    document.getElementById('pw-step2').style.display='block';
+    document.getElementById('paywallOverlay').classList.add('open');
+    document.body.style.overflow='hidden';
+    window.history.replaceState({},'',window.location.pathname);
+    updateChatbotVisibility();
+  }
 });
 </script>
 
