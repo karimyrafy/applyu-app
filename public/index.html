@@ -1356,8 +1356,9 @@ async function goToCheckout(btn){
 
 // ── AI REPORT ─────────────────────────────────────────────────
 function openReport(c){
+  currentCollege=c;
   document.getElementById('rpt-uni').textContent=c.n+' — AI Report';
-  document.getElementById('rpt-content').classList.remove('visible');
+  document.getElementById('rpt-tabs').style.display='none';
   document.getElementById('rpt-loading').style.display='flex';
   document.getElementById('reportOverlay').classList.add('open');
   document.body.style.overflow='hidden';
@@ -1421,15 +1422,17 @@ Generate a detailed, personalized JSON report with this EXACT structure (respond
 }`;
 
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
+      const resp=await fetch('/api/claude',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:1000,
+          system:'You are a college admissions expert. Return ONLY valid JSON, no markdown, no explanation.',
+          messages:[{role:'user',content:prompt}]
+        })
+      });
+      if(!resp.ok){renderFallbackReport(c);return;}
     const data=await resp.json();
     const raw=data.content.map(i=>i.text||'').join('');
     const clean=raw.replace(/```json|```/g,'').trim();
