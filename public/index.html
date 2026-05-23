@@ -1319,7 +1319,26 @@ function closePaywall(){
   document.getElementById('paywallOverlay').classList.remove('open');
   document.body.style.overflow='';
 }
-function handleUnlock(){ goToCheckout(); }
+function handleUnlock(){
+  var name=document.getElementById('intake-name')?.value||'';
+  currentProfile={
+    name:name,
+    grade:document.getElementById('intake-grade')?.value||'',
+    state:document.getElementById('intake-state')?.value||'',
+    major:document.getElementById('intake-major')?.value||'',
+    strength:document.getElementById('intake-strength')?.value||'',
+    weakness:document.getElementById('intake-weakness')?.value||'',
+    why:document.getElementById('intake-why')?.value||'',
+    hooks:[]
+  };
+  isPro=true;
+  try{localStorage.setItem('applyu_pro','1');}catch(e){}
+  document.getElementById('paywallOverlay').classList.remove('open');
+  document.body.style.overflow='';
+  updateChatbotVisibility();
+  showApp();
+  if(searched)render();
+}
 
 async function goToCheckout(btn){
   const label = btn ? btn.innerHTML : null;
@@ -1434,9 +1453,10 @@ function renderReport(r, c){
   document.getElementById('rpt-summary').textContent=r.summary;
   document.getElementById('rpt-actions').innerHTML=r.actions.map((a,i)=>'<div class="action-item"><div class="ai-num">'+(i+1)+'</div><div class="ai-text">'+a+'</div></div>').join('');
   document.getElementById('rpt-timeline').innerHTML=r.timeline.map(t=>'<div class="tl-item"><span class="tl-grade">'+t.grade+'</span><span class="tl-text">'+t.text+'</span></div>').join('');
-  document.getElementById('rpt-essays').innerHTML=r.essayTips.map(e=>'<div class="essay-prompt"><div class="ep-tag">'+e.tag+'</div><div class="ep-text">'+e.text+'</div></div>').join('');
+  document.getElementById('tab-essays').innerHTML=r.essayTips.map(e=>'<div class="essay-prompt"><div class="ep-tag">'+e.tag+'</div><div class="ep-text">'+e.text+'</div></div>').join('');
   document.getElementById('rpt-loading').style.display='none';
-  document.getElementById('rpt-content').classList.add('visible');
+  document.getElementById('rpt-tabs').style.display='flex';
+  switchTab('report', document.querySelector('.rpt-tab'));
 }
 
 function renderFallbackReport(c){
