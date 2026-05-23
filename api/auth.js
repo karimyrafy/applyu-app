@@ -22,11 +22,11 @@ async function getProfile(userId) {
 async function handleSignup(email, password) {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
     method: 'POST',
-    headers: supabaseHeaders(),
+    headers: supabaseHeaders(true),
     body: JSON.stringify({ email, password }),
   });
   const data = await res.json();
-  if (!res.ok) { console.error('Signup error:', data); return { error: data.error_description || data.msg || 'Signup failed' }; }
+  if (!res.ok) { console.error('Signup error:', data); return { error: data.error_description || data.msg || data.message || JSON.stringify(data) }; }
 
   const user = data.user;
   const session = data.session;
