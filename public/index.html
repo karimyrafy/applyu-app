@@ -996,8 +996,9 @@ function updateChatbotVisibility(){
 }
 
 function openIntakeModal(){
-  showApp();
-  document.getElementById('pw-step2').classList.add('open');
+  document.getElementById('pw-step1').style.display='none';
+  document.getElementById('pw-step2').style.display='block';
+  document.getElementById('paywallOverlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
 
@@ -1544,6 +1545,37 @@ document.addEventListener('DOMContentLoaded',function(){
   // Wire authModal background-click close
   document.getElementById('authModal').addEventListener('click',function(e){if(e.target===this)closeAuthModal();});
 });
+
+function sendInlineProMsg(){
+  var input=document.getElementById('inlineProInput');
+  var msg=input.value.trim();
+  if(!msg)return;
+  input.value='';
+  var msgs=document.getElementById('inlineProMessages');
+  msgs.innerHTML+='<div style="text-align:right;margin-bottom:0.5rem;"><span style="background:var(--p1);color:#fff;padding:0.4rem 0.8rem;border-radius:12px;font-size:0.82rem;display:inline-block;">'+msg+'</span></div>';
+  msgs.scrollTop=msgs.scrollHeight;
+  var school=currentCollege?currentCollege.n:'this school';
+  var profile=currentProfile||{};
+  fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:'You are a personal college admissions counselor for ApplyU. The student is asking about '+school+'. Student profile: grade '+( profile.grade||'unknown')+', major: '+(profile.major||'unknown')+', GPA/SAT from their matcher inputs. Answer helpfully and specifically. Keep replies under 5 sentences.',messages:[{role:'user',content:msg}]})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var reply=(d.content&&d.content[0]&&d.content[0].text)||'I can help with that! Please check the school\'s official admissions page for the most current information.';
+    msgs.innerHTML+='<div style="text-align:left;margin-bottom:0.5rem;"><span style="background:var(--card);border:1px solid var(--border);padding:0.4rem 0.8rem;border-radius:12px;font-size:0.82rem;display:inline-block;">'+reply+'</span></div>';
+    msgs.scrollTop=msgs.scrollHeight;
+  })
+  .catch(function(){
+    msgs.innerHTML+='<div style="text-align:left;margin-bottom:0.5rem;"><span style="background:var(--card);border:1px solid var(--border);padding:0.4rem 0.8rem;border-radius:12px;font-size:0.82rem;display:inline-block;">Sorry, I had trouble connecting. Please try again.</span></div>';
+  });
+}
+
+function switchTab(name,btn){
+  ['report','essays','letters','counselor'].forEach(function(t){
+    var el=document.getElementById('tab-'+t);
+    if(el) el.style.display=(t===name?'block':'none');
+  });
+  document.querySelectorAll('.rpt-tab').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+}
 </script>
 
 <!-- ══════════════════════════════════════════════════════════ -->
