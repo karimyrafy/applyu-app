@@ -124,6 +124,7 @@ export default async function handler(req, res) {
     if (result.error) return res.status(401).json({ error: result.error });
     return res.status(200).json(result);
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('Auth handler error:', err);
+    return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 }
