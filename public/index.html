@@ -1439,8 +1439,13 @@ Generate a detailed, personalized JSON report with this EXACT structure (respond
     const report=JSON.parse(clean);
     renderReport(report, c);
   } catch(e){
-    renderFallbackReport(c);
-  }
+      console.error('generateReport error:',e);
+      document.getElementById('rpt-loading').style.display='none';
+      document.getElementById('rpt-tabs').style.display='flex';
+      document.getElementById('tab-report').style.display='block';
+      document.getElementById('rpt-bars').innerHTML='<p style="color:var(--text-muted)">Report error: '+e.message+'</p>';
+      switchTab('report', document.querySelector('.rpt-tab'));
+    }
 }
 
 function renderReport(r, c){
