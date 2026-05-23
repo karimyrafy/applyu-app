@@ -355,6 +355,29 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   .report-close,.rpt-tabs,.report-footer{display:none !important;}
   .rs-text,.ai-text,.tl-text,.ep-text{color:black !important;}
 }
+
+/* ── AUTH MODAL ── */
+.auth-overlay{position:fixed;inset:0;z-index:3000;background:rgba(6,8,15,0.92);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:1rem;}
+.auth-overlay.open{display:flex;}
+.auth-modal{background:var(--surface);border:1px solid rgba(108,99,255,0.25);border-radius:var(--radius-xl);max-width:400px;width:100%;padding:2rem;position:relative;animation:fadeUp 0.3s ease;}
+.auth-title{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:0.3rem;}
+.auth-sub{font-size:0.84rem;color:var(--text-muted);margin-bottom:1.5rem;}
+.auth-field{display:flex;flex-direction:column;gap:0.25rem;margin-bottom:1rem;}
+.auth-field label{font-size:0.75rem;font-weight:600;color:var(--text-muted);}
+.auth-field input{font-family:'Cabinet Grotesk',sans-serif;font-size:0.92rem;color:var(--text);background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:0.65rem 0.9rem;outline:none;transition:border-color 0.2s;}
+.auth-field input:focus{border-color:var(--p1);}
+.auth-submit{width:100%;padding:0.85rem;background:linear-gradient(135deg,var(--p1),#8B83FF);color:#fff;font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:0.95rem;border:none;border-radius:99px;cursor:pointer;transition:all 0.2s;margin-top:0.25rem;}
+.auth-submit:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(108,99,255,0.4);}
+.auth-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.auth-toggle{text-align:center;margin-top:1rem;font-size:0.82rem;color:var(--text-muted);}
+.auth-toggle span{color:var(--p3);cursor:pointer;font-weight:700;}
+.auth-toggle span:hover{text-decoration:underline;}
+.auth-error{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--r1);font-size:0.8rem;padding:0.5rem 0.75rem;border-radius:8px;margin-bottom:0.75rem;display:none;}
+.auth-error.show{display:block;}
+.nav-user{display:flex;align-items:center;gap:0.6rem;}
+.nav-user-email{font-size:0.78rem;color:var(--text-muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nav-signout{background:transparent;border:1px solid var(--border-bright);color:var(--text-muted);font-family:'Cabinet Grotesk',sans-serif;font-size:0.78rem;padding:0.35rem 0.85rem;border-radius:99px;cursor:pointer;transition:all 0.2s;}
+.nav-signout:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7773370083514994" crossorigin="anonymous"></script>
 </head>
@@ -371,7 +394,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <div class="logo">Apply<span class="logo-u">U</span><span class="logo-dot"></span></div>
     <span id="admin-badge" style="display:none;background:#22c55e;color:#fff;font-size:0.65rem;font-weight:700;letter-spacing:0.05em;padding:0.2rem 0.6rem;border-radius:99px;">Pro Access ✓</span>
   </div>
-  <button class="nav-cta" onclick="showApp()">Try Free →</button>
+  <div id="nav-auth">
+    <button class="nav-cta" id="nav-signin-btn" onclick="openAuthModal('login')">Sign In</button>
+  </div>
 </nav>
 
 <section class="hero">
@@ -788,13 +813,130 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
 <script>
 // ── STATE ─────────────────────────────────────────────────────
-let searched=false, results=[], EC=new Set(), isPro=false;
+let searched=false, results=[], EC=new Set(), isPro=false, currentUser=null, authMode='login';
 let currentCollege=null;
 let sortedResults=[];
 
 // ── PRO STATUS ────────────────────────────────────────────────
 function goToIntake(){
   window.location.href='https://buy.stripe.com/14A4gy1WU2ri6777Vy2Fa02';
+}
+
+// ── AUTH ──────────────────────────────────────────────────────
+function getToken(){try{return localStorage.getItem('applyu_token');}catch(e){return null;}}
+
+function openAuthModal(){
+  authMode='login';
+  document.getElementById('auth-title').textContent='Welcome back';
+  document.getElementById('auth-sub').textContent='Sign in to your ApplyU account';
+  document.getElementById('auth-submit').textContent='Sign In';
+  document.getElementById('auth-toggle').innerHTML='Don\'t have an account? <span onclick="toggleAuthMode()">Sign Up</span>';
+  document.getElementById('auth-email').value='';
+  document.getElementById('auth-password').value='';
+  document.getElementById('auth-error').classList.remove('show');
+  document.getElementById('authModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeAuthModal(){
+  document.getElementById('authModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function toggleAuthMode(){
+  authMode=authMode==='login'?'signup':'login';
+  const isLogin=authMode==='login';
+  document.getElementById('auth-title').textContent=isLogin?'Welcome back':'Create account';
+  document.getElementById('auth-sub').textContent=isLogin?'Sign in to your ApplyU account':'Start your college journey today';
+  document.getElementById('auth-submit').textContent=isLogin?'Sign In':'Sign Up';
+  document.getElementById('auth-toggle').innerHTML=isLogin
+    ?'Don\'t have an account? <span onclick="toggleAuthMode()">Sign Up</span>'
+    :'Already have an account? <span onclick="toggleAuthMode()">Sign In</span>';
+  document.getElementById('auth-error').classList.remove('show');
+}
+
+async function submitAuth(){
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  const errEl=document.getElementById('auth-error');
+  const btn=document.getElementById('auth-submit');
+  errEl.classList.remove('show');
+  if(!email||!password){errEl.textContent='Please enter email and password.';errEl.classList.add('show');return;}
+  btn.disabled=true;
+  btn.textContent=authMode==='login'?'Signing in…':'Creating account…';
+  try{
+    const res=await fetch('/api/auth',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:authMode==='login'?'login':'signup',email,password})
+    });
+    const data=await res.json();
+    if(data.error){
+      errEl.textContent=data.error;
+      errEl.classList.add('show');
+      btn.disabled=false;
+      btn.textContent=authMode==='login'?'Sign In':'Sign Up';
+      return;
+    }
+    currentUser=data.user;
+    if(data.session&&data.session.access_token){
+      try{localStorage.setItem('applyu_token',data.session.access_token);}catch(e){}
+    }
+    if(data.user&&data.user.is_pro){
+      isPro=true;
+      try{localStorage.setItem('applyu_pro','1');}catch(e){}
+    }
+    closeAuthModal();
+    updateNavAuth();
+    updateChatbotVisibility();
+    if(isPro){openIntakeModal();}
+  }catch(e){
+    errEl.textContent='Something went wrong. Please try again.';
+    errEl.classList.add('show');
+    btn.disabled=false;
+    btn.textContent=authMode==='login'?'Sign In':'Sign Up';
+  }
+}
+
+function signOut(){
+  const token=getToken();
+  currentUser=null;
+  isPro=false;
+  try{localStorage.removeItem('applyu_token');localStorage.removeItem('applyu_pro');}catch(e){}
+  updateNavAuth();
+  updateChatbotVisibility();
+  if(token)fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({action:'logout'})}).catch(()=>{});
+}
+
+function updateNavAuth(){
+  const el=document.getElementById('nav-auth');
+  if(!el) return;
+  if(currentUser){
+    el.innerHTML='<div class="nav-user"><span class="nav-user-email">'+(currentUser.email||'')+'</span><button class="nav-signout" onclick="signOut()">Sign Out</button></div>';
+  }else{
+    el.innerHTML='<button class="nav-cta" onclick="openAuthModal()">Sign In</button>';
+  }
+}
+
+async function restoreSession(){
+  const token=getToken();
+  if(!token) return;
+  try{
+    const res=await fetch('/api/auth',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({action:'getUser'})
+    });
+    const data=await res.json();
+    if(data.user){
+      currentUser=data.user;
+      if(data.user.is_pro){isPro=true;try{localStorage.setItem('applyu_pro','1');}catch(e){}}
+      updateNavAuth();
+      updateChatbotVisibility();
+    }else{
+      try{localStorage.removeItem('applyu_token');}catch(e){}
+    }
+  }catch(e){}
 }
 
 function toggleSalesChat(){
@@ -877,8 +1019,12 @@ function submitIntake(){
 function activatePro(){
   isPro=true;
   try { localStorage.setItem('applyu_pro','1'); } catch(e){}
-  // Strip query params without a page reload
   window.history.replaceState({},'',window.location.pathname);
+  // Persist pro status to Supabase if user is logged in
+  const _tok=getToken();
+  if(_tok){fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},body:JSON.stringify({action:'setPro'})}).catch(()=>{});}
+  if(currentUser) currentUser.is_pro=true;
+  updateNavAuth();
   openIntakeModal();
   if(searched) render();
 }
@@ -1365,7 +1511,9 @@ document.getElementById('paywallOverlay').addEventListener('click',function(e){i
 document.getElementById('reportOverlay').addEventListener('click',function(e){if(e.target===this)closeReport();});
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('salesChatBubble').style.display='flex';
-  // Restore pro for returning visitors
+  // Restore session from token (async — updates nav + pro status)
+  restoreSession();
+  // Restore pro for returning visitors (sync fallback)
   try{ if(localStorage.getItem('applyu_pro')==='1'){ isPro=true; updateChatbotVisibility(); } }catch(e){}
   const params=new URLSearchParams(window.location.search);
   // Admin bypass
@@ -1377,27 +1525,48 @@ document.addEventListener('DOMContentLoaded',function(){
     window.history.replaceState({},'',window.location.pathname);
     updateChatbotVisibility();
   }
-  // ?pro=true redirect — no modal
+  // ?pro=true redirect — save to Supabase, no modal
   if(params.get('pro')==='true'){
-    showApp();
     isPro=true;
     try{localStorage.setItem('applyu_pro','1');}catch(e){}
+    const _tok=getToken();
+    if(_tok){fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},body:JSON.stringify({action:'setPro'})}).catch(()=>{});}
+    if(currentUser) currentUser.is_pro=true;
+    updateNavAuth();
+    showApp();
     updateChatbotVisibility();
     window.history.replaceState({},'',window.location.pathname);
   }
-  // Stripe payment success — show intake modal
+  // Stripe payment success — save to Supabase, show intake modal
   if(params.get('payment')==='success'){
-    isPro=true;
-    try{localStorage.setItem('applyu_pro','1');}catch(e){}
-    showApp();
-    document.getElementById('pw-step2').style.display='block';
-    document.getElementById('paywallOverlay').classList.add('open');
-    document.body.style.overflow='hidden';
-    window.history.replaceState({},'',window.location.pathname);
-    updateChatbotVisibility();
+    activatePro();
   }
+  // Wire authModal background-click close
+  document.getElementById('authModal').addEventListener('click',function(e){if(e.target===this)closeAuthModal();});
 });
 </script>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- AUTH MODAL -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="auth-overlay" id="authModal">
+  <div class="auth-modal">
+    <button class="modal-close" onclick="closeAuthModal()">×</button>
+    <div class="auth-title" id="auth-title">Welcome back</div>
+    <div class="auth-sub" id="auth-sub">Sign in to your ApplyU account</div>
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()"/>
+    </div>
+    <button class="auth-submit" id="auth-submit" onclick="submitAuth()">Sign In</button>
+    <div class="auth-toggle" id="auth-toggle">Don't have an account? <span onclick="toggleAuthMode()">Sign Up</span></div>
+  </div>
+</div>
 
 <!-- ── CHAT BUBBLES ── -->
 <div id="salesChatBubble">
