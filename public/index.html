@@ -891,7 +891,7 @@ async function submitAuth(){
     updateChatbotVisibility();
     if(isPro){openIntakeModal();}
   }catch(e){
-    errEl.textContent='Something went wrong. Please try again.';
+    errEl.textContent='Something went wrong. Please try again.';console.error('Auth error:',e);
     errEl.classList.add('show');
     btn.disabled=false;
     btn.textContent=authMode==='login'?'Sign In':'Sign Up';

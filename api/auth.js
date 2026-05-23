@@ -26,7 +26,7 @@ async function handleSignup(email, password) {
     body: JSON.stringify({ email, password }),
   });
   const data = await res.json();
-  if (!res.ok) return { error: data.error_description || data.msg || 'Signup failed' };
+  if (!res.ok) { console.error('Signup error:', data); return { error: data.error_description || data.msg || 'Signup failed' }; }
 
   const user = data.user;
   const session = data.session;
