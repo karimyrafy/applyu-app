@@ -843,6 +843,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 // ── STATE ─────────────────────────────────────────────────────
 let searched=false, results=[], EC=new Set(), isPro=false, currentUser=null, authMode='login';
 let currentCollege=null;
+let currentProfile={};
 let sortedResults=[];
 
 // ── PRO STATUS ────────────────────────────────────────────────
@@ -1024,9 +1025,13 @@ function updateChatbotVisibility(){
 }
 
 function openIntakeModal(){
-  document.getElementById('pw-step1').style.display='none';
-  document.getElementById('pw-step2').style.display='block';
-  document.getElementById('paywallOverlay').classList.add('open');
+  var overlay=document.getElementById('paywallOverlay');
+  var step1=document.getElementById('pw-step1');
+  var step2=document.getElementById('pw-step2');
+  if(!overlay||!step2) return;
+  if(step1) step1.style.display='none';
+  step2.style.display='block';
+  overlay.classList.add('open');
   document.body.style.overflow='hidden';
 }
 
