@@ -918,7 +918,8 @@ async function submitAuth(){
     closeAuthModal();
     updateNavAuth();
     updateChatbotVisibility();
-    if(isPro){openIntakeModal();}
+    if(isPro && !localStorage.getItem('applyu_profile_done')){openIntakeModal();}
+    else if(isPro){showApp();if(searched)render();}
   }catch(e){
     errEl.textContent='Something went wrong. Please try again.';console.error('Auth error:',e);
     errEl.classList.add('show');
@@ -1036,17 +1037,23 @@ function openIntakeModal(){
 }
 
 function submitIntake(){
-  // Copy intake values into the main sidebar form
-  const gpa=document.getElementById('intake-gpa').value;
-  const tt=document.getElementById('intake-testtype').value;
-  const sc=document.getElementById('intake-score').value;
-  const zip=document.getElementById('intake-zip').value;
+  var gpa=document.getElementById('intake-gpa').value;
+  var tt=document.getElementById('intake-testtype').value;
+  var sc=document.getElementById('intake-score').value;
+  var zip=document.getElementById('intake-zip').value;
   if(gpa) document.getElementById('gpa').value=gpa;
-  if(tt)  document.getElementById('testType').value=tt;
-  if(sc)  document.getElementById('testScore').value=sc;
+  if(tt) document.getElementById('testType').value=tt;
+  if(sc) document.getElementById('testScore').value=sc;
   if(zip) document.getElementById('zip').value=zip;
-  document.getElementById('pw-step2').classList.remove('open');
+  var step2=document.getElementById('pw-step2');
+  var overlay=document.getElementById('paywallOverlay');
+  if(step2) step2.style.display='none';
+  if(overlay) overlay.classList.remove('open');
   document.body.style.overflow='';
+  localStorage.setItem('applyu_profile_done','1');
+  isPro=true;
+  updateChatbotVisibility();
+  showApp();
   runSearch();
 }
 
@@ -1371,6 +1378,7 @@ function handleUnlock(){
   updateChatbotVisibility();
   showApp();
   if(searched)render();
+  localStorage.setItem('applyu_profile_done','1');
 }
 
 async function goToCheckout(btn){
@@ -1463,7 +1471,7 @@ Generate a detailed, personalized JSON report with this EXACT structure (respond
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
           model:'claude-haiku-4-5-20251001',
-          max_tokens:1000,
+          max_tokens:1500,
           system:'You are a college admissions expert. Return ONLY valid JSON, no markdown, no explanation.',
           messages:[{role:'user',content:prompt}]
         })
