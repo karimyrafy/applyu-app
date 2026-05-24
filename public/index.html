@@ -1442,11 +1442,14 @@ Generate a detailed, personalized JSON report with this EXACT structure (respond
     {"grade": "11th Grade", "text": "Most critical year — what to do"},
     {"grade": "12th Grade", "text": "Senior year application tips for this specific school"}
   ],
-  "essayTips": [
-    {"tag": "Common App Essay", "text": "Specific advice for the Common App essay for this school's culture"},
-    {"tag": "Supplemental Essay", "text": "Specific advice for this school's supplemental essay if applicable"},
-    {"tag": "Recommendation Letter", "text": "Who to ask and what to tell them to highlight for this school"}
-  ]
+  "essays": {
+    "strategy": "2-3 sentences on essay strategy specific to this school's culture and values",
+    "avoid": "2-3 sentences on what NOT to write - common mistakes applicants make for this school"
+  },
+  "letters": {
+    "whoToAsk": "Specific advice on which teacher or counselor to ask based on this school's values",
+    "emailTemplate": "A 3-4 sentence email template the student can send to request a recommendation letter"
+  }
 }`;
 
   try{
@@ -1492,7 +1495,18 @@ function renderReport(r, c){
   document.getElementById('rpt-summary').textContent=r.summary;
   document.getElementById('rpt-actions').innerHTML=r.actions.map((a,i)=>'<div class="action-item"><div class="ai-num">'+(i+1)+'</div><div class="ai-text">'+a+'</div></div>').join('');
   document.getElementById('rpt-timeline').innerHTML=r.timeline.map(t=>'<div class="tl-item"><span class="tl-grade">'+t.grade+'</span><span class="tl-text">'+t.text+'</span></div>').join('');
-  document.getElementById('tab-essays').innerHTML=r.essayTips.map(e=>'<div class="essay-prompt"><div class="ep-tag">'+e.tag+'</div><div class="ep-text">'+e.text+'</div></div>').join('');
+  if(r.essays){
+    var ea=document.getElementById('essay-commonapp');
+    var eb=document.getElementById('essay-avoid');
+    if(ea) ea.textContent=r.essays.strategy||'';
+    if(eb) eb.textContent=r.essays.avoid||'';
+  }
+  if(r.letters){
+    var la=document.getElementById('letter-strategy');
+    var lb=document.getElementById('letter-request-template');
+    if(la) la.textContent=r.letters.whoToAsk||'';
+    if(lb) lb.textContent=r.letters.emailTemplate||'';
+  }
   document.getElementById('rpt-loading').style.display='none';
   document.getElementById('rpt-tabs').style.display='flex';
   switchTab('report', document.querySelector('.rpt-tab'));
