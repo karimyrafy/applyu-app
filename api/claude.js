@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify({ model: model || 'claude-sonnet-4-20250514', max_tokens: max_tokens || 1000, system, messages }),
+      body: JSON.stringify({ model: model || 'claude-haiku-4-5-20251001', max_tokens: max_tokens || 1000, system, messages }),
     });
     if (!response.ok) { const err = await response.text(); return res.status(response.status).json({ error: err }); }
     const data = await response.json();

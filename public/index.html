@@ -993,7 +993,7 @@ async function sendSalesMsg(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-haiku-4-5-20251001',
         max_tokens:300,
         system:'You are the ApplyU admissions assistant on applyu.co. Answer ANY question fully and helpfully. Free tier: college matcher with 1200+ schools, match percentages, Certain/Likely/Possible/Reach bands. Pro tier: $19 one-time, unlocks AI report for every school, gap analysis, action plan, grade-aligned timeline, essay strategy, rec letter templates, AI counselor chat. Powered by Claude AI. Answer questions about college admissions, SAT scores, GPA, application timelines, essays, financial aid, and anything a high school student asks. Be warm, encouraging, specific. Keep replies under 4 sentences. Guide them to try the free matcher or unlock Pro.',
         messages:[{role:'user',content:text}]
@@ -1462,7 +1462,7 @@ Generate a detailed, personalized JSON report with this EXACT structure (respond
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
-          model:'claude-sonnet-4-20250514',
+          model:'claude-haiku-4-5-20251001',
           max_tokens:1000,
           system:'You are a college admissions expert. Return ONLY valid JSON, no markdown, no explanation.',
           messages:[{role:'user',content:prompt}]
@@ -1636,7 +1636,7 @@ function sendInlineProMsg(){
   msgs.scrollTop=msgs.scrollHeight;
   var school=currentCollege?currentCollege.n:'this school';
   var profile=currentProfile||{};
-  fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:'You are a personal college admissions counselor for ApplyU. The student is asking about '+school+'. Student profile: grade '+( profile.grade||'unknown')+', major: '+(profile.major||'unknown')+', GPA/SAT from their matcher inputs. Answer helpfully and specifically. Keep replies under 5 sentences.',messages:[{role:'user',content:msg}]})})
+  fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,system:'You are a personal college admissions counselor for ApplyU. The student is asking about '+school+'. Student profile: grade '+( profile.grade||'unknown')+', major: '+(profile.major||'unknown')+', GPA/SAT from their matcher inputs. Answer helpfully and specifically. Keep replies under 5 sentences.',messages:[{role:'user',content:msg}]})})
   .then(function(r){return r.json();})
   .then(function(d){
     console.log('Counselor full:', JSON.stringify(d).substring(0,300));
