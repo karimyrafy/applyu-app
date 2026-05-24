@@ -913,18 +913,8 @@ async function submitAuth(){
     closeAuthModal();
     updateNavAuth();
     updateChatbotVisibility();
-    if(data.user && data.user.is_pro){
-      isPro=true;
-      try{localStorage.setItem('applyu_pro','1');}catch(e){}
-      if(!localStorage.getItem('applyu_profile_done')){
-        openIntakeModal();
-      } else {
-        showApp();
-        if(searched)render();
-      }
-    } else {
-      showApp();
-    }
+    if(isPro && !localStorage.getItem('applyu_profile_done')){openIntakeModal();}
+    else if(isPro){showApp();if(searched)render();}
   }catch(e){
     errEl.textContent='Something went wrong. Please try again.';console.error('Auth error:',e);
     errEl.classList.add('show');
