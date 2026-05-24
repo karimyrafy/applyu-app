@@ -1466,6 +1466,7 @@ Generate a detailed, personalized JSON report with this EXACT structure (respond
       if(!resp.ok){renderFallbackReport(c);return;}
     const data=await resp.json();
     console.log('API raw response:', JSON.stringify(data));
+    console.log('Raw text:', data.content.map(i=>i.text||'').join(''));
     const raw=data.content.map(i=>i.text||'').join('');
     const clean=raw.replace(/```json|```/g,'').trim();
     const report=JSON.parse(clean);
@@ -1629,9 +1630,10 @@ function sendInlineProMsg(){
   msgs.scrollTop=msgs.scrollHeight;
   var school=currentCollege?currentCollege.n:'this school';
   var profile=currentProfile||{};
-  fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:'You are a personal college admissions counselor for ApplyU. The student is asking about '+school+'. Student profile: grade '+( profile.grade||'unknown')+', major: '+(profile.major||'unknown')+', GPA/SAT from their matcher inputs. Answer helpfully and specifically. Keep replies under 5 sentences.',messages:[{role:'user',content:msg}]})})
+  fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:'You are a personal college admissions counselor for ApplyU. The student is asking about '+school+'. Student profile: grade '+( profile.grade||'unknown')+', major: '+(profile.major||'unknown')+', GPA/SAT from their matcher inputs. Answer helpfully and specifically. Keep replies under 5 sentences.',messages:[{role:'user',content:msg}]})})
   .then(function(r){return r.json();})
   .then(function(d){
+    console.log('Counselor response:', JSON.stringify(d));
     var reply=(d.content&&d.content[0]&&d.content[0].text)||'I can help with that! Please check the school\'s official admissions page for the most current information.';
     msgs.innerHTML+='<div style="text-align:left;margin-bottom:0.5rem;"><span style="background:var(--card);border:1px solid var(--border);padding:0.4rem 0.8rem;border-radius:12px;font-size:0.82rem;display:inline-block;">'+reply+'</span></div>';
     msgs.scrollTop=msgs.scrollHeight;
