@@ -958,10 +958,6 @@ async function restoreSession(){
       if(data.user.is_pro){isPro=true;try{localStorage.setItem('applyu_pro','1');}catch(e){}}
       updateNavAuth();
       updateChatbotVisibility();
-      if(data.user.is_pro && localStorage.getItem('applyu_profile_done')){
-        isPro=true;
-        updateChatbotVisibility();
-      }
     }else{
       try{localStorage.removeItem('applyu_token');}catch(e){}
     }
@@ -1515,14 +1511,7 @@ function renderReport(r, c){
   }).join('');
   document.getElementById('rpt-summary').textContent=r.summary;
   document.getElementById('rpt-actions').innerHTML=r.actions.map((a,i)=>'<div class="action-item"><div class="ai-num">'+(i+1)+'</div><div class="ai-text">'+a+'</div></div>').join('');
-  var gradeOrder={'9th':1,'10th':2,'11th':3,'12th':4};
-  var currentGradeNum=currentProfile&&currentProfile.grade?gradeOrder[currentProfile.grade.replace(' Grade','')]||1:1;
-  var filteredTimeline=r.timeline.filter(function(t){
-    var g=t.grade.replace(' Grade','').replace('th','').replace('st','').replace('nd','').replace('rd','');
-    var num=gradeOrder[t.grade.replace(' Grade','')]||parseInt(g)||1;
-    return num>=currentGradeNum;
-  });
-  document.getElementById('rpt-timeline').innerHTML=filteredTimeline.map(t=>'<div class="tl-item"><span class="tl-grade">'+t.grade+'</span><span class="tl-text">'+t.text+'</span></div>').join('');
+  document.getElementById('rpt-timeline').innerHTML=r.timeline.map(t=>'<div class="tl-item"><span class="tl-grade">'+t.grade+'</span><span class="tl-text">'+t.text+'</span></div>').join('');
   if(r.essays){
     var ea=document.getElementById('essay-commonapp');
     var eb=document.getElementById('essay-avoid');
