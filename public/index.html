@@ -1074,15 +1074,14 @@ function activatePro(){
 
 // On every page load: restore pro from localStorage or handle Stripe redirect
 (function initPro(){
-  try { if(localStorage.getItem('applyu_pro')==='1') isPro=true; } catch(e){}
+  // Pro status restored from Supabase auth only
   const params=new URLSearchParams(window.location.search);
-  if(params.get('payment')==='success' || params.get('pro')==='true') activatePro();
-  if(params.get('admin')==='yael'){
-    isPro=true;
-    try { localStorage.setItem('applyu_pro','1'); } catch(e){}
-    const badge=document.getElementById('admin-badge');
-    if(badge) badge.style.display='inline-block';
-    window.history.replaceState({},'',window.location.pathname);
+  if(params.get('payment')==='success' || params.get('pro')==='true'){
+    const tok=getToken();
+    if(tok){
+      fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({action:'setPro'})})
+      .then(r=>r.json()).then(d=>{if(d.success){activatePro();}}).catch(()=>{});
+    }
   }
 })();
 
