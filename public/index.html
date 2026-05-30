@@ -1078,9 +1078,12 @@ function activatePro(){
   const params=new URLSearchParams(window.location.search);
   if(params.get('payment')==='success' || params.get('pro')==='true'){
     const tok=getToken();
-    if(tok){
-      fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({action:'setPro'})})
+    const sessionId=params.get('session_id')||'';
+    if(tok && sessionId){
+      fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({action:'setPro',stripeSessionId:sessionId})})
       .then(r=>r.json()).then(d=>{if(d.success){activatePro();}}).catch(()=>{});
+    } else if(tok){
+      restoreSession().then(()=>{if(isPro){activatePro();}});
     }
   }
 })();
