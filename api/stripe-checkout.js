@@ -32,9 +32,10 @@ export default async function handler(req, res) {
       body: params.toString(),
     });
     const data = await response.json();
-    if (data.error) return res.status(400).json({ error: data.error.message });
+    if (data.error) { console.error('Stripe API error:', JSON.stringify(data.error)); return res.status(400).json({ error: data.error.message }); }
     return res.status(200).json({ url: data.url });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('Stripe error:', JSON.stringify(err));
+    return res.status(500).json({ error: err.message || 'Unknown error' });
   }
 }
