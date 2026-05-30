@@ -1106,7 +1106,10 @@ function activatePro(){
   window.history.replaceState({},'',window.location.pathname);
   // Persist pro status to Supabase if user is logged in
   const _tok=getToken();
-  if(_tok){fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},body:JSON.stringify({action:'setPro'})}).catch(()=>{});}
+  if(_tok){
+    var _sid=new URLSearchParams(window.location.search).get('session_id')||'';
+    fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},body:JSON.stringify({action:'setPro',stripeSessionId:_sid})}).catch(()=>{});
+  }
   if(currentUser) currentUser.is_pro=true;
   updateNavAuth();
   openIntakeModal();
