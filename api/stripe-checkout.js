@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     'line_items[0][price_data][product_data][description]': 'Lifetime access — AI reports, gap analysis, essay bundle & timeline',
     'line_items[0][price_data][unit_amount]': '1900',
     'line_items[0][quantity]': '1',
-    'success_url': `${origin}/?payment=success`,
+    'success_url': `${origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
     'cancel_url': `${origin}/`,
   });
 

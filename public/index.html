@@ -843,8 +843,30 @@ let currentProfile={};
 let sortedResults=[];
 
 // ── PRO STATUS ────────────────────────────────────────────────
+async function goToCheckout(btn){
+  const label=btn?btn.innerHTML:null;
+  if(btn){btn.disabled=true;btn.innerHTML='Loading...';}
+  try{
+    const res=await fetch('/api/stripe-checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({})
+    });
+    const data=await res.json();
+    if(data.url){
+      window.location.href=data.url;
+    } else {
+      if(btn){btn.disabled=false;btn.innerHTML=label;}
+      alert('Checkout failed. Please try again.');
+    }
+  }catch(e){
+    if(btn){btn.disabled=false;btn.innerHTML=label;}
+    alert('Checkout failed. Please try again.');
+  }
+}
+
 function goToIntake(){
-  window.location.href='https://buy.stripe.com/14A4gy1WU2ri6777Vy2Fa02';
+  goToCheckout(null);
 }
 
 // ── AUTH ──────────────────────────────────────────────────────
