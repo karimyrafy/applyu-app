@@ -854,6 +854,7 @@ async function goToCheckout(btn){
     });
     const data=await res.json();
     if(data.url){
+      try{localStorage.setItem('applyu_pending_college',JSON.stringify(currentCollege));}catch(e){}
       window.location.href=data.url;
     } else {
       if(btn){btn.disabled=false;btn.innerHTML=label;}
@@ -1094,6 +1095,10 @@ function submitIntake(){
 
 function activatePro(){
   isPro=true;
+  try{
+    var pending=localStorage.getItem('applyu_pending_college');
+    if(pending){currentCollege=JSON.parse(pending);localStorage.removeItem('applyu_pending_college');}
+  }catch(e){}
   try { localStorage.setItem('applyu_pro','1'); } catch(e){}
   window.history.replaceState({},'',window.location.pathname);
   // Persist pro status to Supabase if user is logged in
