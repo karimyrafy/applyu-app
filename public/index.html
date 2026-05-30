@@ -866,6 +866,12 @@ async function goToCheckout(btn){
 }
 
 function goToIntake(){
+  if(!currentUser){
+    openAuthModal('signup');
+    var origClose=closeAuthModal;
+    window.pendingCheckout=true;
+    return;
+  }
   goToCheckout(null);
 }
 
@@ -936,6 +942,11 @@ async function submitAuth(){
     closeAuthModal();
     updateNavAuth();
     updateChatbotVisibility();
+    if(window.pendingCheckout){
+      window.pendingCheckout=false;
+      goToCheckout(null);
+      return;
+    }
     if(isPro && !localStorage.getItem('applyu_profile_done')){openIntakeModal();}
     else if(isPro){showApp();if(searched)render();}
   }catch(e){
