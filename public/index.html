@@ -867,9 +867,9 @@ async function goToCheckout(btn){
 }
 
 function goToIntake(){
+  try{localStorage.setItem('applyu_pending_college',JSON.stringify(currentCollege));}catch(e){}
   if(!currentUser){
     openAuthModal('signup');
-    var origClose=closeAuthModal;
     window.pendingCheckout=true;
     return;
   }
