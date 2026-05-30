@@ -1091,6 +1091,9 @@ function submitIntake(){
   updateChatbotVisibility();
   showApp();
   runSearch();
+  if(currentCollege){
+    setTimeout(function(){openReport(currentCollege);},2000);
+  }
 }
 
 function activatePro(){
