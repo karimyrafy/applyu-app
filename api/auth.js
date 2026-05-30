@@ -68,13 +68,23 @@ async function handleGetUser(accessToken) {
   return { user: { ...data, ...profile } };
 }
 
-async function handleSetPro(accessToken) {
+async function handleSetPro(accessToken, stripeSessionId) {
   const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
     headers: { ...supabaseHeaders(), 'Authorization': `Bearer ${accessToken}` },
   });
   const userData = await userRes.json();
-  if (!userRes.ok) return { error: userData.error_description || userData.msg || 'Not authenticated' };
-
+  if (!userRes.ok) return { error: 'Not authenticated' };
+  if (stripeSessionId) {
+    const stripeRes = await fetch(`https://api.stripe.com/v1/checkout/sessions/${stripeSessionId}`, {
+      headers: { 'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}` },
+    });
+    const session = await stripeRes.json();
+    if (!stripeRes.ok || session.payment_status !== 'paid') {
+      return { error: 'Payment not verified' };
+    }
+  } else {
+    return { error: 'Stripe session ID required' };
+  }
   const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userData.id}`, {
     method: 'PATCH',
     headers: { ...supabaseHeaders(true), 'Prefer': 'return=minimal' },
@@ -115,7 +125,8 @@ export default async function handler(req, res) {
         break;
       case 'setPro':
         if (!accessToken) return res.status(400).json({ error: 'Access token required' });
-        result = await handleSetPro(accessToken);
+        const { stripeSessionId } = req.body;
+        result = await handleSetPro(accessToken, stripeSessionId);
         break;
       default:
         return res.status(400).json({ error: 'Invalid action' });
