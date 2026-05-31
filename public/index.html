@@ -1122,7 +1122,7 @@ function submitIntake(){
   }
 }
 
-function activatePro(){
+function activatePro(sessionId){
   isPro=true;
   var overlay=document.getElementById('paywallOverlay');
   if(overlay) overlay.classList.remove('open');
@@ -1137,7 +1137,7 @@ function activatePro(){
   // Persist pro status to Supabase if user is logged in
   const _tok=getToken();
   if(_tok){
-    var _sid=new URLSearchParams(window.location.search).get('session_id')||'';
+    var _sid=sessionId||'';
     fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},body:JSON.stringify({action:'setPro',stripeSessionId:_sid})}).catch(()=>{});
   }
   if(currentUser) currentUser.is_pro=true;
@@ -1166,7 +1166,7 @@ function activatePro(){
               if(found) localStorage.setItem('applyu_pending_college',JSON.stringify(found));
             }catch(e){}
           }
-          activatePro();
+          activatePro(sessionId);
         }
       }).catch(()=>{});
     } else if(tok){
