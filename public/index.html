@@ -868,6 +868,7 @@ async function goToCheckout(btn){
 
 function goToIntake(){
   try{localStorage.setItem('applyu_pending_college',JSON.stringify(currentCollege));}catch(e){}
+  console.log('Saved college:', localStorage.getItem('applyu_pending_college'));
   if(!currentUser){
     openAuthModal('signup');
     window.pendingCheckout=true;
