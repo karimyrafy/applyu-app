@@ -1142,6 +1142,8 @@ function activatePro(){
   }
   if(currentUser) currentUser.is_pro=true;
   updateNavAuth();
+  var paywallOverlay=document.getElementById('paywallOverlay');
+  if(paywallOverlay) paywallOverlay.classList.remove('open');
   openIntakeModal();
   if(searched) render();
 }
@@ -1561,7 +1563,7 @@ Generate a detailed, personalized JSON report with this EXACT structure (respond
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
           model:'claude-haiku-4-5-20251001',
-          max_tokens:1500,
+          max_tokens:2000,
           system:'You are a college admissions expert. Return ONLY valid JSON, no markdown, no explanation.',
           messages:[{role:'user',content:prompt}]
         })
