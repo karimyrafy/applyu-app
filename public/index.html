@@ -1127,6 +1127,7 @@ function activatePro(){
   var overlay=document.getElementById('paywallOverlay');
   if(overlay) overlay.classList.remove('open');
   document.body.style.overflow='';
+  currentCollege=null;
   try{
     var pending=localStorage.getItem('applyu_pending_college');
     if(pending){currentCollege=JSON.parse(pending);localStorage.removeItem('applyu_pending_college');}
