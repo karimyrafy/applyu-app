@@ -80,6 +80,7 @@ async function handleSetPro(accessToken, stripeSessionId) {
       headers: { 'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}` },
     });
     const session = await stripeRes.json();
+    console.log('Stripe session status:', session.payment_status, 'session_id:', stripeSessionId, 'stripeRes.ok:', stripeRes.ok);
     if (!stripeRes.ok || session.payment_status !== 'paid') {
       return { error: 'Payment not verified' };
     }
