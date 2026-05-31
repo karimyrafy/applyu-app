@@ -18,10 +18,12 @@ export default async function handler(req, res) {
     'line_items[0][price_data][product_data][description]': 'Lifetime access - AI reports, gap analysis, essay bundle and timeline',
     'line_items[0][price_data][unit_amount]': '1900',
     'line_items[0][quantity]': '1',
-    'success_url': `${origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-    'metadata[college_name]': req.body.collegeName||'',
     'cancel_url': `${origin}/`,
+    'metadata[college_name]': req.body.collegeName||'',
   });
+
+  const successUrl = `${origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}`;
+  const body = params.toString() + '&success_url=' + encodeURIComponent(successUrl).replace(/%7B/g, '{').replace(/%7D/g, '}');
 
   try {
     const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -30,7 +32,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${secretKey}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: params.toString(),
+      body: body,
     });
     const data = await response.json();
     if (data.error) { console.error('Stripe API error:', JSON.stringify(data.error)); return res.status(400).json({ error: data.error.message }); }
