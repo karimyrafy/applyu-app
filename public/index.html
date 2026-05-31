@@ -850,7 +850,7 @@ async function goToCheckout(btn){
     const res=await fetch('/api/stripe-checkout',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({})
+      body:JSON.stringify({collegeName:currentCollege?currentCollege.n:''})
     });
     const data=await res.json();
     if(data.url){
@@ -1129,7 +1129,18 @@ function activatePro(){
     const sessionId=params.get('session_id')||'';
     if(tok && sessionId){
       fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({action:'setPro',stripeSessionId:sessionId})})
-      .then(r=>r.json()).then(d=>{if(d.success){activatePro();}}).catch(()=>{});
+      .then(r=>r.json()).then(d=>{
+        if(d.success){
+          if(d.collegeName){
+            try{
+              var allColleges=typeof colleges!=='undefined'?colleges:[];
+              var found=allColleges.find(function(c){return c.n===d.collegeName;});
+              if(found) localStorage.setItem('applyu_pending_college',JSON.stringify(found));
+            }catch(e){}
+          }
+          activatePro();
+        }
+      }).catch(()=>{});
     } else if(tok){
       restoreSession().then(()=>{if(isPro){activatePro();}});
     }

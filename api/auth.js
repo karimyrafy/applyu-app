@@ -74,6 +74,7 @@ async function handleSetPro(accessToken, stripeSessionId) {
   });
   const userData = await userRes.json();
   if (!userRes.ok) return { error: 'Not authenticated' };
+  let collegeName = '';
   if (stripeSessionId) {
     const stripeRes = await fetch(`https://api.stripe.com/v1/checkout/sessions/${stripeSessionId}`, {
       headers: { 'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}` },
@@ -82,6 +83,7 @@ async function handleSetPro(accessToken, stripeSessionId) {
     if (!stripeRes.ok || session.payment_status !== 'paid') {
       return { error: 'Payment not verified' };
     }
+    collegeName = session.metadata && session.metadata.college_name ? session.metadata.college_name : '';
   } else {
     return { error: 'Stripe session ID required' };
   }
@@ -91,7 +93,7 @@ async function handleSetPro(accessToken, stripeSessionId) {
     body: JSON.stringify({ is_pro: true }),
   });
   if (!res.ok) return { error: 'Failed to update pro status' };
-  return { success: true };
+  return { success: true, collegeName };
 }
 
 export default async function handler(req, res) {
