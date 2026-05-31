@@ -1691,6 +1691,11 @@ function resetAll(){
 document.getElementById('paywallOverlay').addEventListener('click',function(e){if(e.target===this)closePaywall();});
 document.getElementById('reportOverlay').addEventListener('click',function(e){if(e.target===this)closeReport();});
 document.addEventListener('DOMContentLoaded',function(){
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('payment')==='success' || params.get('pro')==='true'){
+    var pw=document.getElementById('paywallOverlay');
+    if(pw) pw.style.display='none';
+  }
   document.getElementById('salesChatBubble').style.display='flex';
   // Restore session from token (async — updates nav + pro status)
   restoreSession();
