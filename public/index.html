@@ -1153,6 +1153,7 @@ function activatePro(sessionId){
   // Pro status restored from Supabase auth only
   const params=new URLSearchParams(window.location.search);
   if(params.get('payment')==='success' || params.get('pro')==='true'){
+    console.log('initPro triggered, payment=', params.get('payment'), 'session_id=', params.get('session_id'), 'token=', getToken()?'exists':'null');
     const tok=getToken();
     const sessionId=params.get('session_id')||'';
     if(tok && sessionId){
