@@ -855,6 +855,18 @@ async function goToCheckout(btn){
     const data=await res.json();
     if(data.url){
       try{localStorage.setItem('applyu_pending_college',JSON.stringify(currentCollege));}catch(e){}
+      try{
+        var searchState={
+          gpa:document.getElementById('gpa').value,
+          testType:document.getElementById('testType').value,
+          testScore:document.getElementById('testScore').value,
+          zip:document.getElementById('zip').value,
+          ec:[...EC],
+          tuition:document.getElementById('tuition')?document.getElementById('tuition').value:'',
+          ecLvl:document.querySelector('input[name=ecLvl]:checked')?document.querySelector('input[name=ecLvl]:checked').value:''
+        };
+        localStorage.setItem('applyu_search_state',JSON.stringify(searchState));
+      }catch(e){}
       window.location.href=data.url;
     } else {
       if(btn){btn.disabled=false;btn.innerHTML=label;}
@@ -1091,6 +1103,19 @@ function submitIntake(){
   isPro=true;
   updateChatbotVisibility();
   showApp();
+  try{
+    var saved=localStorage.getItem('applyu_search_state');
+    if(saved){
+      var s=JSON.parse(saved);
+      if(s.gpa) document.getElementById('gpa').value=s.gpa;
+      if(s.testType) document.getElementById('testType').value=s.testType;
+      if(s.testScore) document.getElementById('testScore').value=s.testScore;
+      if(s.zip) document.getElementById('zip').value=s.zip;
+      if(s.ec&&s.ec.length){EC=new Set(s.ec);}
+      if(s.ecLvl){var el=document.querySelector('input[name=ecLvl][value="'+s.ecLvl+'"]');if(el)el.checked=true;}
+      localStorage.removeItem('applyu_search_state');
+    }
+  }catch(e){}
   runSearch();
   if(currentCollege){
     setTimeout(function(){openReport(currentCollege);},2000);
