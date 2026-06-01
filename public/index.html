@@ -867,6 +867,7 @@ async function goToCheckout(btn){
         };
         localStorage.setItem('applyu_search_state',JSON.stringify(searchState));
       }catch(e){}
+      try{if(localStorage.getItem('applyu_token'))sessionStorage.setItem('applyu_token_backup',localStorage.getItem('applyu_token'));}catch(e){}
       window.location.href=data.url;
     } else {
       if(btn){btn.disabled=false;btn.innerHTML=label;}
@@ -890,7 +891,13 @@ function goToIntake(){
 }
 
 // ── AUTH ──────────────────────────────────────────────────────
-function getToken(){try{return localStorage.getItem('applyu_token');}catch(e){return null;}}
+function getToken(){
+  try{
+    return localStorage.getItem('applyu_token')
+      || sessionStorage.getItem('applyu_token_backup')
+      || null;
+  }catch(e){return null;}
+}
 
 function openAuthModal(){
   authMode='login';
@@ -1479,7 +1486,7 @@ async function goToCheckout(btn){
   try {
     const res = await fetch('/api/stripe-checkout',{ method:'POST', headers:{'Content-Type':'application/json'} });
     const data = await res.json();
-    if(data.url){ window.location.href=data.url; }
+    if(data.url){ try{if(localStorage.getItem('applyu_token'))sessionStorage.setItem('applyu_token_backup',localStorage.getItem('applyu_token'));}catch(e){} window.location.href=data.url; }
     else { alert('Checkout unavailable. Please try again.'); if(btn){ btn.disabled=false; btn.innerHTML=label; } }
   } catch(e) {
     alert('Could not start checkout. Please try again.');
