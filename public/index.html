@@ -1480,20 +1480,6 @@ function handleUnlock(){
   localStorage.setItem('applyu_profile_done','1');
 }
 
-async function goToCheckout(btn){
-  const label = btn ? btn.innerHTML : null;
-  if(btn){ btn.disabled=true; btn.innerHTML='Loading...'; }
-  try {
-    const res = await fetch('/api/stripe-checkout',{ method:'POST', headers:{'Content-Type':'application/json'} });
-    const data = await res.json();
-    if(data.url){ try{if(localStorage.getItem('applyu_token'))sessionStorage.setItem('applyu_token_backup',localStorage.getItem('applyu_token'));}catch(e){} window.location.href=data.url; }
-    else { alert('Checkout unavailable. Please try again.'); if(btn){ btn.disabled=false; btn.innerHTML=label; } }
-  } catch(e) {
-    alert('Could not start checkout. Please try again.');
-    if(btn){ btn.disabled=false; btn.innerHTML=label; }
-  }
-}
-
 // ── AI REPORT ─────────────────────────────────────────────────
 function openReport(c){
   currentCollege=c;
