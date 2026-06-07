@@ -491,7 +491,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="app-nav">
     <div class="app-nav-left">
       <button class="back-btn" onclick="showLanding()">← Back</button>
-      <span class="app-title">ApplyU Matcher</span>
+      <div class="logo">Apply<span class="logo-u">U</span><span class="logo-dot"></span></div>
     </div>
     <div class="match-pill" id="matchBadge">— matches</div>
   </div>
@@ -840,6 +840,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 let searched=false, results=[], EC=new Set(), isPro=false, currentUser=null, authMode='login';
 let currentCollege=null;
 let currentProfile={};
+// Sync-restore isPro immediately to prevent paywall flash on click before restoreSession() completes
+try{if(localStorage.getItem('applyu_pro')==='1'||new URLSearchParams(window.location.search).get('payment')==='success')isPro=true;}catch(e){}
 let sortedResults=[];
 
 // ── PRO STATUS ────────────────────────────────────────────────
@@ -881,7 +883,6 @@ async function goToCheckout(btn){
 
 function goToIntake(){
   try{localStorage.setItem('applyu_pending_college',JSON.stringify(currentCollege));}catch(e){}
-  console.log('Saved college:', localStorage.getItem('applyu_pending_college'));
   if(!currentUser){
     openAuthModal('signup');
     window.pendingCheckout=true;
@@ -1160,7 +1161,6 @@ function activatePro(sessionId){
   // Pro status restored from Supabase auth only
   const params=new URLSearchParams(window.location.search);
   if(params.get('payment')==='success' || params.get('pro')==='true'){
-    console.log('initPro triggered, payment=', params.get('payment'), 'session_id=', params.get('session_id'), 'token=', getToken()?'exists':'null');
     const tok=getToken();
     const sessionId=params.get('session_id')||'';
     if(tok && sessionId){
@@ -1564,9 +1564,6 @@ Generate a detailed, personalized JSON report with this EXACT structure (respond
       });
       if(!resp.ok){renderFallbackReport(c);return;}
     const data=await resp.json();
-    console.log('API raw response:', JSON.stringify(data));
-    const rawDebug=data.content.map(i=>i.text||'').join('');
-    console.log('Raw text:', rawDebug.substring(0,500));
     const raw=data.content.map(i=>i.text||'').join('');
     const clean=raw.replace(/```json|```/g,'').trim();
     const report=JSON.parse(clean);
@@ -1733,7 +1730,6 @@ function sendInlineProMsg(){
   fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,system:'You are a personal college admissions counselor for ApplyU. The student is asking about '+school+'. Student profile: grade '+( profile.grade||'unknown')+', major: '+(profile.major||'unknown')+', GPA/SAT from their matcher inputs. Answer helpfully and specifically. Keep replies under 5 sentences.',messages:[{role:'user',content:msg}]})})
   .then(function(r){return r.json();})
   .then(function(d){
-    console.log('Counselor full:', JSON.stringify(d).substring(0,300));
     var reply=(d.content&&d.content[0]&&d.content[0].text)||'I can help with that! Please check the school\'s official admissions page for the most current information.';
     msgs.innerHTML+='<div style="text-align:left;margin-bottom:0.5rem;"><span style="background:var(--card);border:1px solid var(--border);padding:0.4rem 0.8rem;border-radius:12px;font-size:0.82rem;display:inline-block;">'+reply+'</span></div>';
     msgs.scrollTop=msgs.scrollHeight;
