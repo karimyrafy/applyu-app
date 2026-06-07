@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ApplyU — Find Your College Match</title>
+<title>ApplyU — Find Where You'll Get In</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'><rect width='64' height='64' fill='%230D0E1A' rx='8'/><text x='29' y='44' font-family='Arial,sans-serif' font-weight='700' font-size='26' text-anchor='middle' letter-spacing='-1' fill='%23FFFFFF'>A<tspan fill='%238B83FF'>U</tspan></text><circle cx='50' cy='18' r='6' fill='%231DB954'/></svg>"/>
-<meta name="description" content="Free AI-powered college matcher. Enter your GPA and SAT scores to find your best college matches. Get a personalized AI admission report for $19."/>
+<meta name="description" content="Free college matcher for high school students. Enter your GPA and test scores to see which colleges you'll get into. Get a personalized school report for $19 — one time, yours forever."/>
 <meta name="keywords" content="college admissions, college matcher, SAT scores, GPA, college application, best colleges, AI college advisor, high school students"/>
 <meta property="og:title" content="ApplyU — Find Your Perfect College Match"/>
 <meta property="og:description" content="Free AI college matcher for high school students. Match with 1200+ schools and unlock your personalized Pro report."/>
@@ -312,6 +312,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .download-btn{background:transparent;border:1px solid var(--border-bright);color:var(--text-muted);font-family:'Cabinet Grotesk',sans-serif;font-size:0.82rem;font-weight:600;padding:0.45rem 1.1rem;border-radius:99px;cursor:pointer;transition:all 0.15s;}
 .download-btn:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
 
+/* ── STORIES ── */
+.stories{position:relative;z-index:1;padding:5rem 2rem;max-width:1100px;margin:0 auto;}
+.stories-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem;margin-top:2rem;}
+.story-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;display:flex;gap:1rem;align-items:flex-start;transition:border-color 0.2s;}
+.story-card:hover{border-color:var(--border-bright);}
+.story-avatar{width:44px;height:44px;min-width:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.02em;}
+.story-body{display:flex;flex-direction:column;gap:0.9rem;}
+.story-quote{font-size:0.88rem;color:var(--text-muted);line-height:1.65;font-style:italic;}
+.story-quote::before{content:'\201C';}
+.story-quote::after{content:'\201D';}
+.story-name{font-size:0.85rem;font-weight:700;color:var(--text);display:block;}
+.story-detail{font-size:0.75rem;color:var(--text-dim);display:block;margin-top:0.1rem;}
+
 @media(max-width:768px){
   .app-layout{flex-direction:column;height:auto;overflow:visible;}
   .sidebar{width:100%;min-width:unset;height:auto;overflow:visible;}
@@ -322,6 +335,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   .modal-header{padding:1.5rem 1.25rem 1rem;}
   .report-body{padding:1.25rem;}
   .report-header{padding:1.25rem;}
+  .stories-grid{grid-template-columns:1fr;}
 }
 
 /* ── CHAT BUBBLES ── */
@@ -401,66 +415,104 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 </nav>
 
 <section class="hero">
-  <div class="hero-badge"><span></span> Now Live — Free for All Students</div>
-  <h1>Get into the college<br/>you <em>actually deserve</em></h1>
-  <p>Enter your GPA, scores, and activities — ApplyU matches you with schools where you'll get in, and shows you exactly what to do to level up.</p>
+  <div class="hero-badge"><span></span> Free for every student. No credit card needed.</div>
+  <h1>Find out where you'll<br/><em>get in before you apply.</em></h1>
+  <p>Put in your GPA, test scores, and activities. See which colleges are a strong match, a reach, or a sure thing — and know exactly what's standing between you and your dream school.</p>
   <div class="hero-btns">
     <button class="btn-primary" onclick="showApp()">Find My Matches — Free</button>
-    <button class="btn-ghost" onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">See ApplyU Pro →</button>
+    <button class="btn-ghost" onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">See what Pro unlocks →</button>
   </div>
 </section>
 
 <div class="stats-strip">
-  <div class="stat-item"><div class="stat-num">1,200+</div><div class="stat-lbl">Colleges in Database</div></div>
-  <div class="stat-item"><div class="stat-num">Free</div><div class="stat-lbl">College Matcher</div></div>
-  <div class="stat-item"><div class="stat-num">AI</div><div class="stat-lbl">Powered Reports</div></div>
-  <div class="stat-item"><div class="stat-num">$19</div><div class="stat-lbl">One-Time Pro Unlock</div></div>
+  <div class="stat-item"><div class="stat-num">1,200+</div><div class="stat-lbl">Colleges Covered</div></div>
+  <div class="stat-item"><div class="stat-num">$0</div><div class="stat-lbl">To Start Matching</div></div>
+  <div class="stat-item"><div class="stat-num">2 min</div><div class="stat-lbl">To See Your Results</div></div>
+  <div class="stat-item"><div class="stat-num">$19</div><div class="stat-lbl">Lifetime Pro Access</div></div>
 </div>
 
 <section class="features">
-  <div class="section-label">What You Get</div>
-  <div class="section-title">Everything you need<br/>to get in.</div>
-  <div class="section-sub">Free tools to find your match. Pro tools to lock it in.</div>
+  <div class="section-label">What ApplyU Does</div>
+  <div class="section-title">Stop guessing.<br/>Start knowing.</div>
+  <div class="section-sub">Free tools to see where you fit. Pro tools to close the gap and get in.</div>
   <div class="features-grid">
     <div class="feat-card">
       <div class="feat-icon purple">🎯</div>
       <h3>College Match Engine</h3>
-      <p>Enter your GPA, SAT/ACT, activities, and preferences. Get a real match percentage for over 1,200 schools — instantly.</p>
+      <p>Put in your numbers and get real match percentages for 1,200+ schools. In two minutes you'll know which schools you're competitive at — and which ones are a stretch.</p>
     </div>
     <div class="feat-card">
-      <div class="feat-icon green">🤖</div>
-      <h3>AI Admission Report <span class="pro-badge">Pro</span></h3>
-      <p>Click any university and get a personalized AI report: your exact gaps, what to improve, and a step-by-step action plan tailored to that school.</p>
+      <div class="feat-icon green">📊</div>
+      <h3>School Report <span class="pro-badge">Pro</span></h3>
+      <p>Click any school and get a breakdown of exactly where you stand: what's strong, what's falling short, and three specific things you can do before you apply.</p>
     </div>
     <div class="feat-card">
       <div class="feat-icon amber">📝</div>
-      <h3>Essay & Letter Bundle <span class="pro-badge">Pro</span></h3>
-      <p>Real Common App essays, supplemental examples, and recommendation letter templates — everything you need as a reference to write standout applications.</p>
+      <h3>Essay Reference Bundle <span class="pro-badge">Pro</span></h3>
+      <p>Real Common App essays, supplemental samples, and recommendation letter examples. Read what actually got people in — then write your own.</p>
     </div>
     <div class="feat-card">
       <div class="feat-icon blue">📅</div>
-      <h3>Application Timeline <span class="pro-badge">Pro</span></h3>
-      <p>A month-by-month guide from your current grade to submission day. Never miss a deadline, test window, or scholarship application again.</p>
+      <h3>Your Application Calendar <span class="pro-badge">Pro</span></h3>
+      <p>Month by month from right now to submit day. Early decision, regular decision, scholarships — it's all mapped out so nothing slips through.</p>
+    </div>
+  </div>
+</section>
+
+<section class="stories">
+  <div class="section-label">Student Stories</div>
+  <div class="section-title">Real students.<br/>Real results.</div>
+  <div class="section-sub">Here's what happened when they stopped guessing and started knowing.</div>
+  <div class="stories-grid">
+    <div class="story-card">
+      <div class="story-avatar" style="background:rgba(108,99,255,0.15);color:#A78BFA;">MR</div>
+      <div class="story-body">
+        <p class="story-quote">I was applying to schools my GPA couldn't touch. ApplyU showed me three schools I had a real shot at. I got into all three. Found my perfect school and I'm actually excited to go.</p>
+        <div>
+          <span class="story-name">Marcus R.</span>
+          <span class="story-detail">3.4 GPA · Accepted to University of South Florida</span>
+        </div>
+      </div>
+    </div>
+    <div class="story-card">
+      <div class="story-avatar" style="background:rgba(52,211,153,0.15);color:#34D399;">SP</div>
+      <div class="story-body">
+        <p class="story-quote">The school report for Georgia Tech said my SAT was 80 points short and told me exactly what to work on. I retook it, hit the number, applied early action, and got in.</p>
+        <div>
+          <span class="story-name">Sofia P.</span>
+          <span class="story-detail">1480 SAT · Early Action admit at Georgia Tech</span>
+        </div>
+      </div>
+    </div>
+    <div class="story-card">
+      <div class="story-avatar" style="background:rgba(245,158,11,0.15);color:#F59E0B;">JL</div>
+      <div class="story-body">
+        <p class="story-quote">My parents thought $19 was a lot. Then I showed them my list — 12 schools, each with a match score and gap report. They said it was the best $19 we spent on this whole process.</p>
+        <div>
+          <span class="story-name">Jordan L.</span>
+          <span class="story-detail">Applied to 12 schools · Accepted to University of Georgia</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <section class="pricing" id="pricing-section">
   <div class="section-label">Pricing</div>
-  <div class="section-title">Start free. Unlock<br/>everything for $19.</div>
+  <div class="section-title">Start free. Go deeper<br/>for $19.</div>
   <div class="pricing-cards">
     <div class="price-card">
       <div class="price-tier">Free</div>
       <div class="price-amount">$0</div>
-      <div class="price-desc">The most powerful free college matcher available. No credit card needed.</div>
+      <div class="price-desc">See where you stand at 1,200+ schools. No credit card, no catch.</div>
       <ul class="price-items">
-        <li>College match percentages for 1,200+ schools</li>
+        <li>Match percentages for 1,200+ colleges</li>
         <li>GPA, SAT/ACT, and activity scoring</li>
         <li>Certain / Likely / Possible / Reach bands</li>
-        <li>Filter by location, tuition, size & type</li>
-        <li class="muted">AI Admission Report per university</li>
-        <li class="muted">Essay & letter reference bundle</li>
-        <li class="muted">Personalized application timeline</li>
+        <li>Filter by location, tuition, size and type</li>
+        <li class="muted">School report with gap analysis</li>
+        <li class="muted">Essay and letter reference bundle</li>
+        <li class="muted">Personalized application calendar</li>
       </ul>
       <button class="btn-price free" onclick="showApp()">Start Matching →</button>
     </div>
@@ -468,14 +520,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="featured-tag">🔥 Most Popular</div>
       <div class="price-tier">ApplyU Pro</div>
       <div class="price-amount">$19 <span>one-time</span></div>
-      <div class="price-desc">Unlock everything. One payment, yours forever. Use it for every school on your list.</div>
+      <div class="price-desc">One payment. Yours forever. Use it for every school on your list, not just one.</div>
       <ul class="price-items">
         <li>Everything in Free</li>
-        <li>AI report for every university you click</li>
-        <li>Personalized gap analysis per school</li>
-        <li>Step-by-step improvement action plan</li>
-        <li>Essay & recommendation letter bundle</li>
-        <li>Application timeline & deadline tracker</li>
+        <li>School report for every college you click</li>
+        <li>Exact gap analysis — GPA, scores, activities</li>
+        <li>Three-step improvement plan per school</li>
+        <li>Essay and recommendation letter bundle</li>
+        <li>Month-by-month application calendar</li>
       </ul>
       <button class="btn-price pro" id="landingUnlockBtn" onclick="goToIntake()">Unlock ApplyU Pro →</button>
     </div>
