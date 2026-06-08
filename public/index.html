@@ -156,6 +156,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .ec-name{font-size:0.71rem;font-weight:600;color:var(--text);line-height:1.25;}
 .ec-sub{font-size:0.6rem;color:var(--text-dim);}
 .ec-card.sel .ec-name{color:var(--p3);}
+.intake-ec-chip{display:inline-flex;align-items:center;gap:0.28rem;padding:0.28rem 0.62rem;border:1.5px solid var(--border);border-radius:99px;font-size:0.71rem;font-weight:600;cursor:pointer;transition:all 0.15s;background:var(--card);color:var(--text-muted);user-select:none;}
+.intake-ec-chip:hover{border-color:var(--border-bright);color:var(--text);}
+.intake-ec-chip.sel{border-color:rgba(108,99,255,0.55);background:rgba(108,99,255,0.1);color:var(--p3);}
 .lp-pills{display:flex;gap:0.28rem;}
 .lp input[type=radio]{display:none;}
 .lp label{padding:0.22rem 0.6rem;border-radius:99px;border:1px solid var(--border-bright);font-size:0.69rem;font-weight:600;color:var(--text-dim);cursor:pointer;transition:all 0.15s;}
@@ -768,6 +771,23 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="field"><label>ZIP Code <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label><input type="text" id="intake-zip" maxlength="5" placeholder="e.g. 33101"/></div>
   <div class="field"><label>What's your biggest strength?</label><input type="text" id="intake-strength" placeholder="e.g. Strong math background, research experience"/></div>
   <div class="field"><label>Any concerns about your application?</label><input type="text" id="intake-weakness" placeholder="e.g. Low GPA junior year"/></div>
+  <div class="field">
+    <label>Your Extracurricular Activities <span style="font-weight:400;color:var(--text-muted)">(select all that apply)</span></label>
+    <div style="display:flex;flex-wrap:wrap;gap:0.38rem;margin-top:0.45rem;">
+      <div class="intake-ec-chip" data-ec-key="sports" onclick="toggleIntakeEC('sports')">🏅 Sports</div>
+      <div class="intake-ec-chip" data-ec-key="clubs" onclick="toggleIntakeEC('clubs')">🏛️ School Clubs</div>
+      <div class="intake-ec-chip" data-ec-key="music" onclick="toggleIntakeEC('music')">🎵 Music</div>
+      <div class="intake-ec-chip" data-ec-key="arts" onclick="toggleIntakeEC('arts')">🎨 Visual Arts</div>
+      <div class="intake-ec-chip" data-ec-key="theater" onclick="toggleIntakeEC('theater')">🎭 Theater</div>
+      <div class="intake-ec-chip" data-ec-key="volunteer" onclick="toggleIntakeEC('volunteer')">🤝 Volunteering</div>
+      <div class="intake-ec-chip" data-ec-key="work" onclick="toggleIntakeEC('work')">💼 Work/Internship</div>
+      <div class="intake-ec-chip" data-ec-key="research" onclick="toggleIntakeEC('research')">🔬 Research</div>
+      <div class="intake-ec-chip" data-ec-key="gov" onclick="toggleIntakeEC('gov')">📋 Student Gov</div>
+      <div class="intake-ec-chip" data-ec-key="debate" onclick="toggleIntakeEC('debate')">🗣️ Debate/Speech</div>
+      <div class="intake-ec-chip" data-ec-key="stem" onclick="toggleIntakeEC('stem')">💻 STEM/Coding</div>
+      <div class="intake-ec-chip" data-ec-key="faith" onclick="toggleIntakeEC('faith')">🌍 Cultural/Faith</div>
+    </div>
+  </div>
   <div id="intake-ec-details" style="display:none;flex-direction:column;gap:0.6rem;"></div>
   <button onclick="submitIntake()" style="width:100%;padding:0.9rem;background:linear-gradient(135deg,var(--p1),#8B83FF);color:#fff;font-weight:800;font-size:1rem;border:none;border-radius:99px;cursor:pointer;margin-top:0.5rem;">Find My Matches →</button>
   <p style="text-align:center;font-size:0.75rem;color:var(--text-muted);">You can always adjust these in the sidebar</p>
@@ -1255,6 +1275,12 @@ function collectECDetails(){
   return d;
 }
 
+function toggleIntakeEC(key){
+  const el=document.querySelector('.intake-ec-chip[data-ec-key="'+key+'"]');
+  if(EC.has(key)){EC.delete(key);if(el)el.classList.remove('sel');}
+  else{EC.add(key);if(el)el.classList.add('sel');}
+  renderIntakeECDetails();
+}
 function openIntakeModal(){
   var overlay=document.getElementById('paywallOverlay');
   var step1=document.getElementById('pw-step1');
@@ -1264,6 +1290,10 @@ function openIntakeModal(){
   step2.style.display='block';
   overlay.classList.add('open');
   document.body.style.overflow='hidden';
+  // Sync chip highlight state with current EC Set
+  document.querySelectorAll('.intake-ec-chip[data-ec-key]').forEach(function(chip){
+    chip.classList.toggle('sel',EC.has(chip.dataset.ecKey));
+  });
   renderIntakeECDetails();
 }
 
@@ -1605,6 +1635,7 @@ function cardClick(i){
 
 function openPaywallWithCollege(c){
   currentCollege=c;
+  if(isPro){openReport(c);return;}
   document.getElementById('pw-uni-name').textContent=c.n;
   document.getElementById('pw-match-pct').textContent=c.pct+'%';
   const bandEl=document.getElementById('pw-band');
@@ -1625,6 +1656,7 @@ function openPaywallWithCollege(c){
 // ── PAYWALL ───────────────────────────────────────────────────
 function openPaywall(i){
   currentCollege=results[i];
+  if(isPro){openReport(currentCollege);return;}
   const c=currentCollege;
   document.getElementById('pw-uni-name').textContent=c.n;
   document.getElementById('pw-match-pct').textContent=c.pct+'%';
