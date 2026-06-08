@@ -562,6 +562,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="app-layout">
     <!-- SIDEBAR -->
     <aside class="sidebar">
+      <div id="update-profile-banner" style="display:none;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.25);border-radius:8px;padding:0.55rem 0.75rem;display:none;align-items:center;justify-content:space-between;gap:0.5rem;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">✏️ Update your profile for better reports</span>
+        <button onclick="openIntakeModal()" style="background:var(--p1);border:none;color:#fff;font-family:'Cabinet Grotesk',sans-serif;font-size:0.72rem;font-weight:700;padding:0.3rem 0.75rem;border-radius:99px;cursor:pointer;white-space:nowrap;">Update</button>
+      </div>
       <div class="s-block">
         <div class="s-label">Step 1 — Academic Profile</div>
         <div class="score-row">
@@ -1033,7 +1037,7 @@ async function submitAuth(){
       goToCheckout(null);
       return;
     }
-    if(isPro && !localStorage.getItem('applyu_profile_done')){openIntakeModal();}
+    if(isPro && (!localStorage.getItem('applyu_profile_done')||!localStorage.getItem('applyu_ec_details_done'))){openIntakeModal();}
     else if(isPro){showApp();if(searched)render();}
   }catch(e){
     errEl.textContent='Something went wrong. Please try again.';console.error('Auth error:',e);
@@ -1284,6 +1288,8 @@ function submitIntake(){
   if(overlay) overlay.classList.remove('open');
   document.body.style.overflow='';
   localStorage.setItem('applyu_profile_done','1');
+  localStorage.setItem('applyu_ec_details_done','1');
+  try{localStorage.setItem('applyu_profile',JSON.stringify(currentProfile));}catch(e){}
   isPro=true;
   updateChatbotVisibility();
   showApp();
@@ -1365,6 +1371,8 @@ function showApp(){
   document.getElementById('app').classList.add('active');
   document.getElementById('nav-auth').style.display='none';
   document.getElementById('nav-app-controls').style.display='flex';
+  var banner=document.getElementById('update-profile-banner');
+  if(banner) banner.style.display=isPro?'flex':'none';
   window.scrollTo(0,0);
   updateChatbotVisibility();
 }
@@ -1658,6 +1666,8 @@ function handleUnlock(){
   showApp();
   if(searched)render();
   localStorage.setItem('applyu_profile_done','1');
+  localStorage.setItem('applyu_ec_details_done','1');
+  try{localStorage.setItem('applyu_profile',JSON.stringify(currentProfile));}catch(e){}
 }
 
 // ── AI REPORT ─────────────────────────────────────────────────
@@ -1877,6 +1887,8 @@ document.getElementById('paywallOverlay').addEventListener('click',function(e){i
 document.getElementById('reportOverlay').addEventListener('click',function(e){if(e.target===this)closeReport();});
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('salesChatBubble').style.display='flex';
+  // Restore saved profile
+  try{var sp=localStorage.getItem('applyu_profile');if(sp)currentProfile=JSON.parse(sp);}catch(e){}
   // Restore session from token (async — updates nav + pro status)
   restoreSession();
   // Restore pro for returning visitors (sync fallback)
