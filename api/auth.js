@@ -68,6 +68,17 @@ async function handleGetUser(accessToken) {
   return { user: { ...data, ...profile } };
 }
 
+async function handleSaveProfile(accessToken, profile, ec) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: 'PUT',
+    headers: { ...supabaseHeaders(), 'Authorization': `Bearer ${accessToken}` },
+    body: JSON.stringify({ data: { applyu_profile: profile, applyu_ec: ec } }),
+  });
+  const data = await res.json();
+  if (!res.ok) return { error: data.error_description || data.msg || 'Failed to save profile' };
+  return { success: true };
+}
+
 async function handleSetPro(accessToken, stripeSessionId) {
   const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
     headers: { ...supabaseHeaders(), 'Authorization': `Bearer ${accessToken}` },
@@ -130,6 +141,10 @@ export default async function handler(req, res) {
         if (!accessToken) return res.status(400).json({ error: 'Access token required' });
         const { stripeSessionId } = req.body;
         result = await handleSetPro(accessToken, stripeSessionId);
+        break;
+      case 'saveProfile':
+        if (!accessToken) return res.status(400).json({ error: 'Access token required' });
+        result = await handleSaveProfile(accessToken, req.body.profile, req.body.ec);
         break;
       default:
         return res.status(400).json({ error: 'Invalid action' });

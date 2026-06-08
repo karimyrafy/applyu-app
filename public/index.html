@@ -427,8 +427,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div id="nav-auth">
     <button class="nav-cta" id="nav-signin-btn" onclick="openAuthModal('login')">Sign In</button>
   </div>
-  <div id="nav-app-controls" style="display:none;align-items:center;gap:1rem;">
+  <div id="nav-app-controls" style="display:none;align-items:center;gap:0.75rem;">
     <div class="match-pill" id="matchBadge">— matches</div>
+    <button class="back-btn" id="nav-profile-btn" style="display:none;" onclick="openIntakeModal()">✏️ My Profile</button>
     <button class="back-btn" onclick="showLanding()">← Back</button>
   </div>
 </nav>
@@ -987,6 +988,22 @@ function getToken(){
       || null;
   }catch(e){return null;}
 }
+// Restore profile + EC set from Supabase user_metadata (survives private/incognito sessions)
+function restoreProfileFromMeta(user){
+  try{
+    var meta=user&&(user.user_metadata||user.raw_user_meta_data);
+    if(!meta) return;
+    if(meta.applyu_profile){
+      currentProfile=meta.applyu_profile;
+      try{localStorage.setItem('applyu_profile',JSON.stringify(currentProfile));}catch(e){}
+      localStorage.setItem('applyu_profile_done','1');
+      localStorage.setItem('applyu_ec_details_done','1');
+    }
+    if(meta.applyu_ec&&meta.applyu_ec.length){
+      EC=new Set(meta.applyu_ec);
+    }
+  }catch(e){}
+}
 
 function openAuthModal(){
   authMode='login';
@@ -1049,6 +1066,7 @@ async function submitAuth(){
       isPro=true;
       try{localStorage.setItem('applyu_pro','1');}catch(e){}
     }
+    restoreProfileFromMeta(data.user);
     closeAuthModal();
     updateNavAuth();
     updateChatbotVisibility();
@@ -1100,6 +1118,7 @@ async function restoreSession(){
     if(data.user){
       currentUser=data.user;
       if(data.user.is_pro){isPro=true;try{localStorage.setItem('applyu_pro','1');}catch(e){}}
+      restoreProfileFromMeta(data.user);
       updateNavAuth();
       updateChatbotVisibility();
     }else{
@@ -1281,14 +1300,32 @@ function toggleIntakeEC(key){
   else{EC.add(key);if(el)el.classList.add('sel');}
   renderIntakeECDetails();
 }
-function openIntakeModal(){
-  var overlay=document.getElementById('paywallOverlay');
-  var step1=document.getElementById('pw-step1');
+function closeIntakeModal(){
   var step2=document.getElementById('pw-step2');
-  if(!overlay||!step2) return;
-  if(step1) step1.style.display='none';
-  step2.style.display='block';
-  overlay.classList.add('open');
+  if(step2) step2.classList.remove('open');
+  document.body.style.overflow='';
+}
+function openIntakeModal(){
+  // Close paywall if it was open (so they don't stack)
+  var paywallOverlay=document.getElementById('paywallOverlay');
+  if(paywallOverlay) paywallOverlay.classList.remove('open');
+  var step2=document.getElementById('pw-step2');
+  if(!step2) return;
+  // Pre-fill saved profile values
+  if(currentProfile){
+    try{
+      if(currentProfile.name&&document.getElementById('intake-name')) document.getElementById('intake-name').value=currentProfile.name;
+      if(currentProfile.grade&&document.getElementById('intake-grade')) document.getElementById('intake-grade').value=currentProfile.grade;
+      if(currentProfile.gpa&&document.getElementById('intake-gpa')) document.getElementById('intake-gpa').value=currentProfile.gpa;
+      if(currentProfile.testType&&document.getElementById('intake-testtype')) document.getElementById('intake-testtype').value=currentProfile.testType;
+      if(currentProfile.testScore&&document.getElementById('intake-score')) document.getElementById('intake-score').value=currentProfile.testScore;
+      if(currentProfile.zip&&document.getElementById('intake-zip')) document.getElementById('intake-zip').value=currentProfile.zip;
+      if(currentProfile.major&&document.getElementById('intake-major')) document.getElementById('intake-major').value=currentProfile.major;
+      if(currentProfile.strength&&document.getElementById('intake-strength')) document.getElementById('intake-strength').value=currentProfile.strength;
+      if(currentProfile.weakness&&document.getElementById('intake-weakness')) document.getElementById('intake-weakness').value=currentProfile.weakness;
+    }catch(e){}
+  }
+  step2.classList.add('open');
   document.body.style.overflow='hidden';
   // Sync chip highlight state with current EC Set
   document.querySelectorAll('.intake-ec-chip[data-ec-key]').forEach(function(chip){
@@ -1307,19 +1344,17 @@ function submitIntake(){
   var major=document.getElementById('intake-major')?document.getElementById('intake-major').value:'';
   var strength=document.getElementById('intake-strength')?document.getElementById('intake-strength').value:'';
   var weakness=document.getElementById('intake-weakness')?document.getElementById('intake-weakness').value:'';
-  currentProfile={name:name,grade:grade,major:major,strength:strength,weakness:weakness,ecDetails:collectECDetails()};
+  currentProfile={name:name,grade:grade,major:major,strength:strength,weakness:weakness,gpa:gpa,testType:tt,testScore:sc,zip:zip,ecDetails:collectECDetails()};
   if(gpa) document.getElementById('gpa').value=gpa;
   if(tt) document.getElementById('testType').value=tt;
   if(sc) document.getElementById('testScore').value=sc;
   if(zip) document.getElementById('zip').value=zip;
-  var step2=document.getElementById('pw-step2');
-  var overlay=document.getElementById('paywallOverlay');
-  if(step2) step2.style.display='none';
-  if(overlay) overlay.classList.remove('open');
-  document.body.style.overflow='';
+  closeIntakeModal();
   localStorage.setItem('applyu_profile_done','1');
   localStorage.setItem('applyu_ec_details_done','1');
   try{localStorage.setItem('applyu_profile',JSON.stringify(currentProfile));}catch(e){}
+  // Persist to Supabase so profile survives private/incognito sessions
+  try{var tok=getToken();if(tok)fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({action:'saveProfile',profile:currentProfile,ec:[...EC]})}).catch(function(){});}catch(e){}
   isPro=true;
   updateChatbotVisibility();
   showApp();
@@ -1403,6 +1438,8 @@ function showApp(){
   document.getElementById('nav-app-controls').style.display='flex';
   var banner=document.getElementById('update-profile-banner');
   if(banner) banner.style.display=isPro?'flex':'none';
+  var profBtn=document.getElementById('nav-profile-btn');
+  if(profBtn) profBtn.style.display=isPro?'':'none';
   window.scrollTo(0,0);
   updateChatbotVisibility();
 }
