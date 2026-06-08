@@ -279,6 +279,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .report-body{padding:2rem;}
 .loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;gap:1rem;text-align:center;}
 .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--p1);border-radius:50%;animation:spin 0.8s linear infinite;}
+.rpt-progress-wrap{width:100%;max-width:340px;background:var(--border);border-radius:99px;height:6px;overflow:hidden;margin:0.25rem 0;}
+.rpt-progress-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p1),#8B83FF);width:0%;transition:width 0.6s ease;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-msg{font-size:0.88rem;color:var(--text-muted);}
 .loading-submsg{font-size:0.78rem;color:var(--text-dim);}
@@ -866,9 +868,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <div id="rpt-tabs" style="display:flex;gap:0.3rem;padding:0.5rem 1.5rem;border-bottom:1px solid var(--border);"><button class="rpt-tab active" onclick="switchTab('report',this)">📊 Report</button><button class="rpt-tab" onclick="switchTab('essays',this)">✍️ Essays</button><button class="rpt-tab" onclick="switchTab('letters',this)">📬 Letters</button><button class="rpt-tab" onclick="switchTab('counselor',this)">🤝 Counselor</button></div>
     <div class="report-body">
       <div class="loading-state" id="rpt-loading">
-        <div class="spinner"></div>
-        <div class="loading-msg">Analyzing your profile against this university…</div>
-        <div class="loading-submsg">Generating your personalized report</div>
+        <div class="loading-msg" id="rpt-loading-msg">Analyzing your profile…</div>
+        <div class="rpt-progress-wrap"><div class="rpt-progress-bar" id="rpt-progress-bar"></div></div>
+        <div class="loading-submsg" id="rpt-loading-sub">This takes about 10–15 seconds</div>
       </div>
       <div id="tab-report" style="display:none;">
   <div class="report-section">
@@ -1740,6 +1742,41 @@ function handleUnlock(){
 }
 
 // ── AI REPORT ─────────────────────────────────────────────────
+var _progressTimer=null;
+function startProgressBar(){
+  var bar=document.getElementById('rpt-progress-bar');
+  var msg=document.getElementById('rpt-loading-msg');
+  var sub=document.getElementById('rpt-loading-sub');
+  if(!bar) return;
+  // Reset
+  bar.style.transition='none';
+  bar.style.width='0%';
+  var steps=[
+    {w:'18%',m:'Reading your profile…',s:'Matching GPA, test scores & activities'},
+    {w:'36%',m:'Comparing to admissions data…',s:'Looking at '+( (currentCollege&&currentCollege.n)||'this school')+' averages'},
+    {w:'55%',m:'Identifying your gaps & strengths…',s:'Building your personalized gap analysis'},
+    {w:'72%',m:'Writing action steps…',s:'Crafting your 4 actionable recommendations'},
+    {w:'86%',m:'Drafting essay strategy…',s:'Tailoring tips to your intended major'},
+    {w:'93%',m:'Almost done…',s:'Putting the finishing touches on your report'},
+  ];
+  var i=0;
+  clearInterval(_progressTimer);
+  setTimeout(function(){bar.style.transition='width 0.6s ease';},20);
+  function tick(){
+    if(i>=steps.length){clearInterval(_progressTimer);return;}
+    bar.style.width=steps[i].w;
+    if(msg) msg.textContent=steps[i].m;
+    if(sub) sub.textContent=steps[i].s;
+    i++;
+  }
+  tick();
+  _progressTimer=setInterval(tick,2200);
+}
+function finishProgressBar(){
+  clearInterval(_progressTimer);
+  var bar=document.getElementById('rpt-progress-bar');
+  if(bar){bar.style.width='100%';}
+}
 function openReport(c){
   currentCollege=c;
   document.getElementById('rpt-uni').textContent=c.n+' — AI Report';
@@ -1747,6 +1784,7 @@ function openReport(c){
   document.getElementById('rpt-loading').style.display='flex';
   document.getElementById('reportOverlay').classList.add('open');
   document.body.style.overflow='hidden';
+  startProgressBar();
   generateReport(c);
 }
 function closeReport(){
@@ -1843,6 +1881,7 @@ Generate a detailed, personalized JSON report with this EXACT structure (respond
     renderReport(report, c);
   } catch(e){
       console.error('generateReport error:',e);
+      finishProgressBar();
       document.getElementById('rpt-loading').style.display='none';
       document.getElementById('rpt-tabs').style.display='flex';
       document.getElementById('tab-report').style.display='block';
@@ -1878,6 +1917,7 @@ function renderReport(r, c){
     if(la) la.textContent=r.letters.whoToAsk||'';
     if(lb) lb.textContent=r.letters.emailTemplate||'';
   }
+  finishProgressBar();
   document.getElementById('rpt-loading').style.display='none';
   document.getElementById('rpt-tabs').style.display='flex';
   switchTab('report', document.querySelector('.rpt-tab'));
