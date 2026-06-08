@@ -312,6 +312,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .download-btn{background:transparent;border:1px solid var(--border-bright);color:var(--text-muted);font-family:'Cabinet Grotesk',sans-serif;font-size:0.82rem;font-weight:600;padding:0.45rem 1.1rem;border-radius:99px;cursor:pointer;transition:all 0.15s;}
 .download-btn:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
 
+/* ── EC INTAKE DETAIL FORMS ── */
+.ec-detail-section{padding:0.75rem;background:rgba(108,99,255,0.06);border:1px solid rgba(108,99,255,0.2);border-radius:10px;display:flex;flex-direction:column;gap:0.5rem;}
+.ec-detail-label{font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--p3);}
+.ec-detail-select{font-family:'Cabinet Grotesk',sans-serif;font-size:0.85rem;color:var(--text);background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:0.5rem 0.75rem;outline:none;width:100%;transition:border-color 0.2s;}
+.ec-detail-select:focus{border-color:var(--p1);}
+.club-cats{display:flex;flex-direction:column;gap:0.7rem;}
+.club-cat-label{font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.25rem;}
+.club-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.3rem;}
+.club-item{display:flex;align-items:flex-start;gap:0.4rem;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.6rem;cursor:pointer;transition:all 0.15s;user-select:none;}
+.club-item:hover{border-color:var(--border-bright);}
+.club-item.selected{border-color:var(--p1);background:rgba(108,99,255,0.12);}
+.club-item-name{font-size:0.74rem;font-weight:600;color:var(--text);line-height:1.2;}
+.club-item-desc{font-size:0.62rem;color:var(--text-dim);line-height:1.3;margin-top:0.1rem;}
+
 /* ── STORIES ── */
 .stories{position:relative;z-index:1;padding:5rem 2rem;max-width:1100px;margin:0 auto;}
 .stories-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem;margin-top:2rem;}
@@ -750,6 +764,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="field"><label>ZIP Code <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label><input type="text" id="intake-zip" maxlength="5" placeholder="e.g. 33101"/></div>
   <div class="field"><label>What's your biggest strength?</label><input type="text" id="intake-strength" placeholder="e.g. Strong math background, research experience"/></div>
   <div class="field"><label>Any concerns about your application?</label><input type="text" id="intake-weakness" placeholder="e.g. Low GPA junior year"/></div>
+  <div id="intake-ec-details" style="display:none;flex-direction:column;gap:0.6rem;"></div>
   <button onclick="submitIntake()" style="width:100%;padding:0.9rem;background:linear-gradient(135deg,var(--p1),#8B83FF);color:#fff;font-weight:800;font-size:1rem;border:none;border-radius:99px;cursor:pointer;margin-top:0.5rem;">Find My Matches →</button>
   <p style="text-align:center;font-size:0.75rem;color:var(--text-muted);">You can always adjust these in the sidebar</p>
 </div>
@@ -1125,6 +1140,117 @@ function updateChatbotVisibility(){
   }
 }
 
+// ── EC INTAKE DETAIL DATA ─────────────────────────────────────
+const EC_CLUBS=[
+  {id:'nhs',name:'NHS',desc:'National Honor Society',cat:'Honor & Academic'},
+  {id:'beta',name:'Beta Club',desc:'National Beta Club',cat:'Honor & Academic'},
+  {id:'mu-alpha',name:'Mu Alpha Theta',desc:'Math honor society',cat:'Honor & Academic'},
+  {id:'sci-nhs',name:'Science NHS',desc:'Science honor society',cat:'Honor & Academic'},
+  {id:'lang-honor',name:'Language Honor Society',desc:'Spanish/French/Latin',cat:'Honor & Academic'},
+  {id:'academic-dec',name:'Academic Decathlon',desc:'Multi-subject competition',cat:'Honor & Academic'},
+  {id:'quiz-bowl',name:'Quiz Bowl',desc:'Knowledge competition',cat:'Honor & Academic'},
+  {id:'fbla',name:'FBLA',desc:'Future Business Leaders',cat:'Business & Finance'},
+  {id:'deca',name:'DECA',desc:'Marketing & business',cat:'Business & Finance'},
+  {id:'bpa',name:'BPA',desc:'Business Professionals',cat:'Business & Finance'},
+  {id:'invest',name:'Investment Club',desc:'Finance & markets',cat:'Business & Finance'},
+  {id:'entrep',name:'Entrepreneurship Club',desc:'Startup & innovation',cat:'Business & Finance'},
+  {id:'sci-olympiad',name:'Science Olympiad',desc:'Science competitions',cat:'STEM & Tech'},
+  {id:'math-team',name:'Math Team',desc:'Math competitions',cat:'STEM & Tech'},
+  {id:'cs-club',name:'CS Club',desc:'Computer science',cat:'STEM & Tech'},
+  {id:'engineering',name:'Engineering Club',desc:'Design & build',cat:'STEM & Tech'},
+  {id:'tsa',name:'TSA',desc:'Technology Student Assoc.',cat:'STEM & Tech'},
+  {id:'astronomy',name:'Astronomy Club',desc:'Space & physics',cat:'STEM & Tech'},
+  {id:'hosa',name:'HOSA',desc:'Health Occupations SA',cat:'Health & Medicine'},
+  {id:'redcross',name:'Red Cross Club',desc:'Community health',cat:'Health & Medicine'},
+  {id:'health-careers',name:'Health Careers Club',desc:'Medical futures',cat:'Health & Medicine'},
+  {id:'keyclub',name:'Key Club',desc:'Kiwanis international',cat:'Service & Leadership'},
+  {id:'interact',name:'Interact Club',desc:'Rotary International',cat:'Service & Leadership'},
+  {id:'habitat',name:'Habitat for Humanity',desc:'Community building',cat:'Service & Leadership'},
+  {id:'skillsusa',name:'SkillsUSA',desc:'Trade & tech skills',cat:'Service & Leadership'},
+  {id:'mocktrial',name:'Mock Trial',desc:'Legal & argumentation',cat:'Law, Gov & Social'},
+  {id:'modelun',name:'Model UN',desc:'International relations',cat:'Law, Gov & Social'},
+  {id:'amnesty',name:'Amnesty Intl.',desc:'Human rights advocacy',cat:'Law, Gov & Social'},
+  {id:'environ',name:'Environmental Club',desc:'Sustainability',cat:'Law, Gov & Social'},
+  {id:'diversity',name:'Multicultural Club',desc:'Diversity & inclusion',cat:'Law, Gov & Social'},
+  {id:'yearbook',name:'Yearbook',desc:'Photography & layout',cat:'Media & Arts'},
+  {id:'newspaper',name:'School Newspaper',desc:'Journalism & writing',cat:'Media & Arts'},
+  {id:'literary',name:'Literary Magazine',desc:'Creative writing',cat:'Media & Arts'},
+  {id:'film',name:'Film Club',desc:'Filmmaking & media',cat:'Media & Arts'},
+  {id:'ffa',name:'FFA',desc:'Future Farmers of America',cat:'Agriculture & Vocational'},
+  {id:'fccla',name:'FCCLA',desc:'Family & community leaders',cat:'Agriculture & Vocational'},
+];
+
+const EC_DETAIL_CONFIG={
+  sports:{icon:'🏅',label:'Which sport do you play?',id:'ecd-sport',options:['American Football','Basketball','Baseball','Softball','Soccer','Volleyball','Swimming & Diving','Tennis','Golf','Lacrosse','Field Hockey','Ice Hockey','Wrestling','Track & Field','Cross Country','Rowing / Crew','Water Polo','Gymnastics','Cheerleading','Dance Team','Archery','Bowling','Fencing','Skiing / Snowboarding','Equestrian','Badminton','Weightlifting / Powerlifting','Rugby','Ultimate Frisbee','Other']},
+  music:{icon:'🎵',label:'Your instrument or musical role',id:'ecd-music',options:['Concert Band','Jazz Band / Ensemble','Orchestra','Choir / Vocal','Marching Band','A Cappella Group','Music Production / DJ','Solo Performer (instrument)','Other']},
+  theater:{icon:'🎭',label:'Your role in theater',id:'ecd-theater',options:['Lead / Principal Actor','Supporting Actor','Director / Co-Director','Stage Manager','Technical Crew (lighting/sound)','Set Design / Construction','Costume & Props Design','Playwright / Script Writer','Other']},
+  arts:{icon:'🎨',label:'Your art medium or focus',id:'ecd-arts',options:['Painting & Drawing','Photography','Graphic Design / Digital Art','Sculpture / Ceramics','Film & Animation','Fashion Design','Mixed Media / Collage','Printmaking','Other']},
+  volunteer:{icon:'🤝',label:'Volunteer hours per month (approx.)',id:'ecd-volunteer',options:['Under 4 hours/month','4–8 hours/month','8–16 hours/month','16–30 hours/month','30+ hours/month']},
+  work:{icon:'💼',label:'What industry or type of work?',id:'ecd-work',options:['Healthcare / Medicine','Technology / Software','Finance / Banking','Business / Marketing','Law / Legal Services','Engineering / Manufacturing','Education / Tutoring','Non-profit / NGO','Government / Public Service','Media / Journalism / PR','Retail / Sales','Food Service / Hospitality','Construction / Skilled Trade','Research / Academia','Creative / Design','Other']},
+  research:{icon:'🔬',label:'What field is your research in?',id:'ecd-research',options:['Biology / Life Sciences','Chemistry','Physics','Environmental Science','Computer Science / AI','Psychology / Neuroscience','Mathematics / Statistics','Social Sciences','History / Humanities','Medical / Clinical Research','Engineering','Economics / Finance','Astronomy / Space Science','Other']},
+  gov:{icon:'🏛',label:'Your Student Government position',id:'ecd-gov',options:['President','Vice President','Secretary','Treasurer','Class Representative','Committee Chair / Officer','General Member']},
+  stem:{icon:'💻',label:'Your STEM / Coding focus',id:'ecd-stem',options:['Robotics','Web Development','App / Mobile Development','AI / Machine Learning','Cybersecurity','Game Development','Data Science / Analytics','Electronics / Hardware','General Programming','Other']},
+  debate:{icon:'🎤',label:'Your competition level',id:'ecd-debate',options:['Local / School level only','Regional competitor','State qualifier / competitor','National qualifier / competitor']},
+  faith:{icon:'🌍',label:'Tell us more (cultural group, role, etc.)',id:'ecd-faith',type:'text',placeholder:'e.g. Korean Cultural Club president, Youth Group volunteer leader'},
+};
+
+function renderIntakeECDetails(){
+  const container=document.getElementById('intake-ec-details');
+  if(!container) return;
+  const sections=[];
+  if(EC.has('clubs')){
+    const cats=[...new Set(EC_CLUBS.map(c=>c.cat))];
+    let html=`<div class="ec-detail-section"><div class="ec-detail-label">🏛 School Clubs — Select all you participate in</div><div class="club-cats">`;
+    cats.forEach(cat=>{
+      const inCat=EC_CLUBS.filter(c=>c.cat===cat);
+      html+=`<div><div class="club-cat-label">${cat}</div><div class="club-grid">`;
+      inCat.forEach(club=>{
+        html+=`<div class="club-item" onclick="this.classList.toggle('selected');this.querySelector('input').checked=!this.querySelector('input').checked"><input type="checkbox" value="${club.id}" style="display:none"><div><div class="club-item-name">${club.name}</div><div class="club-item-desc">${club.desc}</div></div></div>`;
+      });
+      html+=`</div></div>`;
+    });
+    html+=`</div></div>`;
+    sections.push(html);
+  }
+  const ecOrder=['sports','music','theater','arts','volunteer','work','research','gov','stem','debate','faith'];
+  ecOrder.forEach(key=>{
+    if(!EC.has(key)) return;
+    const cfg=EC_DETAIL_CONFIG[key];
+    if(!cfg) return;
+    let inputHtml='';
+    if(cfg.type==='text'){
+      inputHtml=`<input type="text" id="${cfg.id}" placeholder="${cfg.placeholder||''}" class="ec-detail-select"/>`;
+    } else {
+      inputHtml=`<select id="${cfg.id}" class="ec-detail-select"><option value="">Select...</option>${(cfg.options||[]).map(o=>`<option value="${o}">${o}</option>`).join('')}</select>`;
+    }
+    sections.push(`<div class="ec-detail-section"><div class="ec-detail-label">${cfg.icon} ${cfg.label}</div>${inputHtml}</div>`);
+  });
+  if(sections.length>0){
+    container.innerHTML=`<div style="padding:0.25rem 0;font-size:0.85rem;font-weight:700;color:var(--text);">Tell us more about your activities</div><div style="font-size:0.77rem;color:var(--text-muted);margin-bottom:0.25rem;">More detail means a more accurate report for each school.</div>${sections.join('')}`;
+    container.style.display='flex';
+  } else {
+    container.style.display='none';
+  }
+}
+
+function collectECDetails(){
+  const d={};
+  const ecOrder=['sports','music','theater','arts','volunteer','work','research','gov','stem','debate','faith'];
+  ecOrder.forEach(key=>{
+    if(!EC.has(key)) return;
+    const cfg=EC_DETAIL_CONFIG[key];
+    if(!cfg) return;
+    const el=document.getElementById(cfg.id);
+    if(el&&el.value) d[key]=el.value;
+  });
+  const selectedClubs=[...document.querySelectorAll('#intake-ec-details .club-item.selected input')].map(cb=>{
+    const club=EC_CLUBS.find(c=>c.id===cb.value);
+    return club?club.name:cb.value;
+  });
+  if(selectedClubs.length>0) d.clubs=selectedClubs;
+  return d;
+}
+
 function openIntakeModal(){
   var overlay=document.getElementById('paywallOverlay');
   var step1=document.getElementById('pw-step1');
@@ -1134,6 +1260,7 @@ function openIntakeModal(){
   step2.style.display='block';
   overlay.classList.add('open');
   document.body.style.overflow='hidden';
+  renderIntakeECDetails();
 }
 
 function submitIntake(){
@@ -1146,7 +1273,7 @@ function submitIntake(){
   var major=document.getElementById('intake-major')?document.getElementById('intake-major').value:'';
   var strength=document.getElementById('intake-strength')?document.getElementById('intake-strength').value:'';
   var weakness=document.getElementById('intake-weakness')?document.getElementById('intake-weakness').value:'';
-  currentProfile={name:name,grade:grade,major:major,strength:strength,weakness:weakness};
+  currentProfile={name:name,grade:grade,major:major,strength:strength,weakness:weakness,ecDetails:collectECDetails()};
   if(gpa) document.getElementById('gpa').value=gpa;
   if(tt) document.getElementById('testType').value=tt;
   if(sc) document.getElementById('testScore').value=sc;
@@ -1556,6 +1683,20 @@ async function generateReport(c){
   const ecList=[...EC].join(', ')||'none listed';
   const lvlLabel=ecLvl===3?'Leadership roles':ecLvl===2?'Active participant':'Some involvement';
   const matchPct=c.pct;
+  const ecDet=(currentProfile&&currentProfile.ecDetails)||{};
+  const ecDetailLines=[];
+  if(ecDet.sports) ecDetailLines.push('- Sport: '+ecDet.sports);
+  if(ecDet.clubs&&ecDet.clubs.length) ecDetailLines.push('- School clubs: '+ecDet.clubs.join(', '));
+  if(ecDet.gov) ecDetailLines.push('- Student Government position: '+ecDet.gov);
+  if(ecDet.volunteer) ecDetailLines.push('- Volunteer commitment: '+ecDet.volunteer);
+  if(ecDet.research) ecDetailLines.push('- Research field: '+ecDet.research);
+  if(ecDet.work) ecDetailLines.push('- Work/Internship industry: '+ecDet.work);
+  if(ecDet.stem) ecDetailLines.push('- STEM/Coding focus: '+ecDet.stem);
+  if(ecDet.music) ecDetailLines.push('- Music role: '+ecDet.music);
+  if(ecDet.theater) ecDetailLines.push('- Theater role: '+ecDet.theater);
+  if(ecDet.arts) ecDetailLines.push('- Visual arts medium: '+ecDet.arts);
+  if(ecDet.debate) ecDetailLines.push('- Debate competition level: '+ecDet.debate);
+  if(ecDet.faith) ecDetailLines.push('- Cultural/Faith activities: '+ecDet.faith);
   const prompt=`You are ApplyU, an expert college admissions counselor AI. Generate a personalized college admission report for a student applying to ${c.n}.
 
 Student Profile:
@@ -1563,7 +1704,7 @@ Student Profile:
 - ${tt.toUpperCase()}: ${ts||'test-optional'}
 - Extracurricular activities: ${ecList} (${lvlLabel})
 - Match score: ${matchPct}% (${c.band} admit band)
-${currentProfile&&currentProfile.name?'- Student name: '+currentProfile.name+'\n':''}${currentProfile&&currentProfile.grade?'- Current grade: '+currentProfile.grade+'\n':''}${currentProfile&&currentProfile.major?'- Intended major: '+currentProfile.major+'\n':''}${currentProfile&&currentProfile.strength?'- Student strength: '+currentProfile.strength+'\n':''}${currentProfile&&currentProfile.weakness?'- Student concern: '+currentProfile.weakness+'\n':''}
+${ecDetailLines.length?ecDetailLines.join('\n')+'\n':''}${currentProfile&&currentProfile.name?'- Student name: '+currentProfile.name+'\n':''}${currentProfile&&currentProfile.grade?'- Current grade: '+currentProfile.grade+'\n':''}${currentProfile&&currentProfile.major?'- Intended major: '+currentProfile.major+'\n':''}${currentProfile&&currentProfile.strength?'- Student strength: '+currentProfile.strength+'\n':''}${currentProfile&&currentProfile.weakness?'- Student concern: '+currentProfile.weakness+'\n':''}
 
 School Data for ${c.n}:
 - Minimum GPA: ${c.minGPA}
