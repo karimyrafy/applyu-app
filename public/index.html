@@ -750,14 +750,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 <div class="overlay" id="pw-step2">
   <div class="paywall-modal" style="max-width:480px;">
     <div class="modal-header" style="text-align:center;border-bottom:none;padding-bottom:0.5rem;">
-      <div style="font-size:2rem;margin-bottom:0.5rem;">🎉</div>
-      <div class="modal-uni-name" style="font-size:1.3rem;">Welcome to ApplyU Pro!</div>
-      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.4rem;line-height:1.6;">Your access is unlocked. Fill in your profile below to see your personalized college matches and AI reports.</p>
+      <div class="modal-uni-name" style="font-size:1.25rem;margin-bottom:0.3rem;">Set Up Your College Profile</div>
+      <p style="color:var(--text-muted);font-size:0.83rem;margin-top:0.2rem;line-height:1.6;">Saved once, powers every AI report. The more you fill in, the sharper your results.</p>
     </div>
-    <div class="modal-body" style="padding-top:1rem;">
+    <div class="modal-body" style="padding-top:0.75rem;">
 <div style="display:flex;flex-direction:column;gap:0.85rem;">
-  <div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:8px;padding:0.6rem 0.8rem;font-size:0.78rem;color:var(--text-muted);">
-    💡 All fields are optional — but more info = more personalized report
+  <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:8px;padding:0.55rem 0.8rem;font-size:0.77rem;color:var(--text-muted);">
+    ✅ This replaces the basic search form — fill it here and we'll run your matches automatically.
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
     <div class="field"><label>Your Name</label><input type="text" id="intake-name" placeholder="e.g. Sofia"/></div>
@@ -990,6 +989,26 @@ function getToken(){
       || null;
   }catch(e){return null;}
 }
+// Apply a saved Pro profile to the sidebar fields and immediately run search
+function applyProfileAndSearch(){
+  if(!currentProfile) return;
+  try{
+    if(currentProfile.gpa) document.getElementById('gpa').value=currentProfile.gpa;
+    if(currentProfile.testType) document.getElementById('testType').value=currentProfile.testType;
+    if(currentProfile.testScore) document.getElementById('testScore').value=currentProfile.testScore;
+    if(currentProfile.zip) document.getElementById('zip').value=currentProfile.zip;
+    // Sync EC set to sidebar cards
+    if(EC.size){
+      document.querySelectorAll('.ec-card').forEach(function(card){
+        var key=card.id.replace('ec-','');
+        card.classList.toggle('sel',EC.has(key));
+      });
+    }
+  }catch(e){}
+  showApp();
+  updateChatbotVisibility();
+  runSearch();
+}
 // Restore profile + EC set from Supabase user_metadata (survives private/incognito sessions)
 function restoreProfileFromMeta(user){
   try{
@@ -1077,8 +1096,14 @@ async function submitAuth(){
       goToCheckout(null);
       return;
     }
-    if(isPro && (!localStorage.getItem('applyu_profile_done')||!localStorage.getItem('applyu_ec_details_done'))){openIntakeModal();}
-    else if(isPro){showApp();if(searched)render();}
+    if(isPro && currentProfile && currentProfile.gpa){
+      // Returning Pro with full profile — skip modal, go straight to results
+      applyProfileAndSearch();
+    } else if(isPro && (!localStorage.getItem('applyu_profile_done')||!localStorage.getItem('applyu_ec_details_done'))){
+      openIntakeModal();
+    } else if(isPro){
+      showApp();if(searched)render();
+    }
   }catch(e){
     errEl.textContent='Something went wrong. Please try again.';console.error('Auth error:',e);
     errEl.classList.add('show');
@@ -1123,6 +1148,11 @@ async function restoreSession(){
       restoreProfileFromMeta(data.user);
       updateNavAuth();
       updateChatbotVisibility();
+      // Returning Pro with saved profile — skip modal, go straight to results
+      if(isPro && currentProfile && currentProfile.gpa){
+        applyProfileAndSearch();
+        return;
+      }
     }else{
       try{localStorage.removeItem('applyu_token');}catch(e){}
     }
