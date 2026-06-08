@@ -1782,6 +1782,9 @@ function openReport(c){
   document.getElementById('rpt-uni').textContent=c.n+' — AI Report';
   document.getElementById('rpt-tabs').style.display='none';
   document.getElementById('rpt-loading').style.display='flex';
+  // Clear counselor chat so previous school's conversation doesn't carry over
+  var chatDiv=document.getElementById('inlineProMessages');
+  if(chatDiv) chatDiv.innerHTML='';
   document.getElementById('reportOverlay').classList.add('open');
   document.body.style.overflow='hidden';
   startProgressBar();
