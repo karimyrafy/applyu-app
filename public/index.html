@@ -49,7 +49,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(6,8,15,0.85);backdrop-filt
 .nav-cta:hover{background:#7C74FF;transform:translateY(-1px);}
 
 /* ── HERO ── */
-.hero{position:relative;z-index:1;text-align:center;padding:7rem 2rem 5rem;max-width:900px;margin:0 auto;}
+.hero{position:relative;z-index:1;text-align:center;padding:3rem 2rem 5rem;max-width:900px;margin:0 auto;}
 .hero-badge{display:inline-flex;align-items:center;gap:0.4rem;background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.3);border-radius:99px;padding:0.3rem 0.85rem;font-size:0.75rem;font-weight:700;color:var(--p3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:1.8rem;}
 .hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--g1);animation:pulse 2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
@@ -134,10 +134,11 @@ nav{position:sticky;top:0;z-index:100;background:rgba(6,8,15,0.85);backdrop-filt
 .s-sub{font-size:0.78rem;color:var(--text-dim);}
 .field{display:flex;flex-direction:column;gap:0.25rem;}
 .field label{font-size:0.74rem;font-weight:500;color:var(--text-muted);}
-.field input,.field select{font-family:'Cabinet Grotesk',sans-serif;font-size:0.88rem;color:var(--text);background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:0.5rem 0.75rem;outline:none;width:100%;transition:border-color 0.2s;}
+.field input,.field select,.field textarea{font-family:'Cabinet Grotesk',sans-serif;font-size:0.88rem;color:var(--text);background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:0.5rem 0.75rem;outline:none;width:100%;transition:border-color 0.2s;}
 .field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.75rem center;padding-right:2rem;-webkit-appearance:none;background-color:var(--card);}
 .field select option{background:var(--card);}
-.field input:focus,.field select:focus{border-color:var(--p1);}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--p1);}
+.field textarea{font-family:inherit;}
 .score-row{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;}
 .hint{font-size:0.67rem;color:var(--text-dim);}
 .err-msg{font-size:0.67rem;color:var(--r1);display:none;}
@@ -238,8 +239,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .unlock-hint strong{font-weight:700;}
 .unlock-btn-sm{background:rgba(108,99,255,0.2);border:none;color:var(--p2);font-family:'Cabinet Grotesk',sans-serif;font-size:0.7rem;font-weight:700;padding:0.22rem 0.7rem;border-radius:99px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
 .unlock-btn-sm:hover{background:rgba(108,99,255,0.35);}
-.request-info-btn{margin-top:0.55rem;width:100%;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-family:'Cabinet Grotesk',sans-serif;font-size:0.72rem;font-weight:600;padding:0.45rem 0.7rem;border-radius:8px;cursor:pointer;transition:all 0.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.request-info-btn:hover{border-color:rgba(96,165,250,0.4);color:var(--text);background:rgba(96,165,250,0.06);}
 .no-res{text-align:center;padding:3rem 2rem;color:var(--text-muted);}
 .no-res .ni{font-size:2.2rem;margin-bottom:0.6rem;}
 
@@ -771,6 +770,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
         </div>
       </div>
       <div id="results" style="display:none;">
+        <div id="studentViewBanner" style="display:none;background:var(--p1);color:#fff;border-radius:var(--radius);padding:0.6rem 1rem;margin-bottom:0.8rem;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+          <span>👤 Viewing matches for <strong id="studentViewName"></strong></span>
+          <button onclick="exitStudentView()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:var(--radius);padding:0.35rem 0.8rem;font-size:0.85rem;cursor:pointer;font-family:inherit;">← Back to Dashboard</button>
+        </div>
         <div class="res-header">
           <div><h2 id="resTitle">Your Matches</h2><div class="af" id="af"></div></div>
           <div class="sort-row">
@@ -867,45 +870,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
         <div class="field"><label>Score</label><input type="number" id="stu-testscore" placeholder="e.g. 1300"/></div>
       </div>
       <div class="field"><label>ZIP Code</label><input type="text" id="stu-zip" maxlength="5" placeholder="e.g. 33101"/></div>
+      <div class="field"><label>Notes</label><textarea id="stu-notes" rows="3" placeholder="e.g. Interested in pre-med, prefers warm climates, needs financial aid..." style="resize:vertical;"></textarea></div>
       <button class="find-btn" style="margin-top:0.3rem;" onclick="saveStudent()">Save Student</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════ -->
-<!-- REQUEST INFO MODAL -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="overlay" id="infoRequestModal">
-  <div class="paywall-modal" style="max-width:440px;">
-    <button class="modal-close" onclick="closeInfoRequestModal()">×</button>
-    <div class="modal-header" style="text-align:center;border-bottom:none;padding-bottom:0.5rem;">
-      <div class="modal-uni-name" style="font-size:1.15rem;margin-bottom:0.3rem;">Request Info from <span id="ir-college-name"></span></div>
-      <p style="color:var(--text-muted);font-size:0.82rem;margin-top:0.2rem;line-height:1.6;">We'll share your contact info with this school's admissions office so they can follow up with details, deadlines, and aid info. No spam — just one introduction.</p>
-    </div>
-    <div class="modal-body" style="display:flex;flex-direction:column;gap:0.7rem;" id="ir-form">
-      <div class="field"><label>Full Name</label><input type="text" id="ir-name" placeholder="Your name"/></div>
-      <div class="field"><label>Email</label><input type="email" id="ir-email" placeholder="you@example.com"/></div>
-      <div class="field"><label>Grade</label>
-        <select id="ir-grade">
-          <option value="9th">9th Grade</option>
-          <option value="10th">10th Grade</option>
-          <option value="11th" selected>11th Grade</option>
-          <option value="12th">12th Grade</option>
-          <option value="other">Other / Parent</option>
-        </select>
-      </div>
-      <div class="auth-error" id="ir-error"></div>
-      <button class="find-btn" style="margin-top:0.2rem;" id="ir-submit" onclick="submitInfoRequest()">Send Request</button>
-      <p style="color:var(--text-dim);font-size:0.68rem;text-align:center;margin-top:-0.2rem;">By submitting, you agree to be contacted by this school. We never sell your info.</p>
-    </div>
-    <div id="ir-success" style="display:none;text-align:center;padding:1.5rem 2rem 2rem;">
-      <div style="font-size:2.2rem;margin-bottom:0.6rem;">✅</div>
-      <p style="font-weight:600;color:var(--text);margin-bottom:0.4rem;">Request sent!</p>
-      <p style="color:var(--text-muted);font-size:0.85rem;">We've passed your info along to <span id="ir-success-college"></span>. They'll be in touch by email.</p>
-      <button class="back-btn" style="margin-top:1rem;" onclick="closeInfoRequestModal()">Close</button>
-    </div>
-  </div>
-</div>
 
 <!-- ══════════════════════════════════════════════════════════ -->
 <!-- POST-PAYMENT INTAKE MODAL (pw-step2) -->
@@ -1109,6 +1079,8 @@ let showingScholarships=false;
 let scholarshipFilter='All';
 try{if(localStorage.getItem('applyu_counselor')==='1')isCounselor=true;}catch(e){}
 try{counselorStudents=JSON.parse(localStorage.getItem('applyu_counselor_students')||'[]');}catch(e){}
+let viewingStudentId=null;
+let _counselorOwnState=null;
 
 // ── PRO STATUS ────────────────────────────────────────────────
 async function goToCheckout(btn){
@@ -1790,6 +1762,21 @@ function toggleEC(k){
   EC.has(k)?EC.delete(k):EC.add(k);
   document.getElementById('ec-'+k).classList.toggle('sel');
   live();
+  if(viewingStudentId) syncViewingStudentData();
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+}
+
+// Sync the EC set to the sidebar EC card UI (selected/unselected state)
+function syncECCardsUI(){
+  try{
+    document.querySelectorAll('.ec-card').forEach(function(card){
+      var key=card.id.replace('ec-','');
+      card.classList.toggle('sel',EC.has(key));
+    });
+  }catch(e){}
 }
 
 // ── SEARCH ────────────────────────────────────────────────────
@@ -1887,14 +1874,15 @@ function buildCardsHTML(r){
       +'</div>'
       +'<div class="ctags">'+c.tags.map(t=>'<span class="tag">'+t+'</span>').join('')+(c.ath?'<span class="tag ta">🏟 D1</span>':'')+(c.aid?'<span class="tag tf">💰 Aid</span>':'')+(c.pres>=8?'<span class="tag tp">🏅 Elite</span>':'')+(EC.size?etags:'')+'</div>'
       +unlockHint
-      +'<button class="request-info-btn" onclick="event.stopPropagation();openInfoRequestModal('+i+')">📩 Request Info from '+c.n+'</button>'
     +'</div>';
   }).join('');
 }
 
 // ── SAVE / MY LIST ────────────────────────────────────────────
 function persistSaved(){
-  try{localStorage.setItem('applyu_saved_colleges',JSON.stringify([...SAVED]));}catch(e){}
+  if(!viewingStudentId){
+    try{localStorage.setItem('applyu_saved_colleges',JSON.stringify([...SAVED]));}catch(e){}
+  }
   var badge=document.getElementById('mylist-count');
   if(badge) badge.textContent=SAVED.size;
 }
@@ -1903,6 +1891,7 @@ function toggleSave(encName){
   if(SAVED.has(name)) SAVED.delete(name); else SAVED.add(name);
   persistSaved();
   render();
+  if(viewingStudentId) syncViewingStudentData();
 }
 function toggleMyListView(){
   showingSaved=!showingSaved;
@@ -2081,7 +2070,8 @@ function renderCounselorList(){
         +'<div><div class="cname">'+(s.name||'Unnamed Student')+'</div><div class="cloc">'+(s.grade||'')+(s.zip?(' · ZIP '+s.zip):'')+'</div></div>'
       +'</div>'
       +'<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.3rem;">'+scoreLine+'</div>'
-      +'<div style="font-size:0.78rem;color:var(--text-muted);">Strong matches: <strong style="color:var(--text);">'+certain+' of '+matches.length+'</strong></div>'
+      +'<div style="font-size:0.78rem;color:var(--text-muted);">Strong matches: <strong style="color:var(--text);">'+certain+' of '+matches.length+'</strong>'+((s.saved&&s.saved.length)?' · Saved: <strong style="color:var(--text);">'+s.saved.length+'</strong>':'')+'</div>'
+      +(s.notes?('<div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.3rem;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📝 '+escapeHtml(s.notes)+'</div>'):'')
       +'<div style="display:flex;gap:0.5rem;margin-top:0.7rem;">'
       +'<button class="find-btn" style="margin:0;flex:1;padding:0.55rem 0.9rem;font-size:0.8rem;" onclick="loadStudentMatches(\''+s.id+'\')">View Matches</button>'
       +'<button class="back-btn" onclick="openAddStudentModal(\''+s.id+'\')">✏️ Edit</button>'
@@ -2099,6 +2089,7 @@ function openAddStudentModal(editId){
   document.getElementById('stu-testtype').value=s?s.testType||'sat':'sat';
   document.getElementById('stu-testscore').value=s?s.testScore||'':'';
   document.getElementById('stu-zip').value=s?s.zip||'':'';
+  document.getElementById('stu-notes').value=s?s.notes||'':'';
   document.getElementById('studentModal').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -2116,7 +2107,8 @@ function saveStudent(){
     gpa:document.getElementById('stu-gpa').value,
     testType:document.getElementById('stu-testtype').value,
     testScore:document.getElementById('stu-testscore').value,
-    zip:document.getElementById('stu-zip').value.trim()
+    zip:document.getElementById('stu-zip').value.trim(),
+    notes:document.getElementById('stu-notes').value
   };
   if(editingStudentId){
     const idx=counselorStudents.findIndex(x=>x.id===editingStudentId);
@@ -2138,12 +2130,56 @@ function removeStudent(id){
 function loadStudentMatches(id){
   const s=counselorStudents.find(x=>x.id===id);
   if(!s) return;
+  // Back up the counselor's own EC/My List state before switching context (only once)
+  if(!viewingStudentId){
+    _counselorOwnState={ec:[...EC],saved:[...SAVED]};
+  }
+  EC=new Set(s.ec||[]);
+  SAVED=new Set(s.saved||[]);
+  syncECCardsUI();
+  viewingStudentId=id;
   if(s.gpa) document.getElementById('gpa').value=s.gpa;
   if(s.testType){document.getElementById('testType').value=s.testType;switchTest();}
   if(s.testScore) document.getElementById('testScore').value=s.testScore;
   if(s.zip) document.getElementById('zip').value=s.zip;
   toggleCounselorView();
+  var banner=document.getElementById('studentViewBanner');
+  if(banner){
+    document.getElementById('studentViewName').textContent=s.name||'student';
+    banner.style.display='flex';
+  }
+  persistSaved();
   runSearch();
+}
+
+// Save the current EC/SAVED sets back to the student record being viewed
+function syncViewingStudentData(){
+  if(!viewingStudentId) return;
+  const idx=counselorStudents.findIndex(x=>x.id===viewingStudentId);
+  if(idx>-1){
+    counselorStudents[idx]={...counselorStudents[idx],ec:[...EC],saved:[...SAVED]};
+    persistCounselorStudents();
+  }
+}
+
+// Exit "viewing student" mode and restore the counselor's own EC/My List state
+function exitStudentView(){
+  if(!viewingStudentId) return;
+  syncViewingStudentData();
+  if(_counselorOwnState){
+    EC=new Set(_counselorOwnState.ec||[]);
+    SAVED=new Set(_counselorOwnState.saved||[]);
+  }else{
+    EC=new Set();
+    SAVED=new Set();
+  }
+  syncECCardsUI();
+  viewingStudentId=null;
+  _counselorOwnState=null;
+  var banner=document.getElementById('studentViewBanner');
+  if(banner) banner.style.display='none';
+  persistSaved();
+  toggleCounselorView();
 }
 async function startCounselorCheckout(btn){
   const label=btn?btn.innerHTML:null;
@@ -2172,53 +2208,6 @@ async function openBillingPortal(btn){
     alert('Something went wrong. Email support@applyu.co for help.');
   }
   if(btn){btn.disabled=false;btn.innerHTML=label;}
-}
-
-// ── REQUEST INFO (lead capture for colleges) ──────────────────
-let _irCollege=null;
-function openInfoRequestModal(i){
-  const c=sortedResults[i]||results[i];
-  if(!c) return;
-  _irCollege=c;
-  document.getElementById('ir-college-name').textContent=c.n;
-  document.getElementById('ir-form').style.display='flex';
-  document.getElementById('ir-success').style.display='none';
-  document.getElementById('ir-error').classList.remove('show');
-  document.getElementById('ir-name').value=(currentProfile&&currentProfile.name)||'';
-  document.getElementById('ir-email').value=(currentUser&&currentUser.email)||'';
-  if(currentProfile&&currentProfile.grade) document.getElementById('ir-grade').value=currentProfile.grade;
-  document.getElementById('infoRequestModal').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closeInfoRequestModal(){
-  document.getElementById('infoRequestModal').classList.remove('open');
-  document.body.style.overflow='';
-  _irCollege=null;
-}
-async function submitInfoRequest(){
-  const name=document.getElementById('ir-name').value.trim();
-  const email=document.getElementById('ir-email').value.trim();
-  const grade=document.getElementById('ir-grade').value;
-  const errEl=document.getElementById('ir-error');
-  errEl.classList.remove('show');
-  if(!name||!email){errEl.textContent='Please enter your name and email.';errEl.classList.add('show');return;}
-  if(!/^\S+@\S+\.\S+$/.test(email)){errEl.textContent='Please enter a valid email.';errEl.classList.add('show');return;}
-  const btn=document.getElementById('ir-submit');
-  btn.disabled=true;btn.textContent='Sending…';
-  try{
-    await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      collegeName:_irCollege?_irCollege.n:'',
-      studentName:name,
-      studentEmail:email,
-      grade:grade,
-      gpa:parseFloat(document.getElementById('gpa').value)||null,
-      matchPct:_irCollege?_irCollege.pct:null
-    })}).catch(()=>{});
-  }catch(e){}
-  document.getElementById('ir-form').style.display='none';
-  document.getElementById('ir-success-college').textContent=_irCollege?_irCollege.n:'this school';
-  document.getElementById('ir-success').style.display='block';
-  btn.disabled=false;btn.textContent='Send Request';
 }
 
 // ── DEADLINE TRACKER (generic Common App cycle) ──────────────────
@@ -2571,7 +2560,6 @@ function resetAll(){
 document.getElementById('paywallOverlay').addEventListener('click',function(e){if(e.target===this)closePaywall();});
 document.getElementById('reportOverlay').addEventListener('click',function(e){if(e.target===this)closeReport();});
 document.getElementById('studentModal').addEventListener('click',function(e){if(e.target===this)closeAddStudentModal();});
-document.getElementById('infoRequestModal').addEventListener('click',function(e){if(e.target===this)closeInfoRequestModal();});
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('salesChatBubble').style.display='flex';
   // Restore saved profile
