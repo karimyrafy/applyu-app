@@ -62,6 +62,12 @@ nav{position:sticky;top:0;z-index:100;background:rgba(6,8,15,0.85);backdrop-filt
 .btn-ghost{background:transparent;color:var(--text-muted);font-family:'Cabinet Grotesk',sans-serif;font-weight:600;font-size:1rem;padding:0.85rem 2rem;border-radius:99px;border:1px solid var(--border-bright);cursor:pointer;transition:all 0.2s;}
 .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.25);}
 
+/* ── PROMO BANNER ── */
+.promo-banner{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:0.6rem;flex-wrap:wrap;text-align:center;background:linear-gradient(90deg,rgba(108,99,255,0.16),rgba(52,211,153,0.10));border-bottom:1px solid var(--border);padding:0.65rem 1.5rem;font-size:0.85rem;color:var(--text);cursor:pointer;transition:background 0.2s;}
+.promo-banner:hover{background:linear-gradient(90deg,rgba(108,99,255,0.24),rgba(52,211,153,0.15));}
+.promo-banner strong{color:var(--p3);}
+.promo-banner .promo-arrow{color:var(--p2);font-weight:700;}
+
 /* ── STATS STRIP ── */
 .stats-strip{position:relative;z-index:1;display:flex;justify-content:center;gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(13,17,32,0.6);}
 .stat-item{flex:1;max-width:200px;text-align:center;padding:1.5rem 1rem;border-right:1px solid var(--border);}
@@ -216,6 +222,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .tag.tp{border-color:rgba(248,113,113,0.25);color:var(--r1);}
 .tag.te{border-color:rgba(167,139,250,0.25);color:var(--p2);}
 .unlock-hint{margin-top:0.65rem;padding:0.5rem 0.7rem;background:rgba(108,99,255,0.08);border:1px dashed rgba(108,99,255,0.25);border-radius:8px;font-size:0.72rem;color:var(--p3);display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}
+
+/* scholarships */
+.sch-chip{font-size:0.74rem;font-weight:600;padding:0.32rem 0.85rem;border-radius:99px;border:1px solid var(--border-bright);color:var(--text-muted);background:transparent;cursor:pointer;transition:all 0.15s;}
+.sch-chip:hover{color:var(--text);border-color:rgba(255,255,255,0.25);}
+.sch-chip.active{background:var(--p1);border-color:var(--p1);color:#fff;}
+.sch-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.1rem;}
+.sch-top{display:flex;justify-content:space-between;align-items:flex-start;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.4rem;}
+.sch-name{font-family:'Clash Display',sans-serif;font-size:0.95rem;font-weight:600;}
+.sch-org{font-size:0.74rem;color:var(--text-muted);margin-top:0.1rem;}
+.sch-amount{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--g1);white-space:nowrap;}
+.sch-desc{font-size:0.82rem;color:var(--text-muted);line-height:1.6;margin-bottom:0.6rem;}
+.sch-meta{display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;justify-content:space-between;}
+.sch-deadline{font-size:0.7rem;color:var(--text-dim);}
 .unlock-hint strong{font-weight:700;}
 .unlock-btn-sm{background:rgba(108,99,255,0.2);border:none;color:var(--p2);font-family:'Cabinet Grotesk',sans-serif;font-size:0.7rem;font-weight:700;padding:0.22rem 0.7rem;border-radius:99px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
 .unlock-btn-sm:hover{background:rgba(108,99,255,0.35);}
@@ -450,12 +469,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <div class="match-pill" id="matchBadge">— matches</div>
     <button class="back-btn mylist-btn" id="nav-mylist-btn" onclick="toggleMyListView()">❤️ My List <span class="mylist-count" id="mylist-count">0</span></button>
     <button class="back-btn mylist-btn" id="nav-counselor-btn" style="display:none;" onclick="toggleCounselorView()">🎓 My Students <span class="mylist-count" id="counselor-count">0</span></button>
+    <button class="back-btn mylist-btn" id="nav-scholarships-btn" onclick="toggleScholarshipsView()">💰 Scholarships</button>
     <button class="back-btn" id="nav-profile-btn" style="display:none;" onclick="openIntakeModal()">✏️ My Profile</button>
     <button class="back-btn" onclick="showLanding()">← Back</button>
   </div>
 </nav>
 
 <div id="landing">
+
+<div class="promo-banner" onclick="document.getElementById('counselor-section').scrollIntoView({behavior:'smooth'})">
+  🎓 <strong>School counselor or college access program?</strong> Track and support all your students in one dashboard for $29/mo. <span class="promo-arrow">Learn more →</span>
+</div>
 
 <section class="hero">
   <div class="hero-badge"><span></span> Free for every student. No credit card needed.</div>
@@ -795,6 +819,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           </div>
         </div>
       </div>
+      <div id="scholarshipsView" style="display:none;">
+        <div class="res-header">
+          <div><h2>💰 Scholarships</h2><div class="af">A curated list of national scholarships — filter by category to find ones worth applying to.</div></div>
+        </div>
+        <div id="scholarshipFilters" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin:0.9rem 0;"></div>
+        <div id="scholarshipList" style="display:flex;flex-direction:column;gap:0.6rem;"></div>
+        <div style="margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.74rem;color:var(--text-dim);line-height:1.6;">
+          Always verify deadlines and eligibility directly on the scholarship's official site before applying — details can change year to year.
+        </div>
+      </div>
     </section>
   </div>
 </div>
@@ -1071,6 +1105,8 @@ let isCounselor=false;
 let counselorStudents=[];
 let showingCounselor=false;
 let editingStudentId=null;
+let showingScholarships=false;
+let scholarshipFilter='All';
 try{if(localStorage.getItem('applyu_counselor')==='1')isCounselor=true;}catch(e){}
 try{counselorStudents=JSON.parse(localStorage.getItem('applyu_counselor_students')||'[]');}catch(e){}
 
@@ -1875,6 +1911,7 @@ function toggleMyListView(){
   var sortRow=document.getElementById('sortBy')?document.getElementById('sortBy').closest('.sort-row'):null;
   if(showingSaved){
     if(showingCounselor){showingCounselor=false;document.getElementById('counselorView').style.display='none';var cb=document.getElementById('nav-counselor-btn');if(cb)cb.classList.remove('saved-active');}
+    if(showingScholarships){showingScholarships=false;document.getElementById('scholarshipsView').style.display='none';var sb=document.getElementById('nav-scholarships-btn');if(sb)sb.classList.remove('saved-active');}
     document.getElementById('welcome').style.display='none';
     document.getElementById('results').style.display='block';
     if(sortRow) sortRow.style.display='none';
@@ -1924,6 +1961,7 @@ function toggleCounselorView(){
     showingSaved=false;
     var mlBtn=document.getElementById('nav-mylist-btn');
     if(mlBtn) mlBtn.classList.remove('saved-active');
+    if(showingScholarships){showingScholarships=false;document.getElementById('scholarshipsView').style.display='none';var sb=document.getElementById('nav-scholarships-btn');if(sb)sb.classList.remove('saved-active');}
     document.getElementById('welcome').style.display='none';
     document.getElementById('results').style.display='none';
     document.getElementById('counselorView').style.display='block';
@@ -1935,6 +1973,90 @@ function toggleCounselorView(){
     if(searched){document.getElementById('results').style.display='block';}
     else{document.getElementById('welcome').style.display='block';}
   }
+}
+
+// ── SCHOLARSHIPS ───────────────────────────────────────────────
+const SCHOLARSHIP_CATEGORIES=['All','Need-Based','Merit','STEM','Arts & Humanities','Business','Hispanic/Latino','Black/African American','Native American','Women','First-Generation','Community Service'];
+const SCHOLARSHIPS=[
+  {name:'The Gates Scholarship',org:'Bill & Melinda Gates Foundation',amount:'Full unmet need',deadline:'Mid-September',tags:['Need-Based','Merit','Hispanic/Latino','Black/African American','Native American'],desc:'For exceptional, Pell-eligible high school seniors from underrepresented backgrounds. Covers the full cost of college not covered by financial aid or family contribution.',link:'https://www.thegatesscholarship.org'},
+  {name:'Coca-Cola Scholars Program',org:'The Coca-Cola Foundation',amount:'$20,000',deadline:'Early October',tags:['Merit','Community Service'],desc:'A national achievement-based scholarship for graduating high school seniors recognized for leadership and community service.',link:'https://www.coca-colascholarsfoundation.org'},
+  {name:'Jack Kent Cooke Foundation College Scholarship',org:'Jack Kent Cooke Foundation',amount:'Up to $55,000/yr',deadline:'Mid-November',tags:['Need-Based','Merit'],desc:'For high-achieving high school seniors with financial need. Covers tuition, living expenses, books, and required fees for up to four years.',link:'https://www.jkcf.org'},
+  {name:'QuestBridge National College Match',org:'QuestBridge',amount:'Full four-year scholarship',deadline:'Late September',tags:['Need-Based','Merit'],desc:'Matches high-achieving, low-income students with full four-year scholarships at top partner colleges across the country.',link:'https://www.questbridge.org'},
+  {name:'Dell Scholars Program',org:'Michael & Susan Dell Foundation',amount:'$20,000',deadline:'Early December',tags:['Need-Based','First-Generation'],desc:'For students who have overcome significant obstacles, with a focus on first-generation college students from underserved communities.',link:'https://www.dellscholars.org'},
+  {name:'Horatio Alger Association Scholarship',org:'Horatio Alger Association',amount:'$10,000–$25,000',deadline:'Varies by state, generally Fall',tags:['Need-Based','First-Generation'],desc:'For students who have faced and overcome significant adversity, demonstrating financial need and integrity.',link:'https://scholars.horatioalger.org'},
+  {name:'Hispanic Scholarship Fund',org:'Hispanic Scholarship Fund (HSF)',amount:'$500–$5,000',deadline:'Late February',tags:['Hispanic/Latino','Need-Based'],desc:'For students of Hispanic heritage planning to enroll full-time in an accredited college or university in the U.S.',link:'https://www.hsf.net'},
+  {name:'UNCF General Scholarship Fund',org:'United Negro College Fund',amount:'Varies, $1,000–$10,000+',deadline:'Rolling, check annually',tags:['Black/African American','Need-Based'],desc:'A broad portfolio of scholarships for African American students attending UNCF member schools and other accredited institutions.',link:'https://uncf.org'},
+  {name:'Ron Brown Scholar Program',org:'CAP Charitable Foundation',amount:'$40,000 ($10,000/yr)',deadline:'Early January',tags:['Black/African American','Merit','Community Service'],desc:'For African American high school seniors with strong academics, leadership, and a record of community service.',link:'https://www.ronbrown.org'},
+  {name:'American Indian College Fund Scholarships',org:'American Indian College Fund',amount:'$1,000–$10,000',deadline:'Mid-May',tags:['Native American','Need-Based'],desc:'For American Indian and Alaska Native students attending tribal colleges, universities, or other accredited institutions.',link:'https://collegefund.org'},
+  {name:'Society of Women Engineers Scholarships',org:'Society of Women Engineers (SWE)',amount:'$1,000–$15,000',deadline:'Early February',tags:['Women','STEM'],desc:'For women pursuing ABET-accredited engineering, technology, or computer science degree programs.',link:'https://swe.org/scholarships'},
+  {name:'AXA Achievement Scholarship',org:'AXA Foundation',amount:'Up to $25,000',deadline:'Mid-December',tags:['Merit','Community Service'],desc:'Recognizes students who show ambition and drive in overcoming an obstacle, achieving a goal, or solving a problem.',link:'https://www.axa-achievement.com'},
+  {name:'Elks National Foundation "Most Valuable Student"',org:'Elks National Foundation',amount:'$1,000–$12,500/yr',deadline:'Mid-November',tags:['Need-Based','Merit'],desc:'Need- and merit-based scholarship for U.S. high school seniors based on scholarship, leadership, and financial need.',link:'https://www.elks.org/scholars'},
+  {name:'P.E.O. STAR Scholarship',org:'P.E.O. Sisterhood',amount:'$2,500',deadline:'Varies, generally Fall (nominated)',tags:['Women','Merit'],desc:'For female high school seniors planning to pursue postsecondary education, based on leadership, academics, and service.',link:'https://www.peointernational.org'},
+  {name:'Davidson Fellows Scholarship',org:'Davidson Institute',amount:'$10,000–$50,000',deadline:'Mid-February',tags:['STEM','Arts & Humanities','Merit'],desc:'For students 18 and under who have completed a significant project in math, science, technology, music, literature, or philosophy.',link:'https://www.davidsongifted.org/gifted-blog/the-davidson-fellows-scholarship'},
+  {name:'National YoungArts Foundation Award',org:'National YoungArts Foundation',amount:'Up to $10,000',deadline:'Mid-October',tags:['Arts & Humanities','Merit'],desc:'For young artists ages 15–18 in visual, literary, design, and performing arts, with cash awards and mentorship opportunities.',link:'https://www.youngarts.org'},
+  {name:'NSHSS STEM Scholarship',org:'National Society of High School Scholars',amount:'$500–$2,000',deadline:'Mid-March',tags:['STEM','Merit'],desc:'For NSHSS members pursuing degrees in science, technology, engineering, or math.',link:'https://www.nshss.org/scholarships'},
+  {name:'DECA / FBLA Business Scholarships',org:'DECA Inc. / Future Business Leaders of America',amount:'$1,000–$10,000',deadline:'Varies by chapter, generally Spring',tags:['Business','Merit'],desc:'For active members planning to pursue business, marketing, finance, or entrepreneurship degrees.',link:'https://www.deca.org/scholarships'},
+  {name:'VFW Voice of Democracy / Patriot\'s Pen',org:'Veterans of Foreign Wars',amount:'$1,000–$35,000',deadline:'Late October–Early November',tags:['Arts & Humanities','Merit','Community Service'],desc:'Audio-essay competitions for high school students on patriotic themes, with scholarships awarded at local, state, and national levels.',link:'https://www.vfw.org/community/youth-and-education/youth-scholarships'},
+  {name:'Burger King Scholars Program',org:'Burger King McLamore Foundation',amount:'$1,000–$50,000',deadline:'Mid-December',tags:['Need-Based','Community Service'],desc:'For high school seniors with strong community service records, financial need, and plans to attend an accredited college.',link:'https://www.bkmclamorefdn.org'},
+  {name:'Dr Pepper Tuition Giveaway',org:'Dr Pepper / Keurig Dr Pepper',amount:'$2,500–$10,000',deadline:'Varies by year, generally Spring',tags:['Merit'],desc:'Open scholarship competitions for college students, often tied to social media or video entries — check current year\'s rules.',link:'https://www.drpepper.com'},
+  {name:'Foot Locker Scholar Athletes Program',org:'Foot Locker Foundation',amount:'$20,000',deadline:'Late January',tags:['Merit','Community Service'],desc:'For student-athletes who demonstrate leadership both on the field and in their communities.',link:'https://www.flscholarathletes.com'},
+  {name:'Local Community Foundation & Rotary Club Scholarships',org:'Varies — search your local community foundation, Rotary, Lions Club, etc.',amount:'Varies, often $500–$5,000',deadline:'Varies, often Spring',tags:['Need-Based','Community Service','First-Generation'],desc:'Many local organizations offer smaller scholarships with less competition — search "[your city] community foundation scholarships" for options near you.',link:'https://www.cof.org/foundation-type/community-foundations'}
+];
+function toggleScholarshipsView(){
+  showingScholarships=!showingScholarships;
+  var btn=document.getElementById('nav-scholarships-btn');
+  if(btn) btn.classList.toggle('saved-active',showingScholarships);
+  var sortRow=document.getElementById('sortBy')?document.getElementById('sortBy').closest('.sort-row'):null;
+  if(showingScholarships){
+    if(showingSaved){showingSaved=false;var mb=document.getElementById('nav-mylist-btn');if(mb)mb.classList.remove('saved-active');}
+    if(showingCounselor){showingCounselor=false;document.getElementById('counselorView').style.display='none';var cb=document.getElementById('nav-counselor-btn');if(cb)cb.classList.remove('saved-active');}
+    document.getElementById('welcome').style.display='none';
+    document.getElementById('results').style.display='none';
+    document.getElementById('scholarshipsView').style.display='block';
+    if(sortRow) sortRow.style.display='none';
+    renderScholarshipFilters();
+    renderScholarshipList();
+  } else {
+    document.getElementById('scholarshipsView').style.display='none';
+    if(sortRow) sortRow.style.display='';
+    if(searched){document.getElementById('results').style.display='block';}
+    else{document.getElementById('welcome').style.display='block';}
+  }
+}
+function renderScholarshipFilters(){
+  var wrap=document.getElementById('scholarshipFilters');
+  if(!wrap) return;
+  wrap.innerHTML=SCHOLARSHIP_CATEGORIES.map(function(cat){
+    return '<button class="sch-chip'+(cat===scholarshipFilter?' active':'')+'" onclick="setScholarshipFilter(\''+cat.replace(/'/g,"\\'")+'\')">'+cat+'</button>';
+  }).join('');
+}
+function setScholarshipFilter(cat){
+  scholarshipFilter=cat;
+  renderScholarshipFilters();
+  renderScholarshipList();
+}
+function renderScholarshipList(){
+  var list=document.getElementById('scholarshipList');
+  if(!list) return;
+  var items=scholarshipFilter==='All'?SCHOLARSHIPS:SCHOLARSHIPS.filter(function(s){return s.tags.indexOf(scholarshipFilter)>-1;});
+  if(!items.length){
+    list.innerHTML='<div class="empty-mylist"><div class="ni">💰</div><p style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">No scholarships in this category</p><p>Try a different filter.</p></div>';
+    return;
+  }
+  list.innerHTML=items.map(function(s){
+    return '<div class="sch-card">'
+      +'<div class="sch-top">'
+        +'<div><div class="sch-name">'+s.name+'</div><div class="sch-org">'+s.org+'</div></div>'
+        +'<div class="sch-amount">'+s.amount+'</div>'
+      +'</div>'
+      +'<div class="sch-desc">'+s.desc+'</div>'
+      +'<div class="ctags" style="margin-bottom:0.6rem;">'+s.tags.map(function(t){return '<span class="tag">'+t+'</span>';}).join('')+'</div>'
+      +'<div class="sch-meta">'
+        +'<span class="sch-deadline">📅 Typical deadline: '+s.deadline+'</span>'
+        +'<a href="'+s.link+'" target="_blank" rel="noopener" class="back-btn" style="margin:0;text-decoration:none;display:inline-block;">Visit site ↗</a>'
+      +'</div>'
+    +'</div>';
+  }).join('');
 }
 function renderCounselorList(){
   var list=document.getElementById('counselorList');

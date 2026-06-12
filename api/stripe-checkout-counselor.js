@@ -15,17 +15,8 @@ export default async function handler(req, res) {
       mode: 'subscription',
       customer_email: email,
       line_items: [{
-        // TODO: replace with a real recurring Price ID from the Stripe dashboard
-        // (Product: "ApplyU for Counselors", $29/month, recurring)
-        price_data: {
-          currency: 'usd',
-          recurring: { interval: 'month' },
-          product_data: {
-            name: 'ApplyU for Counselors',
-            description: 'Track and support unlimited students — match results, AI reports, and progress dashboard',
-          },
-          unit_amount: 2900,
-        },
+        // Product: "ApplyU for Counselors", $29/month, recurring
+        price: 'price_1ThYT5DFWfd6FvgQMV9ksz19',
         quantity: 1,
       }],
       success_url: `${origin}/?counselor=true&session_id={CHECKOUT_SESSION_ID}`,
