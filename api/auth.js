@@ -12,7 +12,7 @@ function supabaseHeaders(useServiceKey = false) {
 
 async function getProfile(userId) {
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=id,email,is_pro,stripe_customer_id,created_at`,
+    `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=id,email,is_pro,is_counselor,stripe_customer_id,created_at`,
     { headers: supabaseHeaders(true) }
   );
   const rows = await res.json();
@@ -76,6 +76,42 @@ async function handleSaveProfile(accessToken, profile, ec) {
   });
   const data = await res.json();
   if (!res.ok) return { error: data.error_description || data.msg || 'Failed to save profile' };
+  return { success: true };
+}
+
+async function handleSaveCounselorStudents(accessToken, students) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: 'PUT',
+    headers: { ...supabaseHeaders(), 'Authorization': `Bearer ${accessToken}` },
+    body: JSON.stringify({ data: { applyu_counselor_students: students } }),
+  });
+  const data = await res.json();
+  if (!res.ok) return { error: data.error_description || data.msg || 'Failed to save students' };
+  return { success: true };
+}
+
+async function handleSetCounselor(accessToken, stripeSessionId) {
+  const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { ...supabaseHeaders(), 'Authorization': `Bearer ${accessToken}` },
+  });
+  const userData = await userRes.json();
+  if (!userRes.ok) return { error: 'Not authenticated' };
+  if (!stripeSessionId) return { error: 'Stripe session ID required' };
+  const stripeRes = await fetch(`https://api.stripe.com/v1/checkout/sessions/${stripeSessionId}`, {
+    headers: { 'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}` },
+  });
+  const session = await stripeRes.json();
+  if (!stripeRes.ok || session.status !== 'complete') {
+    return { error: 'Subscription not verified' };
+  }
+  const patch = { is_counselor: true };
+  if (session.customer) patch.stripe_customer_id = session.customer;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userData.id}`, {
+    method: 'PATCH',
+    headers: { ...supabaseHeaders(true), 'Prefer': 'return=minimal' },
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) return { error: 'Failed to update counselor status' };
   return { success: true };
 }
 
@@ -145,6 +181,14 @@ export default async function handler(req, res) {
       case 'saveProfile':
         if (!accessToken) return res.status(400).json({ error: 'Access token required' });
         result = await handleSaveProfile(accessToken, req.body.profile, req.body.ec);
+        break;
+      case 'saveCounselorStudents':
+        if (!accessToken) return res.status(400).json({ error: 'Access token required' });
+        result = await handleSaveCounselorStudents(accessToken, req.body.students);
+        break;
+      case 'setCounselor':
+        if (!accessToken) return res.status(400).json({ error: 'Access token required' });
+        result = await handleSetCounselor(accessToken, req.body.stripeSessionId);
         break;
       default:
         return res.status(400).json({ error: 'Invalid action' });

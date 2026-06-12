@@ -219,8 +219,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .unlock-hint strong{font-weight:700;}
 .unlock-btn-sm{background:rgba(108,99,255,0.2);border:none;color:var(--p2);font-family:'Cabinet Grotesk',sans-serif;font-size:0.7rem;font-weight:700;padding:0.22rem 0.7rem;border-radius:99px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
 .unlock-btn-sm:hover{background:rgba(108,99,255,0.35);}
+.request-info-btn{margin-top:0.55rem;width:100%;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-family:'Cabinet Grotesk',sans-serif;font-size:0.72rem;font-weight:600;padding:0.45rem 0.7rem;border-radius:8px;cursor:pointer;transition:all 0.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.request-info-btn:hover{border-color:rgba(96,165,250,0.4);color:var(--text);background:rgba(96,165,250,0.06);}
 .no-res{text-align:center;padding:3rem 2rem;color:var(--text-muted);}
 .no-res .ni{font-size:2.2rem;margin-bottom:0.6rem;}
+
+/* save / my list */
+.save-btn{position:absolute;top:0.85rem;right:0.95rem;width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:0.95rem;cursor:pointer;transition:all 0.15s;z-index:2;color:var(--text-dim);}
+.save-btn:hover{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.08);}
+.save-btn.saved{color:var(--r1);border-color:rgba(248,113,113,0.35);background:rgba(248,113,113,0.08);}
+.mylist-btn{display:inline-flex;align-items:center;gap:0.3rem;}
+.mylist-btn.saved-active{border-color:rgba(248,113,113,0.45);background:rgba(248,113,113,0.1);color:var(--r1);}
+.mylist-count{background:rgba(248,113,113,0.18);color:var(--r1);font-size:0.65rem;font-weight:700;border-radius:99px;padding:0.05rem 0.42rem;min-width:1.1rem;text-align:center;}
+.empty-mylist{text-align:center;padding:2.4rem 1.5rem;color:var(--text-muted);}
+.empty-mylist .ni{font-size:2.2rem;margin-bottom:0.6rem;}
+
+/* deadline banner */
+.deadline-banner{display:flex;align-items:center;gap:0.6rem;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.22);border-radius:8px;padding:0.55rem 0.85rem;font-size:0.76rem;color:var(--text-muted);margin-bottom:0.7rem;}
+.deadline-banner strong{color:var(--text);}
+.deadline-banner .db-icon{font-size:1rem;flex-shrink:0;}
 
 /* ad slot */
 .ad-slot{background:var(--card);border:1px dashed var(--border-bright);border-radius:var(--radius);padding:0.8rem 1rem;text-align:center;font-size:0.7rem;color:var(--text-dim);}
@@ -431,6 +448,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   </div>
   <div id="nav-app-controls" style="display:none;align-items:center;gap:0.75rem;">
     <div class="match-pill" id="matchBadge">— matches</div>
+    <button class="back-btn mylist-btn" id="nav-mylist-btn" onclick="toggleMyListView()">❤️ My List <span class="mylist-count" id="mylist-count">0</span></button>
+    <button class="back-btn mylist-btn" id="nav-counselor-btn" style="display:none;" onclick="toggleCounselorView()">🎓 My Students <span class="mylist-count" id="counselor-count">0</span></button>
     <button class="back-btn" id="nav-profile-btn" style="display:none;" onclick="openIntakeModal()">✏️ My Profile</button>
     <button class="back-btn" onclick="showLanding()">← Back</button>
   </div>
@@ -554,6 +573,27 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
         <li>Month-by-month application calendar</li>
       </ul>
       <button class="btn-price pro" id="landingUnlockBtn" onclick="goToIntake()">Unlock ApplyU Pro →</button>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="counselor-section">
+  <div class="section-label">For Schools</div>
+  <div class="section-title">Built for school<br/>counselors, too.</div>
+  <div class="pricing-cards">
+    <div class="price-card featured" style="max-width:560px;margin:0 auto;">
+      <div class="featured-tag">🎓 Counselor Plan</div>
+      <div class="price-tier">ApplyU for Counselors</div>
+      <div class="price-amount">$29 <span>/ month</span></div>
+      <div class="price-desc">Track your full caseload in one dashboard — every student's match list, gaps, and AI report, ready before your next meeting.</div>
+      <ul class="price-items">
+        <li>Add unlimited students to one dashboard</li>
+        <li>View match results & admit bands per student</li>
+        <li>Run AI gap analysis & reports for each student</li>
+        <li>Update student profiles as the year progresses</li>
+        <li>Cancel anytime</li>
+      </ul>
+      <button class="btn-price pro" onclick="startCounselorCheckout(this)">Start Counselor Plan →</button>
     </div>
   </div>
 </section>
@@ -729,6 +769,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
                data-full-width-responsive="true"></ins>
           <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
+        <div id="deadline-banner-wrap"></div>
         <div id="cards" style="display:flex;flex-direction:column;gap:0.7rem;margin-top:0.8rem;"></div>
         <div style="margin-top:0.8rem;">
           <ins class="adsbygoogle"
@@ -740,7 +781,95 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
       </div>
+      <div id="counselorView" style="display:none;">
+        <div class="res-header">
+          <div><h2>🎓 My Students</h2><div class="af">Track each student's matches and AI reports in one place.</div></div>
+          <button class="find-btn" style="width:auto;padding:0.6rem 1.1rem;margin:0;" onclick="openAddStudentModal()">+ Add Student</button>
+        </div>
+        <div id="counselorList" style="display:flex;flex-direction:column;gap:0.6rem;margin-top:0.9rem;"></div>
+        <div style="margin-top:1.4rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem;">
+          <div style="font-size:0.78rem;color:var(--text-muted);">Manage your $29/month Counselor subscription, or cancel anytime.</div>
+          <div style="display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;">
+            <button class="back-btn" style="margin:0;" onclick="openBillingPortal(this)">Manage / Cancel Subscription</button>
+            <span style="font-size:0.74rem;color:var(--text-muted);">Need help? Email <a href="mailto:support@applyu.co" style="color:var(--p1);">support@applyu.co</a></span>
+          </div>
+        </div>
+      </div>
     </section>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ADD / EDIT STUDENT MODAL -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="overlay" id="studentModal">
+  <div class="paywall-modal" style="max-width:480px;">
+    <button class="modal-close" onclick="closeAddStudentModal()">×</button>
+    <div class="modal-header" style="text-align:center;border-bottom:none;padding-bottom:0.5rem;">
+      <div class="modal-uni-name" style="font-size:1.25rem;margin-bottom:0.3rem;" id="studentModalTitle">Add Student</div>
+      <p style="color:var(--text-muted);font-size:0.83rem;margin-top:0.2rem;line-height:1.6;">Enter the basics — you can run a full match search any time from their card.</p>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:0.7rem;">
+      <div class="field"><label>Student Name</label><input type="text" id="stu-name" placeholder="e.g. Jordan Lee"/></div>
+      <div class="score-row">
+        <div class="field"><label>Grade</label>
+          <select id="stu-grade">
+            <option value="9th">9th Grade</option>
+            <option value="10th">10th Grade</option>
+            <option value="11th" selected>11th Grade</option>
+            <option value="12th">12th Grade</option>
+          </select>
+        </div>
+        <div class="field"><label>Unweighted GPA</label><input type="number" id="stu-gpa" min="0" max="4.0" step="0.01" placeholder="0.00 – 4.00"/></div>
+      </div>
+      <div class="score-row">
+        <div class="field"><label>Test Type</label>
+          <select id="stu-testtype">
+            <option value="sat">SAT</option>
+            <option value="act">ACT</option>
+            <option value="none">Test-Optional</option>
+          </select>
+        </div>
+        <div class="field"><label>Score</label><input type="number" id="stu-testscore" placeholder="e.g. 1300"/></div>
+      </div>
+      <div class="field"><label>ZIP Code</label><input type="text" id="stu-zip" maxlength="5" placeholder="e.g. 33101"/></div>
+      <button class="find-btn" style="margin-top:0.3rem;" onclick="saveStudent()">Save Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- REQUEST INFO MODAL -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="overlay" id="infoRequestModal">
+  <div class="paywall-modal" style="max-width:440px;">
+    <button class="modal-close" onclick="closeInfoRequestModal()">×</button>
+    <div class="modal-header" style="text-align:center;border-bottom:none;padding-bottom:0.5rem;">
+      <div class="modal-uni-name" style="font-size:1.15rem;margin-bottom:0.3rem;">Request Info from <span id="ir-college-name"></span></div>
+      <p style="color:var(--text-muted);font-size:0.82rem;margin-top:0.2rem;line-height:1.6;">We'll share your contact info with this school's admissions office so they can follow up with details, deadlines, and aid info. No spam — just one introduction.</p>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:0.7rem;" id="ir-form">
+      <div class="field"><label>Full Name</label><input type="text" id="ir-name" placeholder="Your name"/></div>
+      <div class="field"><label>Email</label><input type="email" id="ir-email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Grade</label>
+        <select id="ir-grade">
+          <option value="9th">9th Grade</option>
+          <option value="10th">10th Grade</option>
+          <option value="11th" selected>11th Grade</option>
+          <option value="12th">12th Grade</option>
+          <option value="other">Other / Parent</option>
+        </select>
+      </div>
+      <div class="auth-error" id="ir-error"></div>
+      <button class="find-btn" style="margin-top:0.2rem;" id="ir-submit" onclick="submitInfoRequest()">Send Request</button>
+      <p style="color:var(--text-dim);font-size:0.68rem;text-align:center;margin-top:-0.2rem;">By submitting, you agree to be contacted by this school. We never sell your info.</p>
+    </div>
+    <div id="ir-success" style="display:none;text-align:center;padding:1.5rem 2rem 2rem;">
+      <div style="font-size:2.2rem;margin-bottom:0.6rem;">✅</div>
+      <p style="font-weight:600;color:var(--text);margin-bottom:0.4rem;">Request sent!</p>
+      <p style="color:var(--text-muted);font-size:0.85rem;">We've passed your info along to <span id="ir-success-college"></span>. They'll be in touch by email.</p>
+      <button class="back-btn" style="margin-top:1rem;" onclick="closeInfoRequestModal()">Close</button>
+    </div>
   </div>
 </div>
 
@@ -933,6 +1062,17 @@ let currentProfile={};
 // Sync-restore isPro immediately to prevent paywall flash on click before restoreSession() completes
 try{if(localStorage.getItem('applyu_pro')==='1'||new URLSearchParams(window.location.search).get('payment')==='success')isPro=true;}catch(e){}
 let sortedResults=[];
+let showingSaved=false;
+let SAVED=new Set();
+try{SAVED=new Set(JSON.parse(localStorage.getItem('applyu_saved_colleges')||'[]'));}catch(e){}
+
+// ── COUNSELOR STATE ───────────────────────────────────────────
+let isCounselor=false;
+let counselorStudents=[];
+let showingCounselor=false;
+let editingStudentId=null;
+try{if(localStorage.getItem('applyu_counselor')==='1')isCounselor=true;}catch(e){}
+try{counselorStudents=JSON.parse(localStorage.getItem('applyu_counselor_students')||'[]');}catch(e){}
 
 // ── PRO STATUS ────────────────────────────────────────────────
 async function goToCheckout(btn){
@@ -1022,6 +1162,10 @@ function restoreProfileFromMeta(user){
     }
     if(meta.applyu_ec&&meta.applyu_ec.length){
       EC=new Set(meta.applyu_ec);
+    }
+    if(meta.applyu_counselor_students&&Array.isArray(meta.applyu_counselor_students)){
+      counselorStudents=meta.applyu_counselor_students;
+      try{localStorage.setItem('applyu_counselor_students',JSON.stringify(counselorStudents));}catch(e){}
     }
   }catch(e){}
 }
@@ -1145,9 +1289,14 @@ async function restoreSession(){
     if(data.user){
       currentUser=data.user;
       if(data.user.is_pro){isPro=true;try{localStorage.setItem('applyu_pro','1');}catch(e){}}
+      if(data.user.is_counselor){isCounselor=true;try{localStorage.setItem('applyu_counselor','1');}catch(e){}}
       restoreProfileFromMeta(data.user);
       updateNavAuth();
       updateChatbotVisibility();
+      var cBadge=document.getElementById('counselor-count');
+      if(cBadge) cBadge.textContent=counselorStudents.length;
+      var cBtn=document.getElementById('nav-counselor-btn');
+      if(cBtn) cBtn.style.display=isCounselor?'':'none';
       // Returning Pro with saved profile — skip modal, go straight to results
       if(isPro && currentProfile && currentProfile.gpa){
         applyProfileAndSearch();
@@ -1472,6 +1621,8 @@ function showApp(){
   if(banner) banner.style.display=isPro?'flex':'none';
   var profBtn=document.getElementById('nav-profile-btn');
   if(profBtn) profBtn.style.display=isPro?'':'none';
+  var counBtn=document.getElementById('nav-counselor-btn');
+  if(counBtn) counBtn.style.display=isCounselor?'':'none';
   window.scrollTo(0,0);
   updateChatbotVisibility();
 }
@@ -1653,6 +1804,7 @@ function buildChips(gpa,sat,act,zip,prox,maxT,types,sizes,f){
   document.getElementById('af').innerHTML=chips.map(c=>'<span class="fc">'+c+'</span>').join('');
 }
 function render(){
+  if(showingSaved){renderSavedList();return;}
   const s=document.getElementById('sortBy').value;
   let r=[...results];
   if(s==='match') r.sort((a,b)=>b.pct-a.pct);
@@ -1663,17 +1815,26 @@ function render(){
   sortedResults=r;
   document.getElementById('resTitle').textContent=r.length+' College Match'+(r.length!==1?'es':'');
   document.getElementById('matchBadge').textContent=r.length+' match'+(r.length!==1?'es':'');
-  if(!r.length){document.getElementById('cards').innerHTML='<div class="no-res"><div class="ni">🔍</div><p style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">No matches found</p><p>Try loosening your filters.</p></div>';return;}
+  if(!r.length){document.getElementById('cards').innerHTML='<div class="no-res"><div class="ni">🔍</div><p style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">No matches found</p><p>Try loosening your filters.</p></div>';document.getElementById('deadline-banner-wrap').innerHTML='';return;}
+  document.getElementById('cards').innerHTML=buildCardsHTML(r);
+  renderDeadlineBanner();
+}
+
+// ── CARD HTML (shared by results + My List) ─────────────────────
+function buildCardsHTML(r){
   const BL={certain:'✅ Certain Admit',likely:'📈 Likely Admit',possible:'🎲 Possible',reach:'🚀 Reach'};
   const ECL={sports:'⚽ Sports',clubs:'🏛 Clubs',music:'🎵 Music',arts:'🎨 Arts',theater:'🎭 Theater',volunteer:'🤝 Volunteer',internship:'💼 Internship',research:'🔬 Research',studentgov:'📋 Gov',debate:'🗣 Debate',stem:'💻 STEM',cultural:'🌍 Cultural'};
   const ini=n=>n.split(' ').filter(w=>w.length>2).slice(0,2).map(w=>w[0]).join('');
-  const h2r=(h,a)=>{const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')';};
-  document.getElementById('cards').innerHTML=r.map((c,i)=>{
+  const h2r=(h,a)=>{const rr=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return'rgba('+rr+','+g+','+b+','+a+')';};
+  return r.map((c,i)=>{
     const dist=c._dist!=null?' · '+c._dist+'mi':'';
     const eb=c.eb>0?'<span class="ec-badge">⭐ +'+c.eb+'% activities</span>':'';
     const etags=[...EC].slice(0,3).map(k=>'<span class="tag te">'+(ECL[k]||k)+'</span>').join('');
     const unlockHint=isPro?'':'<div class="unlock-hint"><span>🤖 <strong>AI Report available</strong> — see your exact gaps & action plan</span><button class="unlock-btn-sm" onclick="event.stopPropagation();openPaywall('+i+')">Unlock Pro</button></div>';
+    const saved=SAVED.has(c.n);
+    const saveBtn='<button class="save-btn'+(saved?' saved':'')+'" onclick="event.stopPropagation();toggleSave(\''+encodeURIComponent(c.n)+'\')" title="'+(saved?'Remove from My List':'Save to My List')+'">'+(saved?'❤️':'🤍')+'</button>';
     return '<div class="ccard" style="animation-delay:'+Math.min(i*20,260)+'ms;" onclick="cardClick('+i+')">'
+      +saveBtn
       +'<div class="cacc" style="background:'+c.col+';"></div>'
       +'<div class="ctop">'
         +'<div class="cinit" style="background:'+h2r(c.col,'0.14')+';color:'+c.col+';">'+ini(c.n)+'</div>'
@@ -1690,8 +1851,268 @@ function render(){
       +'</div>'
       +'<div class="ctags">'+c.tags.map(t=>'<span class="tag">'+t+'</span>').join('')+(c.ath?'<span class="tag ta">🏟 D1</span>':'')+(c.aid?'<span class="tag tf">💰 Aid</span>':'')+(c.pres>=8?'<span class="tag tp">🏅 Elite</span>':'')+(EC.size?etags:'')+'</div>'
       +unlockHint
+      +'<button class="request-info-btn" onclick="event.stopPropagation();openInfoRequestModal('+i+')">📩 Request Info from '+c.n+'</button>'
     +'</div>';
   }).join('');
+}
+
+// ── SAVE / MY LIST ────────────────────────────────────────────
+function persistSaved(){
+  try{localStorage.setItem('applyu_saved_colleges',JSON.stringify([...SAVED]));}catch(e){}
+  var badge=document.getElementById('mylist-count');
+  if(badge) badge.textContent=SAVED.size;
+}
+function toggleSave(encName){
+  const name=decodeURIComponent(encName);
+  if(SAVED.has(name)) SAVED.delete(name); else SAVED.add(name);
+  persistSaved();
+  render();
+}
+function toggleMyListView(){
+  showingSaved=!showingSaved;
+  var btn=document.getElementById('nav-mylist-btn');
+  if(btn) btn.classList.toggle('saved-active',showingSaved);
+  var sortRow=document.getElementById('sortBy')?document.getElementById('sortBy').closest('.sort-row'):null;
+  if(showingSaved){
+    if(showingCounselor){showingCounselor=false;document.getElementById('counselorView').style.display='none';var cb=document.getElementById('nav-counselor-btn');if(cb)cb.classList.remove('saved-active');}
+    document.getElementById('welcome').style.display='none';
+    document.getElementById('results').style.display='block';
+    if(sortRow) sortRow.style.display='none';
+  } else {
+    if(sortRow) sortRow.style.display='';
+    if(!searched){document.getElementById('results').style.display='none';document.getElementById('welcome').style.display='block';}
+  }
+  render();
+}
+function renderSavedList(){
+  document.getElementById('deadline-banner-wrap').innerHTML='';
+  document.getElementById('af').innerHTML='';
+  document.getElementById('matchBadge').textContent=SAVED.size+' saved';
+  document.getElementById('resTitle').textContent='❤️ My List ('+SAVED.size+')';
+  if(!SAVED.size){
+    document.getElementById('cards').innerHTML='<div class="empty-mylist"><div class="ni">🤍</div><p style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">No saved schools yet</p><p>Tap the heart on any college card to save it here for later.</p></div>';
+    return;
+  }
+  const gpa=parseFloat(document.getElementById('gpa').value)||0;
+  const tt=document.getElementById('testType').value;
+  const ts=parseInt(document.getElementById('testScore').value)||0;
+  const sat=tt==='sat'?ts:0, act=tt==='act'?ts:0;
+  const zip=document.getElementById('zip').value.trim();
+  const zipCoords=zip.length===5?zipToLatLng(zip):null;
+  const f={pPres:false,pAth:false,pAid:false,pRes:false,pStem:false,pArts:false,pIntl:false,pGreek:false};
+  let r=COLLEGES.filter(c=>SAVED.has(c.n)).map(c=>scoreCollege(c,gpa,sat,act,zipCoords,'any',999999,[],[],f)).filter(Boolean);
+  r.sort((a,b)=>a.n.localeCompare(b.n));
+  results=r;
+  sortedResults=r;
+  document.getElementById('cards').innerHTML=buildCardsHTML(r);
+}
+
+// ── COUNSELOR DASHBOARD ───────────────────────────────────────
+function persistCounselorStudents(){
+  try{localStorage.setItem('applyu_counselor_students',JSON.stringify(counselorStudents));}catch(e){}
+  var badge=document.getElementById('counselor-count');
+  if(badge) badge.textContent=counselorStudents.length;
+  var tok=getToken();
+  if(tok){fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({action:'saveCounselorStudents',students:counselorStudents})}).catch(function(){});}
+}
+function toggleCounselorView(){
+  showingCounselor=!showingCounselor;
+  var btn=document.getElementById('nav-counselor-btn');
+  if(btn) btn.classList.toggle('saved-active',showingCounselor);
+  var sortRow=document.getElementById('sortBy')?document.getElementById('sortBy').closest('.sort-row'):null;
+  if(showingCounselor){
+    showingSaved=false;
+    var mlBtn=document.getElementById('nav-mylist-btn');
+    if(mlBtn) mlBtn.classList.remove('saved-active');
+    document.getElementById('welcome').style.display='none';
+    document.getElementById('results').style.display='none';
+    document.getElementById('counselorView').style.display='block';
+    if(sortRow) sortRow.style.display='none';
+    renderCounselorList();
+  } else {
+    document.getElementById('counselorView').style.display='none';
+    if(sortRow) sortRow.style.display='';
+    if(searched){document.getElementById('results').style.display='block';}
+    else{document.getElementById('welcome').style.display='block';}
+  }
+}
+function renderCounselorList(){
+  var list=document.getElementById('counselorList');
+  if(!list) return;
+  if(!counselorStudents.length){
+    list.innerHTML='<div class="empty-mylist"><div class="ni">🎓</div><p style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">No students yet</p><p>Add a student to start tracking their college matches and AI reports.</p></div>';
+    return;
+  }
+  const f={pPres:false,pAth:false,pAid:false,pRes:false,pStem:false,pArts:false,pIntl:false,pGreek:false};
+  list.innerHTML=counselorStudents.map(function(s){
+    const sat=s.testType==='sat'?(parseInt(s.testScore)||0):0;
+    const act=s.testType==='act'?(parseInt(s.testScore)||0):0;
+    const gpa=parseFloat(s.gpa)||0;
+    let matches=[];
+    try{matches=COLLEGES.map(c=>scoreCollege(c,gpa,sat,act,null,'any',999999,[],[],f)).filter(Boolean);}catch(e){}
+    const certain=matches.filter(m=>m.band==='certain'||m.band==='likely').length;
+    const scoreLine=gpa?('GPA '+gpa.toFixed(2)+(s.testScore?' · '+s.testType.toUpperCase()+' '+s.testScore:'')):'No academic profile yet';
+    const initials=s.name?s.name.split(" ").filter(Boolean).map(w=>w[0]).slice(0,2).join("").toUpperCase():"?";
+    return '<div class="ccard" style="cursor:default;">'
+      +'<div class="ctop" style="margin-bottom:0.4rem;">'
+        +'<div style="width:36px;height:36px;border-radius:50%;background:var(--p1);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">'+initials+'</div>'
+        +'<div><div class="cname">'+(s.name||'Unnamed Student')+'</div><div class="cloc">'+(s.grade||'')+(s.zip?(' · ZIP '+s.zip):'')+'</div></div>'
+      +'</div>'
+      +'<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.3rem;">'+scoreLine+'</div>'
+      +'<div style="font-size:0.78rem;color:var(--text-muted);">Strong matches: <strong style="color:var(--text);">'+certain+' of '+matches.length+'</strong></div>'
+      +'<div style="display:flex;gap:0.5rem;margin-top:0.7rem;">'
+      +'<button class="find-btn" style="margin:0;flex:1;padding:0.55rem 0.9rem;font-size:0.8rem;" onclick="loadStudentMatches(\''+s.id+'\')">View Matches</button>'
+      +'<button class="back-btn" onclick="openAddStudentModal(\''+s.id+'\')">✏️ Edit</button>'
+      +'<button class="back-btn" onclick="removeStudent(\''+s.id+'\')">🗑️</button>'
+      +'</div></div>';
+  }).join('');
+}
+function openAddStudentModal(editId){
+  editingStudentId=editId||null;
+  var s=editId?counselorStudents.find(x=>x.id===editId):null;
+  document.getElementById('studentModalTitle').textContent=s?'Edit Student':'Add Student';
+  document.getElementById('stu-name').value=s?s.name||'':'';
+  document.getElementById('stu-grade').value=s?s.grade||'11th':'11th';
+  document.getElementById('stu-gpa').value=s?s.gpa||'':'';
+  document.getElementById('stu-testtype').value=s?s.testType||'sat':'sat';
+  document.getElementById('stu-testscore').value=s?s.testScore||'':'';
+  document.getElementById('stu-zip').value=s?s.zip||'':'';
+  document.getElementById('studentModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeAddStudentModal(){
+  document.getElementById('studentModal').classList.remove('open');
+  document.body.style.overflow='';
+  editingStudentId=null;
+}
+function saveStudent(){
+  const name=document.getElementById('stu-name').value.trim();
+  if(!name){alert('Please enter the student\'s name.');return;}
+  const data={
+    name:name,
+    grade:document.getElementById('stu-grade').value,
+    gpa:document.getElementById('stu-gpa').value,
+    testType:document.getElementById('stu-testtype').value,
+    testScore:document.getElementById('stu-testscore').value,
+    zip:document.getElementById('stu-zip').value.trim()
+  };
+  if(editingStudentId){
+    const idx=counselorStudents.findIndex(x=>x.id===editingStudentId);
+    if(idx>-1) counselorStudents[idx]={...counselorStudents[idx],...data};
+  } else {
+    data.id='stu_'+Date.now()+'_'+Math.floor(Math.random()*1000);
+    counselorStudents.push(data);
+  }
+  persistCounselorStudents();
+  closeAddStudentModal();
+  renderCounselorList();
+}
+function removeStudent(id){
+  if(!confirm('Remove this student from your list?'))return;
+  counselorStudents=counselorStudents.filter(x=>x.id!==id);
+  persistCounselorStudents();
+  renderCounselorList();
+}
+function loadStudentMatches(id){
+  const s=counselorStudents.find(x=>x.id===id);
+  if(!s) return;
+  if(s.gpa) document.getElementById('gpa').value=s.gpa;
+  if(s.testType){document.getElementById('testType').value=s.testType;switchTest();}
+  if(s.testScore) document.getElementById('testScore').value=s.testScore;
+  if(s.zip) document.getElementById('zip').value=s.zip;
+  toggleCounselorView();
+  runSearch();
+}
+async function startCounselorCheckout(btn){
+  const label=btn?btn.innerHTML:null;
+  if(btn){btn.disabled=true;btn.innerHTML='Redirecting…';}
+  try{
+    const res=await fetch('/api/stripe-checkout-counselor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:currentUser?currentUser.email:undefined})});
+    const data=await res.json();
+    if(data.url){window.location.href=data.url;return;}
+    alert(data.error||'Could not start checkout. Please try again.');
+  }catch(e){
+    alert('Something went wrong. Please try again.');
+  }
+  if(btn){btn.disabled=false;btn.innerHTML=label;}
+}
+async function openBillingPortal(btn){
+  const label=btn?btn.innerHTML:null;
+  const tok=getToken();
+  if(!tok){alert('Please log in again to manage your subscription.');return;}
+  if(btn){btn.disabled=true;btn.innerHTML='Loading…';}
+  try{
+    const res=await fetch('/api/stripe-portal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok}});
+    const data=await res.json();
+    if(data.url){window.location.href=data.url;return;}
+    alert(data.error||'Could not open subscription management. Email support@applyu.co for help.');
+  }catch(e){
+    alert('Something went wrong. Email support@applyu.co for help.');
+  }
+  if(btn){btn.disabled=false;btn.innerHTML=label;}
+}
+
+// ── REQUEST INFO (lead capture for colleges) ──────────────────
+let _irCollege=null;
+function openInfoRequestModal(i){
+  const c=sortedResults[i]||results[i];
+  if(!c) return;
+  _irCollege=c;
+  document.getElementById('ir-college-name').textContent=c.n;
+  document.getElementById('ir-form').style.display='flex';
+  document.getElementById('ir-success').style.display='none';
+  document.getElementById('ir-error').classList.remove('show');
+  document.getElementById('ir-name').value=(currentProfile&&currentProfile.name)||'';
+  document.getElementById('ir-email').value=(currentUser&&currentUser.email)||'';
+  if(currentProfile&&currentProfile.grade) document.getElementById('ir-grade').value=currentProfile.grade;
+  document.getElementById('infoRequestModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeInfoRequestModal(){
+  document.getElementById('infoRequestModal').classList.remove('open');
+  document.body.style.overflow='';
+  _irCollege=null;
+}
+async function submitInfoRequest(){
+  const name=document.getElementById('ir-name').value.trim();
+  const email=document.getElementById('ir-email').value.trim();
+  const grade=document.getElementById('ir-grade').value;
+  const errEl=document.getElementById('ir-error');
+  errEl.classList.remove('show');
+  if(!name||!email){errEl.textContent='Please enter your name and email.';errEl.classList.add('show');return;}
+  if(!/^\S+@\S+\.\S+$/.test(email)){errEl.textContent='Please enter a valid email.';errEl.classList.add('show');return;}
+  const btn=document.getElementById('ir-submit');
+  btn.disabled=true;btn.textContent='Sending…';
+  try{
+    await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      collegeName:_irCollege?_irCollege.n:'',
+      studentName:name,
+      studentEmail:email,
+      grade:grade,
+      gpa:parseFloat(document.getElementById('gpa').value)||null,
+      matchPct:_irCollege?_irCollege.pct:null
+    })}).catch(()=>{});
+  }catch(e){}
+  document.getElementById('ir-form').style.display='none';
+  document.getElementById('ir-success-college').textContent=_irCollege?_irCollege.n:'this school';
+  document.getElementById('ir-success').style.display='block';
+  btn.disabled=false;btn.textContent='Send Request';
+}
+
+// ── DEADLINE TRACKER (generic Common App cycle) ──────────────────
+function renderDeadlineBanner(){
+  const wrap=document.getElementById('deadline-banner-wrap');
+  if(!wrap) return;
+  const now=new Date();
+  let ed=new Date(now.getFullYear(),10,1); // Nov 1
+  if(now>=ed) ed=new Date(now.getFullYear()+1,10,1);
+  let rd=new Date(ed.getFullYear()+1,0,1); // Jan 1 following
+  const dayMs=86400000;
+  const edDays=Math.ceil((ed-now)/dayMs);
+  const rdDays=Math.ceil((rd-now)/dayMs);
+  const edStr=ed.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const rdStr=rd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  wrap.innerHTML='<div class="deadline-banner"><span class="db-icon">📅</span><span>Most Early Action/Decision deadlines fall around <strong>'+edStr+'</strong> ('+edDays+' days) — Regular Decision is typically <strong>'+rdStr+'</strong> ('+rdDays+' days). Always confirm exact dates on the official site for each school.</span></div>';
 }
 
 // ── CARD CLICK ────────────────────────────────────────────────
@@ -2027,10 +2448,21 @@ function resetAll(){
 // close on overlay bg click
 document.getElementById('paywallOverlay').addEventListener('click',function(e){if(e.target===this)closePaywall();});
 document.getElementById('reportOverlay').addEventListener('click',function(e){if(e.target===this)closeReport();});
+document.getElementById('studentModal').addEventListener('click',function(e){if(e.target===this)closeAddStudentModal();});
+document.getElementById('infoRequestModal').addEventListener('click',function(e){if(e.target===this)closeInfoRequestModal();});
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('salesChatBubble').style.display='flex';
   // Restore saved profile
   try{var sp=localStorage.getItem('applyu_profile');if(sp)currentProfile=JSON.parse(sp);}catch(e){}
+  // Init My List count badge
+  persistSaved();
+  // Init Counselor badge/button visibility
+  try{
+    var ccBadge=document.getElementById('counselor-count');
+    if(ccBadge) ccBadge.textContent=counselorStudents.length;
+    var ccBtn=document.getElementById('nav-counselor-btn');
+    if(ccBtn) ccBtn.style.display=isCounselor?'':'none';
+  }catch(e){}
   // Restore session from token (async — updates nav + pro status)
   restoreSession();
   // Restore pro for returning visitors (sync fallback)
@@ -2060,6 +2492,17 @@ document.addEventListener('DOMContentLoaded',function(){
   // Stripe payment success — save to Supabase, show intake modal
   if(params.get('payment')==='success'){
     activatePro();
+  }
+  // ?counselor=true redirect — subscription checkout success
+  if(params.get('counselor')==='true'){
+    isCounselor=true;
+    try{localStorage.setItem('applyu_counselor','1');}catch(e){}
+    const _ctok=getToken();
+    const _csid=params.get('session_id');
+    if(_ctok&&_csid){fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_ctok},body:JSON.stringify({action:'setCounselor',stripeSessionId:_csid})}).catch(()=>{});}
+    showApp();
+    toggleCounselorView();
+    window.history.replaceState({},'',window.location.pathname);
   }
   // Wire authModal background-click close
   document.getElementById('authModal').addEventListener('click',function(e){if(e.target===this)closeAuthModal();});

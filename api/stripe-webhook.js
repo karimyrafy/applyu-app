@@ -13,6 +13,19 @@ export default async function handler(req, res) {
   } catch(e) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
+  // Counselor (or any recurring) subscription canceled/expired — revoke counselor access
+  if (event.type === 'customer.subscription.deleted' ||
+      (event.type === 'customer.subscription.updated' && ['canceled', 'unpaid', 'incomplete_expired'].includes(event.data.object.status))) {
+    const customerId = event.data.object.customer;
+    if (customerId) {
+      await fetch(`${SUPABASE_URL}/rest/v1/profiles?stripe_customer_id=eq.${customerId}`, {
+        method: 'PATCH',
+        headers: { ...supabaseHeaders(), 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ is_counselor: false }),
+      });
+      console.log('Set is_counselor=false for customer', customerId);
+    }
+  }
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     if (session.payment_status === 'paid' && session.customer_email) {
