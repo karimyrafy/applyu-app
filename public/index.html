@@ -206,7 +206,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .cinfo{flex:1;min-width:0;}
 .cname{font-family:'Clash Display',sans-serif;font-size:0.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cloc{font-size:0.72rem;color:var(--text-muted);margin-top:0.08rem;}
-.cpct{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:800;text-align:right;line-height:1;flex-shrink:0;}
+.cpct{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:800;text-align:right;line-height:1;flex-shrink:0;padding-right:2.3rem;}
 .cpct .pl{font-size:0.58rem;font-weight:500;font-family:'Cabinet Grotesk',sans-serif;display:block;margin-top:2px;color:var(--text-dim);}
 .band{display:inline-flex;align-items:center;gap:0.25rem;font-size:0.66rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:0.18rem 0.58rem;border-radius:99px;margin-bottom:0.5rem;}
 .b-certain{background:rgba(52,211,153,0.1);color:var(--g1);}
@@ -1239,10 +1239,18 @@ async function submitAuth(){
       isPro=true;
       try{localStorage.setItem('applyu_pro','1');}catch(e){}
     }
+    if(data.user&&data.user.is_counselor){
+      isCounselor=true;
+      try{localStorage.setItem('applyu_counselor','1');}catch(e){}
+    }
     restoreProfileFromMeta(data.user);
     closeAuthModal();
     updateNavAuth();
     updateChatbotVisibility();
+    var cBadge=document.getElementById('counselor-count');
+    if(cBadge) cBadge.textContent=counselorStudents.length;
+    var cBtn=document.getElementById('nav-counselor-btn');
+    if(cBtn) cBtn.style.display=isCounselor?'':'none';
     if(window.pendingCheckout){
       window.pendingCheckout=false;
       goToCheckout(null);
